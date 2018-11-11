@@ -1,0 +1,2 @@
+MainPackage=c:\git\dev\Crab\Windows10UWP\bin\WindowsUniversal\x64\Release\Upload\Windows10UWP_1.5.0.0_x64.appx
+SymbolPackage=c:\git\dev\Crab\Windows10UWP\bin\WindowsUniversal\x64\Release\Upload\Windows10UWP_1.5.0.0\Windows10UWP_1.5.0.0_x64.appxsym

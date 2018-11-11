@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "927502910272",
+    "firebase_url": "https://hurdle-dive.firebaseio.com",
+    "project_id": "hurdle-dive",
+    "storage_bucket": "hurdle-dive.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:927502910272:android:0fb6065cdd1d6e78",
+        "android_client_info": {
+          "package_name": "com.ArmorMonkey.HurdleDive"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "927502910272-5tcs834m514v4mb77r0adknsk78qsg2k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJtQQnRGOA6NGREM-BX9B0LFXnd1ww-aQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

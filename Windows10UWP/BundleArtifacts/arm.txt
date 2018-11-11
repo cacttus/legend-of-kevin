@@ -1,0 +1,6 @@
+MainPackage=c:\git\dev\Crab\Windows10UWP\bin\WindowsUniversal\ARM\Release\Windows10UWP_1.5.0.0_ARM.appx
+SymbolPackage=c:\git\dev\Crab\Windows10UWP\AppPackages\Windows10UWP_1.5.0.0_Test\Windows10UWP_1.5.0.0_ARM.appxsym
+ResourcePack=c:\git\dev\Crab\Windows10UWP\bin\WindowsUniversal\ARM\Release\Windows10UWP_1.5.0.0_scale-100.appx
+ResourcePack=c:\git\dev\Crab\Windows10UWP\bin\WindowsUniversal\ARM\Release\Windows10UWP_1.5.0.0_scale-125.appx
+ResourcePack=c:\git\dev\Crab\Windows10UWP\bin\WindowsUniversal\ARM\Release\Windows10UWP_1.5.0.0_scale-150.appx
+ResourcePack=c:\git\dev\Crab\Windows10UWP\bin\WindowsUniversal\ARM\Release\Windows10UWP_1.5.0.0_scale-400.appx

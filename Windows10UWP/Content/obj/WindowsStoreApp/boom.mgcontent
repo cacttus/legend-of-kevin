@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SourceFile>c:/git/dev/Crab/Core/Content/boom.ogg</SourceFile>
+  <SourceTime>2018-04-20T15:03:36.0422062-05:00</SourceTime>
+  <DestFile>c:/git/dev/Crab/Windows10UWP/Content/bin/WindowsStoreApp/boom.xnb</DestFile>
+  <DestTime>2018-04-25T20:19:05.2581278-05:00</DestTime>
+  <Importer>OggImporter</Importer>
+  <ImporterTime>2017-03-01T09:05:36-06:00</ImporterTime>
+  <Processor>SoundEffectProcessor</Processor>
+  <ProcessorTime>2017-03-01T09:05:36-06:00</ProcessorTime>
+  <Parameters>
+    <Key>Quality</Key>
+    <Value>Best</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>

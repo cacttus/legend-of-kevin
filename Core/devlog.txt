@@ -1,0 +1,172 @@
+﻿
+
+TODO
+Enemy Damage
+Esc - Menu - Fullscreen mode
++ Main Menu - Load game, New Game
+
+6/24
+Created text inside box function to fit + center text inside a box
+added menu text
+added option menu
+added exit to desktop on options
+
+6/23
+fixed doors
+fixed saving and save issues
+UpdateSprite, Serialize, Deserialize, CreateNew
+
+6/22
+Saving.. - 
+The issue bug/ is that the player tile is in the world, but it's
+trying to deserialize it from that location.  
+we want to treat the player separately from all the static tiles (chest/door/switch)
+player moves around, don't worry about player position
+
+6/21
+Fixed Bound box rotations 
+Fixed an issue where particles weren't getting destroyed
+
+6/17
+sparkles onc hests
+added 3 kinds of grub monster
+added dirt background (as opposed to having just cave background)
+started save point stuff, saving
+
+6/15 or 16
+started save point stuff
+
+6/13 
+removed hanging
+
+6/11
+Fixed grub crawl path + fixed rotation issue by taking the dot prodcut of the perpendicular of the plane normal
+added right rotated grubs movement
+
+shield
+plant bomb guy (to test sheild)
+
+
+6/9
+fix the background not showing black
+
+For the guy - 
+keep the guy object between each room
+
+save/load - serialize the guy
+	keys, bombs
+serialize all treasure chests
+serialize all locked/unlocked doors
+serialize all dead bosses.
+
+
+
+
+5/31
+Fixes to portal transitions & Portals
+**We should remove the bidirectional portals and just hard code each in/out
+**ADded ability for lava manipulation or / water ripples with screen shader (Drawing to rendertarget)
+**Modified Bomb Physics, but still doesn't work.
+**Added glowfish
+**Added water levl.
+*BEGAN to add Float Blocks.  Float blocks will be useful when we create Ice
+
+6/6
+Removed IsPortal
+
+6/3
+AddinG*** decal tiles for
+**Rock Tile Id
+** Shroom Tile Id
+** GLOW FLOWER ** 
+
+Fixing cave-1 to add glow flowers for better visibility
+
+Spring Boots
+Bombs
+Merman Armor
+
+Boomerang
+Ice Pick
+Serpant Armor
+
+Rocket Booster
+Power Bomb
+
+WE NEED BOX SCAN
+I belivee the physics is correct as is - the way to fix the Jump-Through
+is to do the box-scan thing and cut the velocity vector.
+
+6/6
+BORDER PORTALS / WALL PORTALS
+Started on Wall portals.
+Removed the entrance/exit crap in favor of simple trigger portals.
+Start the guy AT the trigger for wall portsls
+Start the guy in front/ to the right for border portals
+
+Shark Enemy
+
+Bug Enemy
+
+Power Sword - You can powerup your sword if you hold the click. This breaks through crystal walls.
+
+Crystal Rock
+
+
+6/5
+changed bound boxes
+**TODO FIX THE BOUND BOXES USING REL BOX FOR ALL OBJECTS**
+All statics don't collide anymore because of the RELATIV bound box
+
+Fixed/Added ball physics
+Added particles.
+Added Bombs
+Added Potions
+Added Hearts/Life
++UI stuff to go along with those.
+
+**TODO FIX GUY PHYSICS FOR SLOPES
+Possibly we'll use the ball physics routine for guy physics
+
+**FIX JITTERY ITEMS
+
+
+5/30d
+vasiour
+
+5/29(30)
+lava particles + glow, portals, bombs + bomb stuff, green grass blocks, green gem blocks,  lots of sprites 
+
+5/28
+Fixed the issue with guy sticking to border by generalizing lef/tright bottom collision code.
+
+5/27
+made lava glow
+fixed zombies going too fast
+added a new ground tileset for nogo tiles.  Removed gold
+
+5.25
+water, lava, zobmb ai, experiment with new char look.
+
+5/24
+Removed the tile id from the Sprite - since we need it ont he Object now it would get too confusing having it in 2 places..
+
+5/23
+Added system.xml.linq to the desktop version
+Load level.  Fixed some stuff.  Seamless tiles
+Next Steps: Skeles, 
+
+
+5/22
+lots of generic stuff
+grid
+Changed the whole way the grid woriks with TileBlock and Tile being abstract
+	compacts the data quite a bit! (before we used one game object per tile!)
+some basic/dumb level generation
+
+5/21
+Started world generation
+Added sprite ids BY FIRST FRAME OF SPRITE
+Some refactor.
+
+5/15 - Started

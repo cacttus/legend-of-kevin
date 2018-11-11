@@ -1,0 +1,32 @@
+﻿<Page
+    x:Class="Windows10UWP.GamePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Windows10UWP"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:UI="using:Microsoft.Advertising.WinRT.UI"
+    mc:Ignorable="d">
+
+    <Grid Name="MainGrid">
+        <SwapChainPanel x:Name="swapChainPanel" />
+        <!--https://docs.microsoft.com/en-us/windows/uwp/monetize/supported-ad-sizes-for-banner-ads-->
+        <!-- So gay..
+                    //            ApplicationId="3f83fe91-d6be-434d-a0ae-7351c5a997f1"
+            //      AdUnitId = "test"
+            //**PROD***
+            // App ID = 9mwk7g6t5m0w
+            //AdUnitId = 1100022107
+        
+        this is why ads dont show
+        https://social.msdn.microsoft.com/Forums/en-US/0af530b5-80a9-4ea2-8966-499b69842020/uwpad-not-showing-universal-windows-platform?forum=aiasdk-->
+        <UI:AdControl 
+            Name="MainAd" 
+            ApplicationId="9mwk7g6t5m0w"
+            AdUnitId="1100022107"
+            HorizontalAlignment="Center"
+            Height="100"
+            VerticalAlignment="Bottom"
+            Width="640"/>
+    </Grid>
+</Page>

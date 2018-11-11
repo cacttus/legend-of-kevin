@@ -1,0 +1,1 @@
+c:\git\dev\Crab\Windows10UWP\bin\WindowsUniversal\ARM\Release\Upload\Windows10UWP_1.5.0.0\Windows10UWP_1.5.0.0_x86_x64_arm.appxbundle

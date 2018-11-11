@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AppxPackageIsForStore>True</AppxPackageIsForStore>
+    <AppxShowAllApps>False</AppxShowAllApps>
+    <AppxBuildConfigurationSelection>x86|x64|arm</AppxBuildConfigurationSelection>
+    <PackageOptionalProjectsInIdeBuilds>False</PackageOptionalProjectsInIdeBuilds>
+    <Source>G:\hurdles\Core\Content\Store Listing\Amazon . Google Play\icon-512.png</Source>
+    <SmallTileSource>G:\hurdles\Core\Content\Store Listing\Amazon . Google Play\icon-512.png</SmallTileSource>
+    <MediumTileSource>G:\hurdles\Core\Content\Store Listing\Amazon . Google Play\icon-512.png</MediumTileSource>
+    <WideTileSource>G:\hurdles\Core\Content\Store Listing\Amazon . Google Play\icon-512.png</WideTileSource>
+    <LargeTileSource>G:\hurdles\Core\Content\Store Listing\Amazon . Google Play\icon-512.png</LargeTileSource>
+    <AppIconSource>G:\hurdles\Core\Content\Store Listing\Amazon . Google Play\icon-512.png</AppIconSource>
+    <SplashScreenSource>G:\hurdles\Core\Content\Store Listing\Amazon . Google Play\icon-512.png</SplashScreenSource>
+    <PackageLogoSource>G:\hurdles\Core\Content\Store Listing\Amazon . Google Play\icon-512.png</PackageLogoSource>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
+    <DeviceId>30F105C9-681E-420b-A277-7C086EAD8A4E</DeviceId>
+    <UseEmulator>true</UseEmulator>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <LayoutDir>C:\</LayoutDir>
+  </PropertyGroup>
+</Project>

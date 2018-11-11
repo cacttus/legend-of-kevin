@@ -1,0 +1,370 @@
+﻿               //    LContained = true;
+                //    if (guy.IsFacingLeft() == true)
+                //    {
+                //        Cell cabove = Level.Grid.GetCellAbove(cell1);
+                //        if ((cabove == null || cabove.Layers[PlatformLevel.Midground] == null ||
+                //            (block.Tile.CanClimb == true && guy.IsFacingLeft() && block.Tile.IsFacingRight())) && LeftButtonDown)
+                //        {
+                //            if (guy.Climbing == true)
+                //            {
+                //            }
+                //            else
+                //            {
+                //                if (LeftButtonDown == false)
+                //                {
+                //                    guy.Pos = new vec2(block.Pos.x + Res.Tiles.TileWidthPixels - guy.cposrelL.x, block.Pos.y - 2);
+                //                    guy.Hanging = true;
+                //                    guy.ClimbFace = SpriteEffects.FlipHorizontally;
+                //                    guy.Climbing = false;
+                //                    guy.SetSprite(guy.HangSprite);
+                //                }
+                //                else
+                //                {
+                //                    guy.Climbing = true;
+                //                    guy.ClimbFace = SpriteEffects.FlipHorizontally;
+                //                    guy.Hanging = false;
+                //                    guy.SetSprite(guy.ClimbSprite);
+                //                }
+
+                //                guy.Jumping = false;
+                //            }
+                //        }
+                //        guy.ClimbType = 1;
+                //    }
+
+                //    //if (Guy.Climbing == false)
+                //    {
+                //        if (guy.Vel.x < 0)
+                //        {
+                //            guy.Pos.x = block.Pos.x + block.Box.Width() - guy.cposrelL.x;
+                //            guy.Vel.x = 0;
+                //            guy.CalcRelPos();
+
+                //        }
+                //    }
+                //}
+
+
+
+				        //public void CollideRight(Guy guy, bool can_climb, bool is_facing_left, vec2 block_pos, Cell cell1, ref bool RContained, bool RightButtonDown)
+        //{
+        //    RContained = true;
+        //    if (guy.IsFacingRight() == true)
+        //    {
+        //        //Handle Climb
+        //        ivec2 p0 = cell1.GetTilePos();
+
+        //        Cell cabove = Level.Grid.GetCellAbove(cell1);
+        //        ivec2 p1 = cabove?.GetTilePos();
+        //        if ((cabove == null || cabove.Layers[PlatformLevel.Midground] == null ||
+        //            (can_climb == true && guy.IsFacingRight() && is_facing_left)) && RightButtonDown)
+        //        {
+
+        //            if (guy.Climbing == true)
+        //            {
+        //            }
+        //            else
+        //            {
+        //                if (RightButtonDown == false)
+        //                {
+        //                    //"Caught" ledge without player
+        //                    guy.Pos = new vec2(block_pos.x - guy.cposrelR.x, block_pos.y - 2);
+
+        //                    guy.Hanging = true;
+        //                    guy.ClimbFace = SpriteEffects.None;
+        //                    guy.Climbing = false;
+        //                    guy.SetSprite(guy.HangSprite);
+        //                }
+        //                else
+        //                {
+        //                    guy.Climbing = true;
+        //                    guy.ClimbFace = SpriteEffects.None;
+        //                    guy.Hanging = false;
+        //                    guy.SetSprite(guy.ClimbSprite);
+        //                }
+
+        //                guy.Jumping = false;
+        //            }
+        //        }
+        //        guy.ClimbType = 1;
+        //    }
+
+        //    if (guy.Vel.x > 0)
+        //    {
+        //        guy.Pos.x = block_pos.x - guy.cposrelR.x;
+        //        guy.Vel.x = 0;
+        //        guy.CalcRelPos();
+        //    }
+        //}
+
+
+		        //private void Generate()
+        //{
+        //    GuyStartPos = new vec2(World.Res.Tiles.TileWidthPixels * 3, World.Res.Tiles.TileHeightPixels * 2);
+
+        //    //Make Tile Grid
+        //    InitGrid();
+
+        //    int treeTileId = World.Res.Tiles.GetTileId(World.Res.SprTreeTiles); // GenTiles[iRow][iCol][Midground];
+        //    int grassTileId = World.Res.Tiles.GetTileId(World.Res.SprGrassBlockTiles); ;
+        //    int monsterGrassTileId = World.Res.Tiles.GetTileId(World.Res.SprGrassMonsterTiles); ;
+        //    int noGoTileId = World.Res.Tiles.GetTileId(World.Res.SprNoGo); ;
+        //    int caveBackTileId = World.Res.Tiles.GetTileId(World.Res.SprCaveBackgroundBlockTiles); ;
+
+        //    //**Parameters
+        //    float LevelSteepness = 0.25f; // = 0.5 of the height of the whole level
+        //    int MinGrassPatches = 4;
+        //    int MaxGrassPatches = 8;
+        //    int GrassGrowMin = 2;
+        //    int GrassGrowMax = 5;
+
+
+        //    //Generate the base land
+        //    //*HOw this works:
+        //    //Generate perlin values across the X axis and modulate. 
+        //    //Also add padding for minimmum /maximum terrain height
+        //    //***https://stackoverflow.com/questions/8659351/2d-perlin-noise***
+        //    int constantSeed = 0;
+        //    Noise2d.Reseed(constantSeed);
+        //    var frequency = 0.5f;
+        //    var amplitude = 1f;
+        //    float[] data = new float[WidthTiles];
+        //    float min = float.MaxValue, max = float.MinValue;
+        //    int octaves = 5;
+        //    for (var octave = 0; octave < octaves; octave++)
+        //    {
+        //        System.Threading.Tasks.Parallel.For(0, WidthTiles, (offset) =>
+        //        {
+        //            var i = offset;
+        //            data[i] += Noise2d.Noise(i * frequency * 1f / WidthTiles, 0) * amplitude;// j * frequency * 1f / HeightTiles);
+
+        //            min = Math.Min(min, data[i]);
+        //            max = Math.Max(max, data[i]);
+        //        });
+        //        frequency *= 2;
+        //        amplitude /= 2;
+        //    }
+
+        //    //Iterate along the X and set the base land height
+        //    int MinTerrainHeight = 2;   //Never go below 2
+        //    int MaxTerrainHeight = (int)(HeightTiles * LevelSteepness) - MinTerrainHeight;
+        //    for (int iCol = 0; iCol < WidthTiles; ++iCol)
+        //    {
+        //        if(iCol==0 || iCol == WidthTiles - 1)
+        //        {
+        //            //Create the left/right border
+        //            for (int h = 0 ; h < HeightTiles; h++)
+        //            {
+        //                TrySetGenTile(iCol, h, Midground, grassTileId);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            float normalized = (data[iCol] - min) / (max - min);
+        //            for (int h = HeightTiles - (int)(normalized * MaxTerrainHeight)  - MinTerrainHeight; h < HeightTiles; h++)
+        //            {
+        //                TrySetGenTile(iCol, h, Midground, grassTileId);
+        //            }
+        //        }
+        //    }
+
+        //    //Grass Patches
+        //    //Grass Patches
+        //    //Grass Patches
+        //    //Grass Patches
+        //    //Grass Patches
+        //    int NumGrassPatches = Globals.RandomInt(MinGrassPatches, MaxGrassPatches+1);
+        //    for (int iPatch = 0; iPatch < NumGrassPatches; ++iPatch) {
+
+        //        int grassx = Globals.RandomInt(0, WidthTiles);
+
+        //        int iy = 0;
+        //        for(; iy<HeightTiles; ++iy)
+        //        {
+        //            if(TileXY(grassx, iy, Midground) == grassTileId)
+        //            {
+        //                break;
+        //            }
+        //        }
+        //        //Cell top = Grid.GetTopCell(x, Midground, grassTileId);
+
+        //        int posx = grassx;
+        //        int posy = iy - 1;
+
+        //        if (iy < HeightTiles)
+        //        {
+        //            TrySetGenTile(posx, posy, Background, monsterGrassTileId);
+        //        }
+
+        //        //Grow the Patches
+        //        int growCount = Globals.RandomInt(GrassGrowMin, GrassGrowMax);
+        //        GrowAlongGround(ref growCount, posx, posy, Midground, Foreground, grassTileId, monsterGrassTileId);
+
+        //    }
+
+
+
+
+
+        //    // Trees
+        //    // Trees
+        //    // Trees
+        //    // Trees
+        //    LoopTiles((iCol, iRow) =>
+        //    {
+        //        if (TileXY(iCol, iRow, Midground) == grassTileId )
+        //        {
+
+        //            if (TileXY(iCol, iRow - 1, Midground) == EMPTY_TILE)
+        //            {
+
+        //                if (TileXY(iCol, iRow - 1, Background) == EMPTY_TILE)
+        //                {
+        //                    if (Globals.Random(0, 1) > 0.7f)
+        //                    {
+        //                        int height = Globals.RandomInt(2, 10);
+        //                        for (int i = 0; i < height; ++i)
+        //                        {
+
+        //                            //Back + Mid must be unset
+        //                            if (TileXY(iCol, iRow - 1 - i, Midground) == EMPTY_TILE)//0 = out of bounds, -1 = unset
+        //                            {
+        //                                if (TileXY(iCol, iRow - 1 - i, Background) == EMPTY_TILE)//0 = out of bounds, -1 = unset
+        //                                {
+        //                                    TrySetGenTile(iCol, iRow - 1 - i, Background, treeTileId);
+        //                                }
+        //                            }
+
+        //                        }
+        //                    }
+        //                }
+
+        //            }//Midground -1 is empty
+
+
+        //            // Cave background
+        //            //See if the kernel around the 3x3 grass area is set  This prevents the cave background from showing outside the grass.
+        //            bool bKernel = true;
+        //            for (int i = -1; i <= 1; ++i)
+        //            {
+        //                for (int j = -1; j <= 1; ++j)
+        //                {
+        //                    if (TileXY(iCol + i, iRow + j, Midground) != grassTileId)
+        //                    {
+        //                        bKernel = false;
+        //                        break;
+        //                    }
+        //                }
+        //                if (bKernel == false)
+        //                {
+        //                    break;
+        //                }
+        //            }
+        //            if (bKernel)
+        //            {
+        //                TrySetGenTile(iCol, iRow, Background, caveBackTileId);
+        //            }
+
+        //        }//Tile is dirt
+        //    });
+
+
+
+        //    GenTileSprites();
+        //}
+
+        //private void GrowAlongGround(ref int growCount, int posx, int posy,
+        //    int BaseLandLayer, int TileLayer, int BaseLandTileId, int GrowTileId)
+        //{
+        //    //TODO: call this with some kind of recursive
+
+        //    //if(growCount > 0)
+        //    //{
+        //    //    int t0 = TileXY(posx - 1, posy, Midground);
+        //    //    int t1 = TileXY(posx - 1, posy - 1, Midground);
+        //    //    int t2 = TileXY(posx - 1, posy, Foreground);//Grass layer must also be unset
+
+        //    //    if (t0 == -1 && t1 == grassTileId && t2 == -1)
+        //    //    {
+        //    //        TrySetGenTile(po)
+        //    //            grow--;
+        //    //    }
+        //    //}
+
+        //}
+
+
+		
+        //public static Portal GetPortal(string from_level, int from_id)
+        //{
+        //    List<Portal> ps = null;
+        //    if (PortalLUT.TryGetValue(from_level, out ps))
+        //    {
+        //        Portal p = ps.Find(x => x.from_id_out == from_id);
+        //        return p;
+        //    }
+
+        //    return null;
+        //}
+        //public void AddPortal(string from, int from_id, string to,
+        //    int to_id, PortalTransitionEffect pt)
+        //{
+        //    List<Portal> from_list = null;
+        //    if (PortalLUT.TryGetValue(from, out from_list) == false)
+        //    {
+        //        PortalLUT.Add(from, new List<Portal>());
+        //    }
+        //    PortalLUT.TryGetValue(from, out from_list);
+
+        //    List<Portal> to_list = null;
+        //    if (PortalLUT.TryGetValue(from, out to_list) == false)
+        //    {
+        //        PortalLUT.Add(to, new List<Portal>());
+        //    }
+        //    PortalLUT.TryGetValue(from, out to_list);
+
+        //    from_list.Add(new Portal(from, from_id, to, to_id, pt));
+        //    to_list.Add(new Portal(to, to_id, from, from_id, pt));
+        //}
+        //public bool PlaceGuy()
+        //{
+        //    Func<Cell, int, GameObject> obCreate = null;
+        //    ObjLUT.TryGetValue(World.Res.GuyTileId, out obCreate);
+
+
+
+        //    if (obCreate != null)
+        //    {
+        //        //Find the trigger, and get the cell that it's on
+        //        GameObject trigger = GameObjects.Find(x => x.TileId == iPortalId);
+        //        if (trigger != null)
+        //        {
+        //            //We cab be either a door OR a trigger
+        //            Cell cell = Grid.GetCellForPoint(trigger.Box.Center());
+
+        //            if (cell != null)
+        //            {
+        //                //Create our little dude
+        //                GameObject ob = obCreate(cell, Midground);
+        //                ob.TileId = World.Res.GuyTileId;
+        //                GameObjects.Add(ob);
+        //                return true;
+        //            }
+        //            else
+        //            {
+        //                System.Diagnostics.Debugger.Break();
+        //            }
+        //        }
+        //        else
+        //        {
+        //            //If you get here, you probably forgot to add both entrance and exit
+        //            //portals you need both.  GREEN + RED portals for each letter
+        //            System.Diagnostics.Debugger.Break();
+        //        }
+        //    }
+        //    else
+        //    {
+        //        System.Diagnostics.Debugger.Break();
+        //    }
+        //    return false;
+        //}
