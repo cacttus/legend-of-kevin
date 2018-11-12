@@ -1433,7 +1433,7 @@ namespace Core
                         else if (ob.PickupItemType == PickupItemType.Arrow)
                         {
                             player.NumArrows += 1;
-                            if (player.NumBombs > player.MaxBombs) { player.NumArrows = player.MaxArrows; }
+                            if (player.NumArrows > player.MaxArrows) { player.NumArrows = player.MaxArrows; }
                             particleColor = new vec4(0, 0, 0, 1);
                             Res.Audio.PlaySound(Res.SfxPickupItem);
                         }
@@ -1547,6 +1547,10 @@ namespace Core
                     p.SelectedSubweapon = Weapon.Bow;
                 }
                 else if (p.SelectedSubweapon == Weapon.Bow)
+                {
+                    p.SelectedSubweapon = Weapon.Sword;
+                }
+                else if (p.SelectedSubweapon == Weapon.Sword)
                 {
                     p.SelectedSubweapon = Weapon.Bomb;
                 }
@@ -7216,16 +7220,17 @@ namespace Core
                     //HUD, draw hud
                     if (player.BombsEnabled)
                     {
-                        DrawUIInventory(sb, Res.SprBombUI, Screen.Viewport.WidthPixels - 24, uibottom, player.NumBombs, player.MaxBombs, alpha, new vec2(12, 12), player.SelectedSubweapon == Weapon.Bomb);
+                        DrawUIInventory(sb, Res.SprBombUI, Screen.Viewport.WidthPixels - 24, uibottom, player.NumBombs, player.MaxBombs, alpha, new vec2(12, 12), player.SelectedSubweapon == Weapon.Bomb, true, 0);
                     }
                     if (player.BowEnabled)
                     {
-                        DrawUIInventory(sb, Res.SprBowUI, Screen.Viewport.WidthPixels - 48, uibottom, player.NumArrows, player.MaxArrows, alpha, new vec2(12, 12), player.SelectedSubweapon == Weapon.Bow);
+                        DrawUIInventory(sb, Res.SprBowUI, Screen.Viewport.WidthPixels - 48, uibottom, player.NumArrows, player.MaxArrows, alpha, new vec2(12, 12), player.SelectedSubweapon == Weapon.Bow, true, 0);
                     }
+                    DrawUIInventory(sb, Res.SprSword, Screen.Viewport.WidthPixels - 72, uibottom, 1, 1, alpha, new vec2(12, 12), player.SelectedSubweapon == Weapon.Sword, false, 6);
                     //KEYS
                     if (player.SmallKeys > 0)
                     {
-                        DrawUIInventory(sb, Res.SprSmallKeyUI, 1, Screen.Viewport.HeightPixels - 16, player.SmallKeys, player.MaxSmallKeys, alpha, new vec2(12, 12), false);
+                        DrawUIInventory(sb, Res.SprSmallKeyUI, 1, Screen.Viewport.HeightPixels - 16, player.SmallKeys, player.MaxSmallKeys, alpha, new vec2(12, 12), false, true, 0);
                     }
 
                     //Hearts
@@ -7236,7 +7241,7 @@ namespace Core
                         Screen.DrawUIFrame(sb, Res.SprHeartUI, 0, new vec2(1 + (wh + pad) * i, 2), new vec2(wh, wh), new vec4(1, 1, 1, alpha));
                     }
 
-                    DrawUIInventory(sb, Res.SprMarbleUI, Screen.Viewport.WidthPixels - 24, 1, player.Money, player.MaxMoney, alpha, new vec2(6, 6), false);
+                    DrawUIInventory(sb, Res.SprMarbleUI, Screen.Viewport.WidthPixels - 24, 1, player.Money, player.MaxMoney, alpha, new vec2(6, 6), false, true, 0);
 
                 }
             }
@@ -7474,11 +7479,16 @@ namespace Core
             }
         }
 
-        private void DrawUIInventory(SpriteBatch sb, string sprite, float x, float y, int numItem, int maxItem, float ui_alpha, vec2 spritewh, bool drawSelectionBox)
+        private void DrawUIInventory(SpriteBatch sb, string sprite, float x, float y, int numItem, int maxItem, float ui_alpha, vec2 spritewh, bool drawSelectionBox, bool drawQuantity, int xOffset)
         {
-            Screen.DrawUIFrame(sb, sprite, 0, new vec2(x, y), spritewh, new vec4(1, 1, 1, ui_alpha));
+            Screen.DrawUIFrame(sb, sprite, 0, new vec2(x + xOffset, y), spritewh, new vec4(1, 1, 1, ui_alpha));
 
-            string text = "x" + numItem;
+            string text = "";
+            if (drawQuantity)
+            {
+                text = "x" + numItem;
+            }
+
             vec4 color = new vec4(0, 0, 0, ui_alpha);
             vec4 outline = new vec4(1, 1, 1, ui_alpha);
             if (numItem == maxItem)

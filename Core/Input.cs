@@ -238,7 +238,7 @@ namespace Core
                     bJump = Keyboard.GetState().IsKeyDown(Keys.Space);
                     bOk = Keyboard.GetState().IsKeyDown(Keys.Enter) || bUp || Screen.Game.Input.Global.PressOrDown();
                     bMenu = Keyboard.GetState().IsKeyDown(Keys.Q);
-                    bAction = Keyboard.GetState().IsKeyDown(Keys.LeftShift);
+                    bAction = Mouse.GetState().LeftButton == ButtonState.Pressed;
 
                 }
                 
