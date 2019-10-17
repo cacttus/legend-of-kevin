@@ -1,6 +1,9 @@
 # Legend Of Kevin
-This was an indie game that sort of fell flat once it got a lot of criticism for the pixillated graphics.
+The legend of a kid who crash lands on an alien planet.
 
-There is still promise, but the artwork needs to be updated.
+## Controls
+Use the arrow keys to move the character and click things with the mouse.
 
-Next steps with this are to add a more robust story and a boss to make MVP.
+Right mouse button uses teh equipped weapon.
+
+Use the mouse wheel to srcoll between different weapons.
