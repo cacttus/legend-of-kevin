@@ -12,16 +12,16 @@ namespace Core
         public static int CollideBot = 0x02;
         public static int CollidePixel = 0x04;
     }
-    public enum AIState {  None, Player, Wander, Idle, SwimLeftRight, MoveLRConstant, Sleep, Defend, Attack, Talk}
-    public enum PhysicsShape {  None, Ball }
-    public enum PhysicsResponse {  Slide_And_Roll, Bounce_And_Roll, StayPut, StickIntoGround}
+    public enum AIState { None, Player, Wander, Idle, SwimLeftRight, MoveLRConstant, Sleep, Defend, Attack, Talk }
+    public enum PhysicsShape { None, Ball }
+    public enum PhysicsResponse { Slide_And_Roll, Bounce_And_Roll, StayPut, StickIntoGround }
     public enum AIPhysics { Character, Grapple, PlantBombGuy }
     public enum DeflectType { Physical, ExactReverse } // type of direction to deflect oject when hit with shield
 
     public class GameObject : Touchable
     {
         public float CreateTime = 0;
-        public vec2 LastCollideNormal = new vec2(0,0);
+        public vec2 LastCollideNormal = new vec2(0, 0);
 
         public List<Rectangle> HitBoxes = new List<Rectangle>();
         public bool IsFacingRight() { return SpriteEffects == SpriteEffects.None; }
@@ -39,7 +39,7 @@ namespace Core
         public ivec2 SavePos = new ivec2(0, 0);//The position in TMX map we created this, so we can save it
         public int SaveLayer = -1;
         public Cell CreatedCell = null;//Cell on which this was created.
-        public int CreatedLayer = -1;   
+        public int CreatedLayer = -1;
 
         public virtual void UpdateSprite()
         {
@@ -60,9 +60,9 @@ namespace Core
 
         public bool IsAnimationComplete()
         {
-            if(Animate == true)
+            if (Animate == true)
             {
-                if(Loop == false)
+                if (Loop == false)
                 {
                     if (Sprite != null)
                     {
@@ -93,7 +93,7 @@ namespace Core
         public int TileId { get; set; } = -1;   //The TIle ID from the TILED map that we use to identify this object
 
         public float Friction = 0.8f;
-      //  public bool IsPortal = false;//When collided with we change level via TilId;
+        //  public bool IsPortal = false;//When collided with we change level via TilId;
         public vec2 Gravity = new vec2(0, 0);
 
         public SpriteEffects SpriteEffects { get; set; } = SpriteEffects.None;
@@ -108,9 +108,9 @@ namespace Core
         public PhysicsResponse PhysicsResponse = PhysicsResponse.Bounce_And_Roll;
         public PhysicsShape PhysicsShape = PhysicsShape.None;
         public float PhysicsBallRadiusPixels = 1.0f;//Radius of physics ball
-        public bool CanDeflectWithShield = false; 
+        public bool CanDeflectWithShield = false;
         public DeflectType DeflectType = DeflectType.Physical;
-        public bool DeflectedWithShield = false; 
+        public bool DeflectedWithShield = false;
 
 
         public Cell CellFrame { get; set; } = null;//updated manually
@@ -118,7 +118,7 @@ namespace Core
         public float Speed { get; set; } = 1;
         public float Power { get; set; } = 0;
         public float Health { get; set; } = 5;
-        public float MaxHealth { get; set; } = 5;   
+        public float MaxHealth { get; set; } = 5;
         public int Value { get; set; } = 1;//Price
         public int CollisionFlags { get; set; } = 0;// CollisionFlags.CollideTop;
 
@@ -133,6 +133,7 @@ namespace Core
 
         public float AnimationSpeed { get; set; } = 1.0f; // Multiplier for animation speed.
 
+
         public vec2 Vel;
         public vec2 Acc;
         public Sprite Sprite { get; set; }
@@ -140,9 +141,11 @@ namespace Core
         public vec2 Pos;
         public vec2 Size = new vec2(1, 1);
         public float frame = 0;
-        public bool Animate {
+        public bool Animate
+        {
             get;
-            set; } = false;
+            set;
+        } = false;
         public bool Visible { get; set; } = true;
         public bool Loop { get; set; } = true;//loop aniamtino
         public TouchState TouchState { get; set; } = TouchState.Up;
@@ -159,7 +162,7 @@ namespace Core
 
         public float Fade { get; set; } = 0.0f;//Fade animation
         public float Alpha { get; set; } = 1.0f;//Addition of fade
-        public vec4 Color { get; set; } = new vec4(1,1,1,1);
+        public vec4 Color { get; set; } = new vec4(1, 1, 1, 1);
         public float RotationDelta { get; set; } = 0.0f;
         public float Rotation { get; set; } = 0.0f;
         public vec2 Origin { get; set; } = new vec2(0, 0);
@@ -180,16 +183,16 @@ namespace Core
                     ));
             return ret;
         }
-        
+
         public virtual void CalcBoundBox()
         {
-            if(PhysicsShape == PhysicsShape.Ball)
+            if (PhysicsShape == PhysicsShape.Ball)
             {
                 Box = new Box2f(WorldPos() - PhysicsBallRadiusPixels, WorldPos() + PhysicsBallRadiusPixels);
             }
             else
             {
-                Box = new Box2f(WorldPos() + BoxRelative.Min, WorldPos( )+ BoxRelative.Max);
+                Box = new Box2f(WorldPos() + BoxRelative.Min, WorldPos() + BoxRelative.Max);
             }
 
             ApplyRotateBoundBox();
@@ -269,7 +272,7 @@ namespace Core
 
         public void SetSpriteIfNot(string name, bool loop = true)
         {
-            if(Sprite==null || Sprite.Name != name)
+            if (Sprite == null || Sprite.Name != name)
             {
                 SetSprite(name, loop);
             }
@@ -279,11 +282,11 @@ namespace Core
         //    Sprite spr = World.Screen.Game.Res.Tiles.GetSprite(name);
         //    SetSprite(spr);
         //}
-        public void SetSprite(string name, bool loop = true, int iFrame=-1)
+        public void SetSprite(string name, bool loop = true, int iFrame = -1)
         {
             Sprite spr = Res.Tiles.GetSprite(name);
-            SetSprite(spr,loop);
-            if (iFrame >=0)
+            SetSprite(spr, loop);
+            if (iFrame >= 0)
             {
                 SetFrame(iFrame);
             }
@@ -305,7 +308,7 @@ namespace Core
         public void SetFrame(int index)
         {
             if (Sprite == null) { return; }
-            if(Sprite.Frames.Count <= index) { return; }
+            if (Sprite.Frames.Count <= index) { return; }
             Frame = Sprite.Frames[index];
         }
         public bool CollidesWidth_Inclusive(vec2 point)
@@ -396,10 +399,10 @@ namespace Core
                 }
             }
 
-            if(ShakeTime > 0)
+            if (ShakeTime > 0)
             {
                 ShakeTime -= dt;
-                if(ShakeTime < 0) { ShakeTime = 0; ShakeOffset.x = ShakeOffset.y = 0; }
+                if (ShakeTime < 0) { ShakeTime = 0; ShakeOffset.x = ShakeOffset.y = 0; }
                 else
                 {
                     ShakeOffset.x = Globals.Random(-ShakeAmountPixels, ShakeAmountPixels);
@@ -408,22 +411,22 @@ namespace Core
             }
 
             //Animation
-            if (Animate==true && Frame==null && Sprite != null)
+            if (Animate == true && Frame == null && Sprite != null)
             {
                 Frame = Sprite.Frames[0];
             }
-            if(bDoPhysics)
+            if (bDoPhysics)
             {
                 //Don't make automatic physics.
                 Vel += Acc * dt;
                 Vel += Gravity;
                 Pos += Vel /*Dir * Speed*/ * dt;
-                
+
             }
 
             //Bounds.X = (int)Pos.X;
             //Bounds.Y = (int)Pos.Y;
-            
+
 
             Alpha -= Fade * dt;
             if (Alpha < 0)
@@ -464,7 +467,7 @@ namespace Core
             if (Scale.x < 0) { Scale.x = 0; }
             if (Scale.y < 0) { Scale.y = 0; }
 
-            if(RotateToTrajectory == true)
+            if (RotateToTrajectory == true)
             {
                 vec2 d = Pos + Vel;
                 Rotation = MathUtils.GetRotationFromLine(d.x, d.y, Pos.x, Pos.y) - 3.141593f * 0.5f;
@@ -476,7 +479,7 @@ namespace Core
             if (Animate == true)
             {
 
-                _fNextFrame -= dt*AnimationSpeed;
+                _fNextFrame -= dt * AnimationSpeed;
 
                 int i = 0;
                 while (_fNextFrame <= 0 && i < 500)

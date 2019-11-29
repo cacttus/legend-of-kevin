@@ -129,7 +129,7 @@ namespace Core
         {
             Viewport =vp;
         }
-        public void Shake(int amount, float speed, float damping = 0.89f)
+        public void Shake( float speed, float damping = 0.89f)
         {
             Speed = speed;
             Damp = damping;

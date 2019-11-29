@@ -223,8 +223,11 @@ namespace Core
         public static string SprCapeGuyTalk = "SprCapeGuyTalk";
         public static string SprGuyDead = "SprGuyDead";
         public const string SprParticleBig = "SprParticleBig";
+        public static string SprTree_Doodad = "Tree_Doodad";
+        public static string SprGrass_Doodad1 = "Grass_Doodad1";
+        public static string SprGrass_Doodad2 = "Grass_Doodad2";
 
-            
+        
 
         public static int NoGoTileId = 9999;//**NOT IN THE SPRITE KEY - this is the default "black" background tile so player can't see shit.
         public static int BorderTileId { get; private set; } = 1;// World
@@ -359,12 +362,17 @@ namespace Core
         public static string Spr_Sky_Level1 = "Spr_Sky_Level1";
         public static string Spr_Sky_Level2 = "Spr_Sky_Level2";
         public static string Spr_Sky_Level3 = "Spr_Sky_Level3";
+        public static string Spr_Sky_Level4 = "Spr_Sky_Level4";
 
         public static int Sky_Level0 = 131;
         public static int Sky_Level1 = 132;
         public static int Sky_Level2 = 133;
         public static int Sky_Level3 = 134;
-
+        public static int Sky_Level4 = 135;
+        public static int Tree_Doodad = 136;
+        public static int Grass_Doodad1 = 137;
+        public static int Grass_Doodad2 = 138;
+        public static int Star_0 = 139;
 
         public static void Load(ContentManager c, GraphicsDevice d)
         {
@@ -406,8 +414,9 @@ namespace Core
             Tiles.AddSprite(Spr_Sky_Level1, new List<Rectangle>() { new Rectangle(9, 2, 1, 1), }, 0.0f, Tiling.Single);
             Tiles.AddSprite(Spr_Sky_Level2, new List<Rectangle>() { new Rectangle(12, 2, 1, 1), }, 0.0f, Tiling.Single);
             Tiles.AddSprite(Spr_Sky_Level3, new List<Rectangle>() { new Rectangle(13, 2, 1, 1), }, 0.0f, Tiling.Single);
+            Tiles.AddSprite(Spr_Sky_Level4, new List<Rectangle>() { new Rectangle(14, 2, 1, 1), }, 0.0f, Tiling.Single);
 
-            Tiles.AddSprite(SprCursorArrow, new List<Rectangle>() { new Rectangle(10, 2, 1, 1), }, 0.0f, Tiling.Single);
+            Tiles.AddSprite(SprCursorArrow, new List<Rectangle>() { new Rectangle(7, 3, 1, 1), }, 0.0f, Tiling.Single);
             Tiles.AddSprite(SprCursorCrosshair, new List<Rectangle>() { new Rectangle(11, 2, 1, 1), }, 0.0f, Tiling.Single);
             Tiles.AddSprite(SprCursorQuestion, new List<Rectangle>() { new Rectangle(12, 2, 1, 1), }, 0.0f, Tiling.Single);
             Tiles.AddSprite(SprCursorTalk, new List<Rectangle>() { new Rectangle(12, 1, 1, 1), }, 0.0f, Tiling.Single);
@@ -431,6 +440,11 @@ namespace Core
             Tiles.AddSprite(SprBowUI, new List<Rectangle>() { new Rectangle(15, 0, 2, 2), }, 0.0f, Tiling.Single);
             Tiles.AddSprite(SprSelectedItemUI, new List<Rectangle>() { new Rectangle(15, 2, 2, 2), }, 0.0f, Tiling.Single);
             Tiles.AddSprite(SprCheckboxUI, new List<Rectangle>() { new Rectangle(9, 22, 1, 1), new Rectangle(10, 22, 1, 1), }, 0.0f, Tiling.Single);
+
+            Tiles.AddSprite(SprTree_Doodad, new List<Rectangle>() { new Rectangle(0, 1, 1, 1) }, 0.0f, Tiling.Single);
+            Tiles.AddSprite(SprGrass_Doodad1, new List<Rectangle>() { new Rectangle(1, 1, 1, 1) }, 0.0f, Tiling.Single);
+            Tiles.AddSprite(SprGrass_Doodad2, new List<Rectangle>() { new Rectangle(2, 1, 1, 1)}, 0.0f, Tiling.Single);
+
 
             //BLOCK
             Tiles.AddSprite(SprBlock_Rock, new List<Rectangle>() {
@@ -565,8 +579,8 @@ namespace Core
                new Rectangle(4, 3, 1, 1),
                new Rectangle(5, 3, 1, 1),
             }, 0.4f);
-            Tiles.AddSprite(SprParticleSmall, new List<Rectangle>() { new Rectangle(2, 4, 1, 1), }, 0.4f);
-            Tiles.AddSprite(SprParticleBig, new List<Rectangle>() { new Rectangle(3, 4, 1, 1), }, 0.4f);
+            Tiles.AddSprite(SprParticleSmall, new List<Rectangle>() { new Rectangle(6, 0, 1, 1), }, 0.4f);
+            Tiles.AddSprite(SprParticleBig, new List<Rectangle>() { new Rectangle(7, 0, 1, 1), }, 0.4f);
             Tiles.AddSprite(SprTileCoal, new List<Rectangle>() { new Rectangle(3, 4, 1, 1), }, 0.4f);
             Tiles.AddSprite(SprTileCopper, new List<Rectangle>() { new Rectangle(4, 4, 1, 1), }, 0.4f);
             Tiles.AddSprite(SprTileSilver, new List<Rectangle>() { new Rectangle(1, 0, 1, 1), }, 0.4f);
@@ -619,24 +633,24 @@ namespace Core
                new Rectangle(8, 1, 1, 1),
             }, 0.4f);
             Tiles.AddSprite(SprTextBk, new List<Rectangle>() {
-               new Rectangle(4, 9, 1, 1),
-               new Rectangle(5, 9, 1, 1),
-               new Rectangle(6, 9, 1, 1),
-               new Rectangle(4, 10, 1, 1),
-               new Rectangle(5, 10, 1, 1),
-               new Rectangle(6, 10, 1, 1),
+               new Rectangle(12, 0, 1, 1),
+               new Rectangle(13, 0, 1, 1),
+               new Rectangle(14, 0, 1, 1),
+               new Rectangle(12, 1, 1, 1),
+               new Rectangle(13, 1, 1, 1),
+               new Rectangle(14, 1, 1, 1),
             }, 0.4f);
             Tiles.AddSprite(SprSign, new List<Rectangle>() { new Rectangle(10, 6, 1, 1) }, 0f);
 
             Tiles.AddSprite(SprApple, new List<Rectangle>() { new Rectangle(11, 6, 1, 1) }, 0.92f);//Attack Hand
 
             Tiles.AddSprite(SprMoreTextCursor, new List<Rectangle>() {
-                new Rectangle(7, 14, 1, 1),
-                new Rectangle(8, 14, 1, 1),
-                new Rectangle(9, 14, 1, 1),
-                new Rectangle(10, 14, 1, 1),
-                new Rectangle(9, 14, 1, 1),
-                new Rectangle(8, 14, 1, 1),
+                new Rectangle(8, 0, 1, 1),
+                new Rectangle(9, 0, 1, 1),
+                new Rectangle(10, 0, 1, 1),
+                new Rectangle(11, 0, 1, 1),
+                new Rectangle(10, 0, 1, 1),
+                new Rectangle(9, 0, 1, 1),
             }, .9f);
             Tiles.AddSprite(SprBackground_Trees, new List<Rectangle>() {
                 new Rectangle(17, 17, 8, 7)

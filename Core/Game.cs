@@ -706,30 +706,93 @@ namespace Core
             //Legend of Kevin Map
             //TileMap tm = new TileMap("World-0");
             //Our Map.
-            TileMap tm = new TileMap(100, 40);
+            TileMap tm = new TileMap(140, 200);
 
             int playerX = 1;
             int playerY = tm.MapHeightTiles - 5;
             tm.PlayerStartXY = new ivec2(playerX, playerY);
             tm.TrySetGenTile(playerX, playerY, PlatformLevel.Midground, Res.GuyTileId);
 
+            //Atmosphere
             for (int gy = 0; gy < tm.MapHeightTiles; ++gy)
             {
                 for (int gx = 0; gx < tm.MapWidthTiles; ++gx)
                 {
-                    tm.TrySetGenTile(gx, gy, PlatformLevel.Midback, Res.Sky_Level0);
+                    int skyId = Res.Sky_Level0;
+                    if (gy > tm.MapHeightTiles - 30)
+                    {
+                        skyId = Res.Sky_Level0;
+                    }
+                    else if (gy > tm.MapHeightTiles - 60)
+                    {
+                        skyId = Res.Sky_Level1;
+                    }
+                    else if (gy > tm.MapHeightTiles - 90)
+                    {
+                        skyId = Res.Sky_Level2;
+                    }
+                    else if (gy > tm.MapHeightTiles - 110)
+                    {
+
+                        skyId = Res.Sky_Level3;
+                    }
+                    else
+                    {
+                        skyId = Res.Sky_Level4;
+                    }
+                    tm.TrySetGenTile(gx, gy, PlatformLevel.Background, skyId);
                 }
             }
 
-            for (int gy = playerY + 1; gy < tm.MapHeightTiles+1; ++gy)
+            int water_start = 40;
+            int water_end = 70;
+            //Decals above ground
+            for (int gy = playerY; gy < playerY + 1; ++gy)
             {
                 for (int gx = 0; gx < tm.MapWidthTiles; ++gx)
                 {
-                    if (gx > 40 && gx < 70)
+                    if (gx < water_start || gx > water_end)
+                    {
+                        float rt = Globals.Random(0, 1);
+                        if (rt < 0.3)
+                        {
+                            //empty
+                        }
+                        else if (rt < 0.5)
+                        {
+                            tm.TrySetGenTile(gx, gy, PlatformLevel.Midback, Res.Tree_Doodad);
+                        }
+                        else if (rt < 0.7)
+                        {
+                            tm.TrySetGenTile(gx, gy, PlatformLevel.Midback, Res.Grass_Doodad1);
+                        }
+                        else
+                        {
+                            tm.TrySetGenTile(gx, gy, PlatformLevel.Midback, Res.Grass_Doodad2);
+                        }
+                    }
+
+                }
+            }
+
+            //Ground
+            for (int gy = playerY + 1; gy < tm.MapHeightTiles; ++gy)
+            {
+                for (int gx = 0; gx < tm.MapWidthTiles; ++gx)
+                {
+                    if (gx > water_start && gx < water_end)
                     {
                         if (gy > playerY + 1)
                         {
-                            tm.TrySetGenTile(gx, gy, PlatformLevel.Midground, Res.Water100TileId);
+                            if (gy == tm.MapHeightTiles - 1)
+                            {
+                                //Add a "base" ground to the bottom for the water.
+                                tm.TrySetGenTile(gx, gy, PlatformLevel.Midground, Res.BlockTileId_GrassDirt);
+                            }
+                            else
+                            {
+                                tm.TrySetGenTile(gx, gy, PlatformLevel.Midground, Res.Water100TileId);
+                            }
                         }
                         else
                         {
@@ -744,6 +807,38 @@ namespace Core
             }
 
             Level = new PlatformLevel(this, tm);
+
+            //add stars
+            for (int i = 0; i < 1000; ++i)
+            {
+                GameObject star = new GameObject(this);
+                if (Globals.Random(0, 1) > 0.7)
+                {
+                    star.SetSprite(Res.SprParticleBig, false);
+                }
+                else
+                {
+                    star.SetSprite(Res.SprParticleSmall, false);
+                }
+                float dx = Globals.Random(0, 1) * Res.Tiles.TileWidthPixels * tm.MapWidthTiles;
+                float dy = Globals.Random(0, 1) * Res.Tiles.TileHeightPixels * 110;
+
+                // Fade stars that are in the exosphere 
+                if (dy > tm.MapHeightTiles - 110)
+                {
+                    star.Alpha = (float)(dy - (float)110) / (float)110;
+                    float rc = 0.4f * Globals.Random(0, 1);
+                    star.Color = new vec4(1, 1, .6f + rc, 1);
+                }
+
+                star.Pos.x = dx;
+                star.Pos.y = dy;
+                Level.GameObjects.Add(star);
+
+
+            }
+
+
 
             DoCheats();
         }
@@ -1546,7 +1641,7 @@ namespace Core
             if (p.LastCollideGrass < 0) { p.LastCollideGrass = 0; }
 
             //Update Subweapoln
-            UpdateSubWeapon(p, dt);
+            // UpdateSubWeapon(p, dt);
 
             if (Keyboard.GetState().IsKeyDown(Keys.F12))
             {
@@ -1604,139 +1699,137 @@ namespace Core
 
 
             //Update Fire Sword Particles
-            if (p.SwordOnFire)
-            {
-                vec2 hp = GetSwordHitPoint(p);
+            //if (p.SwordOnFire)
+            //{
+            //    vec2 hp = GetSwordHitPoint(p);
+            //    p.SwordOnFireTime -= dt;
+            //    if (p.SwordOnFireTime <= 0)
+            //    {
+            //        p.SwordOnFireTime = p.SwordOnFireTimeMax;
+            //        int make = Globals.RandomInt(4, 8);
+            //        for (int i = 0; i < make; i++)
+            //        {
+            //            CreateParticles(Res.SprParticleSmall, ParticleLife.Scale_Zero, 1, hp + new vec2(Globals.Random(-3, 3), Globals.Random(-3, 3)), 2, 6, Player.FireSwordEmitColor(),
+            //                0.8f, 6.06f, -3.14f, 3.14f, new vec2(8, 8), -Gravity,
+            //                false, new vec2(Globals.Random(-500, 500), -100), 2.0f, true,
+            //                new vec2(Globals.Random(-1, 1), -1), (float)Math.PI * 0.5f, 0, 0, true, Player.FireSwordEmitColor(), 0,
+            //                false, false);
+            //        }
+            //    }
+            //}
+            ////Liquid Sword Modifier - Lava, Tar, Water
+            ////Update Sword Luquid Modifier state.
+            //if (p.SwordOut && p.SwordEnabled)
+            //{
+            //    vec2 hp = GetSwordHitPoint(p);
+            //    Cell swordcc = Level.Grid.GetCellForPoint(hp);
+            //    if (swordcc != null)
+            //    {
+            //        float h = swordcc.Box().Max.y - hp.y;
+            //        if (h <= swordcc.Water * 16.0f)
+            //        {
+            //            SwordModifier prev = p.SwordModifier;
 
-                p.SwordOnFireTime -= dt;
-                if (p.SwordOnFireTime <= 0)
-                {
-                    p.SwordOnFireTime = p.SwordOnFireTimeMax;
-                    int make = Globals.RandomInt(4, 8);
-                    for (int i = 0; i < make; i++)
-                    {
-                        CreateParticles(Res.SprParticleSmall, ParticleLife.Scale_Zero, 1, hp + new vec2(Globals.Random(-3, 3), Globals.Random(-3, 3)), 2, 6, Player.FireSwordEmitColor(),
-                            0.8f, 6.06f, -3.14f, 3.14f, new vec2(8, 8), -Gravity,
-                            false, new vec2(Globals.Random(-500, 500), -100), 2.0f, true,
-                            new vec2(Globals.Random(-1, 1), -1), (float)Math.PI * 0.5f, 0, 0, true, Player.FireSwordEmitColor(), 0,
-                            false, false);
-                    }
-                }
-            }
+            //            if (swordcc.WaterType == WaterType.Lava)
+            //            {
+            //                if (prev != SwordModifier.Lava)
+            //                {
+            //                    if (p.SwordModifier == SwordModifier.None)
+            //                    {
+            //                        p.SwordModifier = SwordModifier.Lava;
+            //                    }
+            //                    else if (p.SwordModifier == SwordModifier.Water)
+            //                    {
+            //                        p.SwordModifier = SwordModifier.Obsidian;
+            //                    }
+            //                    else if (p.SwordModifier == SwordModifier.Tar)
+            //                    {
+            //                        p.SwordModifier = SwordModifier.Lava;
+            //                    }
+            //                    else if (p.SwordModifier == SwordModifier.Obsidian)
+            //                    {
+            //                        // p.SwordModifier = SwordModifier.Lava;
+            //                    }
+            //                    else
+            //                    {
+            //                        System.Diagnostics.Debugger.Break();
+            //                    }
+            //                }
+            //            }
+            //            else if (swordcc.WaterType == WaterType.Tar)
+            //            {
+            //                if (prev != SwordModifier.Tar)
+            //                {
+            //                    if (p.SwordModifier == SwordModifier.None)
+            //                    {
+            //                        p.SwordModifier = SwordModifier.Tar;
+            //                    }
+            //                    else if (p.SwordModifier == SwordModifier.Water)
+            //                    {
+            //                        p.SwordModifier = SwordModifier.None;
+            //                    }
+            //                    else if (p.SwordModifier == SwordModifier.Lava)
+            //                    {
+            //                        p.SwordModifier = SwordModifier.Lava;
+            //                    }
+            //                    else if (p.SwordModifier == SwordModifier.Obsidian)
+            //                    {
 
-            //Liquid Sword Modifier - Lava, Tar, Water
-            //Update Sword Luquid Modifier state.
-            if (p.SwordOut && p.SwordEnabled)
-            {
-                vec2 hp = GetSwordHitPoint(p);
-                Cell swordcc = Level.Grid.GetCellForPoint(hp);
-                if (swordcc != null)
-                {
-                    float h = swordcc.Box().Max.y - hp.y;
-                    if (h <= swordcc.Water * 16.0f)
-                    {
-                        SwordModifier prev = p.SwordModifier;
+            //                    }
+            //                    else
+            //                    {
+            //                        System.Diagnostics.Debugger.Break();
+            //                    }
+            //                }
+            //            }
+            //            else if (swordcc.WaterType == WaterType.Water)
+            //            {
+            //                if (prev != SwordModifier.Water)
+            //                {
+            //                    if (p.SwordModifier == SwordModifier.None)
+            //                    {
+            //                        p.SwordModifier = SwordModifier.Water;
+            //                    }
+            //                    else if (p.SwordModifier == SwordModifier.Lava)
+            //                    {
+            //                        p.SwordModifier = SwordModifier.Obsidian;
+            //                    }
+            //                    else if (p.SwordModifier == SwordModifier.Tar)
+            //                    {
+            //                        p.SwordModifier = SwordModifier.None;
+            //                    }
+            //                    else if (p.SwordModifier == SwordModifier.Obsidian)
+            //                    {
 
-                        if (swordcc.WaterType == WaterType.Lava)
-                        {
-                            if (prev != SwordModifier.Lava)
-                            {
-                                if (p.SwordModifier == SwordModifier.None)
-                                {
-                                    p.SwordModifier = SwordModifier.Lava;
-                                }
-                                else if (p.SwordModifier == SwordModifier.Water)
-                                {
-                                    p.SwordModifier = SwordModifier.Obsidian;
-                                }
-                                else if (p.SwordModifier == SwordModifier.Tar)
-                                {
-                                    p.SwordModifier = SwordModifier.Lava;
-                                }
-                                else if (p.SwordModifier == SwordModifier.Obsidian)
-                                {
-                                    // p.SwordModifier = SwordModifier.Lava;
-                                }
-                                else
-                                {
-                                    System.Diagnostics.Debugger.Break();
-                                }
-                            }
-                        }
-                        else if (swordcc.WaterType == WaterType.Tar)
-                        {
-                            if (prev != SwordModifier.Tar)
-                            {
-                                if (p.SwordModifier == SwordModifier.None)
-                                {
-                                    p.SwordModifier = SwordModifier.Tar;
-                                }
-                                else if (p.SwordModifier == SwordModifier.Water)
-                                {
-                                    p.SwordModifier = SwordModifier.None;
-                                }
-                                else if (p.SwordModifier == SwordModifier.Lava)
-                                {
-                                    p.SwordModifier = SwordModifier.Lava;
-                                }
-                                else if (p.SwordModifier == SwordModifier.Obsidian)
-                                {
+            //                    }
+            //                    else
+            //                    {
+            //                        System.Diagnostics.Debugger.Break();
+            //                    }
+            //                }
+            //            }
+            //            else if (p.SwordModifier == SwordModifier.Obsidian)
+            //            {
 
-                                }
-                                else
-                                {
-                                    System.Diagnostics.Debugger.Break();
-                                }
-                            }
-                        }
-                        else if (swordcc.WaterType == WaterType.Water)
-                        {
-                            if (prev != SwordModifier.Water)
-                            {
-                                if (p.SwordModifier == SwordModifier.None)
-                                {
-                                    p.SwordModifier = SwordModifier.Water;
-                                }
-                                else if (p.SwordModifier == SwordModifier.Lava)
-                                {
-                                    p.SwordModifier = SwordModifier.Obsidian;
-                                }
-                                else if (p.SwordModifier == SwordModifier.Tar)
-                                {
-                                    p.SwordModifier = SwordModifier.None;
-                                }
-                                else if (p.SwordModifier == SwordModifier.Obsidian)
-                                {
+            //            }
+            //            else
+            //            {
+            //                System.Diagnostics.Debugger.Break();
+            //            }
 
-                                }
-                                else
-                                {
-                                    System.Diagnostics.Debugger.Break();
-                                }
-                            }
-                        }
-                        else if (p.SwordModifier == SwordModifier.Obsidian)
-                        {
+            //            if (p.SwordModifier != prev)
+            //            {
+            //                //End the charge if we are charging.
+            //                EndPowerSwordCharge(p);
 
-                        }
-                        else
-                        {
-                            System.Diagnostics.Debugger.Break();
-                        }
+            //                //Play enter water sound to indicate we changed the sword.
+            //                Res.Audio.PlaySound(Res.SfxEnterWater);
+            //            }
 
-                        if (p.SwordModifier != prev)
-                        {
-                            //End the charge if we are charging.
-                            EndPowerSwordCharge(p);
+            //        }
+            //    }
 
-                            //Play enter water sound to indicate we changed the sword.
-                            Res.Audio.PlaySound(Res.SfxEnterWater);
-                        }
-
-                    }
-                }
-
-            }
+            // }
         }
         private vec2 GetThrowNormal(Guy guy, GameObject ob)
         {
@@ -1993,7 +2086,7 @@ namespace Core
         private void CreateBlastParticles(vec2 pos, vec4 color, int count = 20, string sprite = Res.SprParticleBig, vec2 aperature_n = default(vec2), float aperature_r = 6.28f)
         {
             CreateParticles(sprite, ParticleLife.Scale_Zero, count,
-                pos, 10.5f, 20.0f,
+                pos, 70.5f, 1000.0f,
                 color, 0.0f, 0.3f, 90, 150, Res.Tiles.GetWHVec() * 0.5f,
                 default(vec2), false, default(vec2), 0.1f,
                 true, aperature_n, aperature_r, 30, 90,
@@ -3425,158 +3518,161 @@ namespace Core
 
             }
         }
-        private void UpdateSubWeapon(Player player, float dt)
-        {
-            //Face Weapon
-            //If we are bow - and the player is moving an the left/right then face that direction
-            if (player.BowOut)
-            {
-                //AutoFace
-                // if(angle)
-            }
+        //private void UpdateSubWeapon(Player player, float dt)
+        //{
+        //    //Face Weapon
+        //    //If we are bow - and the player is moving an the left/right then face that direction
+        //    if (player.BowOut)
+        //    {
+        //        //AutoFace
+        //        // if(angle)
+        //    }
 
-            player.BombTime -= dt;
-            if (player.BombTime <= 0)
-            {
-                player.BombTime = 0;
-            }
+        //    player.BombTime -= dt;
+        //    if (player.BombTime <= 0)
+        //    {
+        //        player.BombTime = 0;
+        //    }
 
-            FlipPlayerToAimDirection(player);
+        //    FlipPlayerToAimDirection(player);
 
-            if (player.Joystick.Action.Press())
-            {
-                if (player.NoWeaponAction())
-                {
+        //    if (player.Joystick.Action.Press())
+        //    {
+        //        //Removing from the LOK
+        //        //if (player.NoWeaponAction())
+        //        //{
 
-                    if (player.SelectedSubweapon == Weapon.Bomb)
-                    {
-                        Res.Audio.PlaySound(Res.SfxTakeOutItem);
+        //        //    if (player.SelectedSubweapon == Weapon.Bomb)
+        //        //    {
+        //        //        Res.Audio.PlaySound(Res.SfxTakeOutItem);
 
-                        //If current object is bombs
-                        if (player.BombsEnabled && player.NumBombs > 0)
-                        {
-                            player.NumBombs--;
-                            player.BombTime = player.MaxBombTime;
-                            MakeBomb(player, Res.SprBomb, 2.5f, Res.SfxSizzle, Res.SfxBombexplode, 5, false, false);
-                        }
-                    }
-                    else if (player.SelectedSubweapon == Weapon.Bow)
-                    {
-                        player.BowOut = true;
-                        player.BowDrawTime = player.BowDrawTimeMax;
-                        drawBowSound = Res.Audio.PlaySound(Res.SfxDrawBow);
-                    }
-                }
+        //        //        //If current object is bombs
+        //        //        if (player.BombsEnabled && player.NumBombs > 0)
+        //        //        {
+        //        //            player.NumBombs--;
+        //        //            player.BombTime = player.MaxBombTime;
+        //        //            MakeBomb(player, Res.SprBomb, 2.5f, Res.SfxSizzle, Res.SfxBombexplode, 5, false, false);
+        //        //        }
+        //        //    }
+        //        //    else if (player.SelectedSubweapon == Weapon.Bow)
+        //        //    {
+        //        //        player.BowOut = true;
+        //        //        player.BowDrawTime = player.BowDrawTimeMax;
+        //        //        drawBowSound = Res.Audio.PlaySound(Res.SfxDrawBow);
+        //        //    }
+        //        //}
 
-            }
-            else if (player.Joystick.Action.Down())
-            {
-                if (player.BowOut)
-                {
-                    player.BowDrawTime -= dt;
+        //    }
+        //    else if (player.Joystick.Action.Down())
+        //    {
+        //        if (player.BowOut)
+        //        {
+        //            player.BowDrawTime -= dt;
 
-                    if (player.BowDrawTime <= 0)
-                    {
-                        player.BowDrawTime = 0;
-                        if (drawBowSound != null)
-                        {
-                            drawBowSound.Stop();
-                            drawBowSound = null;
-                        }
-                    }
-                }
-            }
-            else if (player.Joystick.Action.Release())
-            {
-                if (player.BowOut)
-                {
-                    if (drawBowSound != null)
-                    {
-                        drawBowSound.Stop();
-                        drawBowSound = null;
-                    }
-                    player.BowOut = false;
+        //            if (player.BowDrawTime <= 0)
+        //            {
+        //                player.BowDrawTime = 0;
+        //                if (drawBowSound != null)
+        //                {
+        //                    drawBowSound.Stop();
+        //                    drawBowSound = null;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    else if (player.Joystick.Action.Release())
+        //    {
+        //        if (player.BowOut)
+        //        {
+        //            if (drawBowSound != null)
+        //            {
+        //                drawBowSound.Stop();
+        //                drawBowSound = null;
+        //            }
+        //            player.BowOut = false;
 
-                    if (player.NumArrows > 0)
-                    {
-                        Res.Audio.PlaySound(Res.SfxArrowShoot);
+        //            if (player.NumArrows > 0)
+        //            {
+        //                Res.Audio.PlaySound(Res.SfxArrowShoot);
 
-                        MakeArrow(player);
+        //                MakeArrow(player);
 
-                        player.NumArrows -= 1;
-                    }
-                    else
-                    {
-                        Res.Audio.PlaySound(Res.SfxNoArrowShoot);
-                    }
-                }
-                //Update the held bomb.
-                //The held items hould be the bomb.
-                if (player.ItemHeld != null)
-                {
-                    ThrowHeldItem(player, dt, GetThrowNormal(player, player.ItemHeld), 13600);
-                }
+        //                player.NumArrows -= 1;
+        //            }
+        //            else
+        //            {
+        //                Res.Audio.PlaySound(Res.SfxNoArrowShoot);
+        //            }
+        //        }
+        //        //Update the held bomb.
+        //        //The held items hould be the bomb.
+        //        if (player.ItemHeld != null)
+        //        {
+        //            ThrowHeldItem(player, dt, GetThrowNormal(player, player.ItemHeld), 13600);
+        //        }
 
-            }
+        //    }
 
-        }
+        //}
 
-        private Arrow MakeArrow(Player player)
-        {
-            vec2 origin = GetBowOffset(player);
-            vec2 aimNormal = GetAimNormal(player, origin);
+        //private Arrow MakeArrow(Player player)
+        //{
+        //    vec2 origin = GetBowOffset(player);
+        //    vec2 aimNormal = GetAimNormal(player, origin);
 
-            //vec2 aimNormal = GetAimNormalForSelectedWeapon(player);
-            vec2 arrowOff = GetArrowOffsetFromBow(player, aimNormal);
+        //    //vec2 aimNormal = GetAimNormalForSelectedWeapon(player);
+        //    vec2 arrowOff = GetArrowOffsetFromBow(player, aimNormal);
 
-            Arrow a = new Arrow(this);
-            a.SetSprite(Res.SprArrow);
-            a.Gravity = Gravity;
-            a.PhysicsShape = PhysicsShape.Ball;
-            a.PhysicsResponse = PhysicsResponse.StickIntoGround;
-            a.PhysicsBallRadiusPixels = 0.1f;
-            a.CanDeflectWithShield = true;
-            a.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, 2.5f);
-            a.Pos = origin + arrowOff - a.Origin;
-            a.Vel = aimNormal * 450;
-            //Velocity is part initial, part draw power - 
-            a.Vel = (a.Vel * 0.4f) + (a.Vel * (1 - player.BowDrawTime / player.BowDrawTimeMax) * 0.6f);
-            a.RotateToTrajectory = true;
+        //    Arrow a = new Arrow(this);
+        //    a.SetSprite(Res.SprArrow);
+        //    a.Gravity = Gravity;
+        //    a.PhysicsShape = PhysicsShape.Ball;
+        //    a.PhysicsResponse = PhysicsResponse.StickIntoGround;
+        //    a.PhysicsBallRadiusPixels = 0.1f;
+        //    a.CanDeflectWithShield = true;
+        //    a.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, 2.5f);
+        //    a.Pos = origin + arrowOff - a.Origin;
+        //    a.Vel = aimNormal * 450;
+        //    //Velocity is part initial, part draw power - 
+        //    a.Vel = (a.Vel * 0.4f) + (a.Vel * (1 - player.BowDrawTime / player.BowDrawTimeMax) * 0.6f);
+        //    a.RotateToTrajectory = true;
 
-            Level.GameObjects.Add(a);
+        //    Level.GameObjects.Add(a);
 
-            return a;
-        }
-        private Bomb MakeBomb(Guy guy, string strsprite, float fBlastRadiusTILES, string throwsoundeffect, string explodesoundeffect, float fMaxBlowTime, bool bIsEnemyBomb, bool bExplodeOnImpact)
-        {
-            Bomb m = new Bomb(this);
-            m.Power = 1000;
-            m.PhysicsBallRadiusPixels = 4;
-            m.SetSprite(strsprite);
-            m.Friction = 0.87f;
-            m.Gravity = Gravity;
-            m.Bounciness = 0.6f;
-            m.VaporTrail = 3;
-            m.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, Res.Tiles.TileHeightPixels * 0.5f);//center
-            m.Scale = Bomb.BaseScale;
-            m.PhysicsShape = PhysicsShape.Ball;
-            Res.Audio.PlaySound(throwsoundeffect);
-            guy.HoldItem(m);
-            m.CanDeflectWithShield = true;
+        //    return a;
+        //}
+        //private Bomb MakeBomb(Guy guy, string strsprite, float fBlastRadiusTILES, string throwsoundeffect, string explodesoundeffect, float fMaxBlowTime, bool bIsEnemyBomb, bool bExplodeOnImpact)
+        //{
+        //    Bomb m = new Bomb(this);
+        //    m.Power = 1000;
+        //    m.PhysicsBallRadiusPixels = 4;
+        //    m.SetSprite(strsprite);
+        //    m.Friction = 0.87f;
+        //    m.Gravity = Gravity;
+        //    m.Bounciness = 0.6f;
+        //    m.VaporTrail = 3;
+        //    m.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, Res.Tiles.TileHeightPixels * 0.5f);//center
+        //    m.Scale = Bomb.BaseScale;
+        //    m.PhysicsShape = PhysicsShape.Ball;
+        //    Res.Audio.PlaySound(throwsoundeffect);
+        //    guy.HoldItem(m);
+        //    m.CanDeflectWithShield = true;
 
 
-            m.ExplodeOnImpact = bExplodeOnImpact;
-            m.BlastRadiusPixels = Res.Tiles.TileWidthPixels * fBlastRadiusTILES;
-            m.ExplodeSound = explodesoundeffect;
-            m.MaxBlowtime = fMaxBlowTime;
-            m.Blowtime = m.MaxBlowtime;
-            m.NextBlink = m.MaxBlowtime * Bomb.BlinkRate;
-            m.IsEnemyBomb = bIsEnemyBomb;
+        //    m.ExplodeOnImpact = bExplodeOnImpact;
+        //    m.BlastRadiusPixels = Res.Tiles.TileWidthPixels * fBlastRadiusTILES;
+        //    m.ExplodeSound = explodesoundeffect;
+        //    m.MaxBlowtime = fMaxBlowTime;
+        //    m.Blowtime = m.MaxBlowtime;
+        //    m.NextBlink = m.MaxBlowtime * Bomb.BlinkRate;
+        //    m.IsEnemyBomb = bIsEnemyBomb;
 
-            Level.GameObjects.Add(m);
+        //    Level.GameObjects.Add(m);
 
-            return m;
-        }
+        //    return m;
+        //}
+
+        int JumpState = 0;//For Rocket Jump
         private void UpdateGuyState(Guy guy, float dt)
         {
             guy.Acc = 0.0f;
@@ -3635,33 +3731,140 @@ namespace Core
                     }
                     else
                     {
-                        if ((player != null && player.JumpBootsEnabled) && guy.ItemHeld == null && guy.OnGround && guy.TimeOnGround < Player.SpringBootsMinTime)
+                        if (player != null /*&& guy.ItemHeld == null*/ && guy.OnGround /*&& guy.TimeOnGround < Player.SpringBootsMinTime*/)
                         {
-                            //Do a spring boot jump
-                            guy.CurJumpSpeed = guy.SpringJumpSpeed;
+                            // use TimeOnGround and JumpState tocheck the next jump's velocity
 
-                            guy.Vel += new vec2(0, -guy.SpringJumpSpeed) * dt;
+                            Func<int, float> ms = (x) =>
+                            {
+                                float ret = (float)((float)x / (float)1000);
+                                return ret;
+                            };
+
+                            int precision = 0; // 0=Failure
+                            float precision_mul = 0; // 0=Failure
+                            guy.VaporTrail = 0;
+                            float statef = 0.0f;
+                            if (this.JumpState == 0)
+                            {
+                                //We have begun the jump
+                                precision = 1;
+                                if (jumpSound == null && guy.IsPlayer())
+                                {
+                                    jumpSound = Res.Audio.PlaySound(Res.SfxJump);
+                                }
+                                statef = 0.5f;
+                                precision_mul = 1.0f;
+                                this.JumpState++;
+                            }
+                            else
+                            {
+                                //Jump state is greater, Match with time on ground.
+                                if (guy.TimeOnGround < ms(30))
+                                {
+                                    precision = 5;// PERFECT
+                                    precision_mul = 1.06f;
+                                    ScreenOverlayText = "PERFECT";
+                                }
+                                else if (guy.TimeOnGround < ms(60))
+                                {
+                                    precision = 4; // Awesome!
+                                    precision_mul = 1.05f;
+                                    ScreenOverlayText = "Awesome!";
+                                }
+                                else if (guy.TimeOnGround < ms(90))
+                                {
+                                    precision = 3; // Great!
+                                    precision_mul = 1.04f;
+
+                                    ScreenOverlayText = "Great!";
+                                }
+                                else if (guy.TimeOnGround < ms(120))
+                                {
+                                    precision = 2; //Good!
+                                    precision_mul = 1.03f;
+
+                                    ScreenOverlayText = "Good!";
+                                }
+                                else if (guy.TimeOnGround < ms(200))
+                                {
+                                    precision = 1;
+                                    precision_mul = 1.0f;
+                                    ScreenOverlayText = "Ok!";
+                                }
+                                else
+                                {
+                                    //Failure 
+                                    this.JumpState = 0;
+                                    ScreenOverlayText = "Failure";
+                                    //Play Fail Animation here.
+                                }
+
+                                if (this.JumpState == 1)
+                                {
+                                    if (jumpSound == null && guy.IsPlayer())
+                                    {
+                                        jumpSound = Res.Audio.PlaySound(Res.SfxJump);
+                                    }
+                                    statef = 0.5f;
+                                    this.JumpState++;
+                                }
+                                else if (this.JumpState == 2)
+                                {
+                                    if (jumpSound == null && guy.IsPlayer())
+                                    {
+                                        Res.Audio.PlaySound(Res.SfxBootsJump);
+                                    }
+                                    statef = 0.7f;
+                                    guy.VaporTrail = 1;
+                                    this.JumpState++;
+
+                                }
+                                else if (this.JumpState == 3)
+                                {
+                                    if (guy.IsPlayer())
+                                    {
+                                        Screen.ScreenShake.Shake(0.99f, 0.40f);
+                                        Res.Audio.PlaySound(Res.SfxBombexplode);
+
+                                    }
+                                    statef = 2.6f;
+                                    guy.VaporTrail = 4;
+                                    this.JumpState = 0;
+                                    guy.CalcRotationDelta();
+                                    CreateBlastParticles(guy.Box.Center() + new vec2(0, guy.Box.Height() * 0.5f),
+                                        new vec4(1, 1, .8914f, 1), 30, Res.SprParticleSmall, new vec2(0, 1), MathHelper.ToRadians(180));
+
+                                    if (guy.IsFacingLeft())
+                                    {
+                                        guy.RotationDelta *= -1.0f;
+                                    }
+                                    Dialog.ShowDialog(new List<string>() { "Bomb's Away." });
+                                    Dialog.Halt = true;
+
+                                }
+                            }
+
+                            //Do a spring boot jump
+                            guy.CurJumpSpeed = guy.SpringJumpSpeed * precision_mul * statef;
+
+                            guy.Vel += new vec2(0, -(guy.CurJumpSpeed)) * dt;
+
+                            if (Math.Abs(guy.Vel.y) < Gravity.y * dt)
+                            {
+                                //The guy's velocity isn't enough to get him off the ground when gravity is applied.
+                                int n = 0;
+                                n++;
+                            }
 
                             //guy.RotationDelta = 3.14159f * 2.0f;
-                            guy.CalcRotationDelta();
-                            guy.VaporTrail = 3;
-                            if (guy.IsFacingLeft()) { guy.RotationDelta *= -1.0f; }
+
                             if (guy.IsPlayer())
                             {
-                                Res.Audio.PlaySound(Res.SfxBootsJump);
                                 guy.SetSpriteIfNot(guy.SpringJumpSprite);
                             }
                         }
-                        else
-                        {
-                            //baasic non-water jump
-                            guy.CurJumpSpeed = guy.JumpSpeed;
-                            guy.Vel += new vec2(0, -guy.JumpSpeed) * dt;
-                            if (jumpSound == null && guy.IsPlayer())
-                            {
-                                jumpSound = Res.Audio.PlaySound(Res.SfxJump);
-                            }
-                        }
+
 
                     }
                 }
@@ -3937,7 +4140,7 @@ namespace Core
             }
 
             //physics forces
-            if (/*guy.Hanging == false &&*/ guy.Climbing == false)
+            if (/*guy.Hanging == false &&*/ guy.Climbing == false/* && guy.OnGround==false*/)
             {
                 guy.LimitAcc();
                 guy.Vel += guy.Acc * dt * waterdamp;
@@ -4002,7 +4205,7 @@ namespace Core
                 }
                 else if (guy.AIPhysics == AIPhysics.PlantBombGuy)
                 {
-                    UpdateAI_PlantBombGuy(guy, dt);
+                    //UpdateAI_PlantBombGuy(guy, dt);
 
                 }
 
@@ -4784,148 +4987,148 @@ namespace Core
                 }
             }
         }
-        private void UpdateAI_PlantBombGuy(Guy guy, float dt)
-        {
-            Guy player = GetPlayer();
+        //private void UpdateAI_PlantBombGuy(Guy guy, float dt)
+        //{
+        //    Guy player = GetPlayer();
 
-            //Check for radial Defense (plant bomb guy)
-            if (guy.AIState != AIState.Defend)
-            {
-                if (guy.AIState != AIState.Sleep)
-                {
-                    if (guy.CanDefend)
-                    {
-                        if ((GetPlayer().Box.Center() - guy.Box.Center()).Len2() <= (guy.DefendRadiusPixels * guy.DefendRadiusPixels))
-                        {
-                            guy.SetSprite(guy.DefendSprite);
-                            guy.Loop = false;
-                            guy.AIState = AIState.Defend;
-                            //Little hop
-                            guy.ScalePingpongY = true;
-                            guy.ScaleDelta.y = 1.0f / guy.Sprite.DurationSeconds;
-                            guy.ScalePingpongYRange = new vec2(0.80f, 1.2f);
-                            Res.Audio.PlaySound(Res.SfxPlantBombGuyHide);//the opposite sounds better
-                        }
-                    }
-                }
-            }
+        //    //Check for radial Defense (plant bomb guy)
+        //    if (guy.AIState != AIState.Defend)
+        //    {
+        //        if (guy.AIState != AIState.Sleep)
+        //        {
+        //            if (guy.CanDefend)
+        //            {
+        //                if ((GetPlayer().Box.Center() - guy.Box.Center()).Len2() <= (guy.DefendRadiusPixels * guy.DefendRadiusPixels))
+        //                {
+        //                    guy.SetSprite(guy.DefendSprite);
+        //                    guy.Loop = false;
+        //                    guy.AIState = AIState.Defend;
+        //                    //Little hop
+        //                    guy.ScalePingpongY = true;
+        //                    guy.ScaleDelta.y = 1.0f / guy.Sprite.DurationSeconds;
+        //                    guy.ScalePingpongYRange = new vec2(0.80f, 1.2f);
+        //                    Res.Audio.PlaySound(Res.SfxPlantBombGuyHide);//the opposite sounds better
+        //                }
+        //            }
+        //        }
+        //    }
 
-            float AttackRange = (float)Math.Pow(Res.Tiles.TileWidthPixels * 5, 2);
+        //    float AttackRange = (float)Math.Pow(Res.Tiles.TileWidthPixels * 5, 2);
 
-            if (guy.AIState == AIState.Idle)
-            {
-                guy.SetSprite(guy.IdleSprite, false, 0);//Idle. Wait for next attack
-                OrientMonsterToPlayer(guy, player);
+        //    if (guy.AIState == AIState.Idle)
+        //    {
+        //        guy.SetSprite(guy.IdleSprite, false, 0);//Idle. Wait for next attack
+        //        OrientMonsterToPlayer(guy, player);
 
-                if ((player.Box.Center() - guy.Box.Center()).Len2() < AttackRange)
-                {
-                    guy.AIState = AIState.Attack;
-                }
-            }
-            else if (guy.AIState == AIState.Defend)
-            {
-                OrientMonsterToPlayer(guy, player);
+        //        if ((player.Box.Center() - guy.Box.Center()).Len2() < AttackRange)
+        //        {
+        //            guy.AIState = AIState.Attack;
+        //        }
+        //    }
+        //    else if (guy.AIState == AIState.Defend)
+        //    {
+        //        OrientMonsterToPlayer(guy, player);
 
-                if (guy.IsAnimationComplete())
-                {
-                    //Stop the little hop
-                    guy.ScalePingpongY = false;
-                    guy.ScaleDelta.y = 0;
-                    guy.Scale = 1;
-                }
+        //        if (guy.IsAnimationComplete())
+        //        {
+        //            //Stop the little hop
+        //            guy.ScalePingpongY = false;
+        //            guy.ScaleDelta.y = 0;
+        //            guy.Scale = 1;
+        //        }
 
-                if ((player.Box.Center() - guy.Box.Center()).Len2() > (guy.DefendRadiusPixels * guy.DefendRadiusPixels))
-                {
-                    Res.Audio.PlaySound(Res.SfxPlantBombGuyUnHide);//the opposite sounds better
+        //        if ((player.Box.Center() - guy.Box.Center()).Len2() > (guy.DefendRadiusPixels * guy.DefendRadiusPixels))
+        //        {
+        //            Res.Audio.PlaySound(Res.SfxPlantBombGuyUnHide);//the opposite sounds better
 
-                    guy.AIState = AIState.Attack;
-                }
-            }
-            else if (guy.AIState == AIState.Attack)
-            {
-                if ((player.Box.Center() - guy.Box.Center()).Len2() > AttackRange)
-                {
-                    guy.AIState = AIState.Idle;
-                }
-                else
-                {
+        //            guy.AIState = AIState.Attack;
+        //        }
+        //    }
+        //    else if (guy.AIState == AIState.Attack)
+        //    {
+        //        if ((player.Box.Center() - guy.Box.Center()).Len2() > AttackRange)
+        //        {
+        //            guy.AIState = AIState.Idle;
+        //        }
+        //        else
+        //        {
 
-                    OrientMonsterToPlayer(guy, player);
+        //            OrientMonsterToPlayer(guy, player);
 
-                    guy.AttackTime -= dt;
+        //            guy.AttackTime -= dt;
 
-                    if (guy.AttackTime <= 0 && (
-                        guy.LastItemThrown == null || (
-                        (guy.LastItemThrown as Bomb != null) &&
-                        ((guy.LastItemThrown as Bomb).Exploded == true)
-                        )))
-                    {
-                        guy.AttackTime = guy.MaxAttackTime;
-                        guy.SetSprite(guy.WalkAttackSprite, false);
-                        guy.Animate = true;
+        //            if (guy.AttackTime <= 0 && (
+        //                guy.LastItemThrown == null || (
+        //                (guy.LastItemThrown as Bomb != null) &&
+        //                ((guy.LastItemThrown as Bomb).Exploded == true)
+        //                )))
+        //            {
+        //                guy.AttackTime = guy.MaxAttackTime;
+        //                guy.SetSprite(guy.WalkAttackSprite, false);
+        //                guy.Animate = true;
 
-                        //Attack - somehow. If we are a plant bomb monster. Attack with plant bombs.  Geez, this is kind of confusing.
-                        Bomb b = MakeBomb(guy, Res.SprPlantBomb, 0.5f, string.Empty, Res.SfxPlantBombExplode, 2, true, true);
-                        ThrowHeldItem(guy, dt, ((player.Box.Center() - guy.Box.Center()).Normalized() + new vec2(0, -1)).Normalized(), 9600);
+        //                //Attack - somehow. If we are a plant bomb monster. Attack with plant bombs.  Geez, this is kind of confusing.
+        //                //Bomb b = MakeBomb(guy, Res.SprPlantBomb, 0.5f, string.Empty, Res.SfxPlantBombExplode, 2, true, true);
+        //                ThrowHeldItem(guy, dt, ((player.Box.Center() - guy.Box.Center()).Normalized() + new vec2(0, -1)).Normalized(), 9600);
 
-                        //https://blog.forrestthewoods.com/solving-ballistic-trajectories-b0165523348c
-                        float speed = 200;
-                        float x = guy.Box.Center().x - player.Box.Center().x;
-                        float y = 0;
-                        float s2 = speed * speed;
+        //                //https://blog.forrestthewoods.com/solving-ballistic-trajectories-b0165523348c
+        //                float speed = 200;
+        //                float x = guy.Box.Center().x - player.Box.Center().x;
+        //                float y = 0;
+        //                float s2 = speed * speed;
 
-                        float g = Gravity.y;
-                        float desc = s2 * s2 - g * (g * x * x + 2 * y * s2);
-                        if (desc < 0)
-                        {
-                            //Not enough speed*
-                            //Can't sqrt this
-                            int nx = 0;
-                            nx++;
-                        }
-                        else
-                        {
-                            float n = (float)Math.Sqrt(desc);
-                            float r1n = s2 + n;
-                            float r2n = s2 - n;
+        //                float g = Gravity.y;
+        //                float desc = s2 * s2 - g * (g * x * x + 2 * y * s2);
+        //                if (desc < 0)
+        //                {
+        //                    //Not enough speed*
+        //                    //Can't sqrt this
+        //                    int nx = 0;
+        //                    nx++;
+        //                }
+        //                else
+        //                {
+        //                    float n = (float)Math.Sqrt(desc);
+        //                    float r1n = s2 + n;
+        //                    float r2n = s2 - n;
 
-                            float r1 = (float)Math.Atan(r1n / (g * x));
-                            float r2 = (float)Math.Atan(r2n / (g * x));
+        //                    float r1 = (float)Math.Atan(r1n / (g * x));
+        //                    float r2 = (float)Math.Atan(r2n / (g * x));
 
-                            //  r1 -= (float)Math.PI;
-                            //  r2 -= (float)Math.PI;
+        //                    //  r1 -= (float)Math.PI;
+        //                    //  r2 -= (float)Math.PI;
 
-                            if (r1 < r2)
-                            {
-                                b.Vel.x = (float)Math.Cos(r1);
-                                b.Vel.y = (float)Math.Sin(r1);
+        //                    if (r1 < r2)
+        //                    {
+        //                    //    b.Vel.x = (float)Math.Cos(r1);
+        //                    //    b.Vel.y = (float)Math.Sin(r1);
 
-                            }
-                            else if (r2 < r1)
-                            {
-                                b.Vel.x = (float)Math.Cos(r2);
-                                b.Vel.y = (float)Math.Sin(r2);
+        //                    }
+        //                    else if (r2 < r1)
+        //                    {
+        //                   //     b.Vel.x = (float)Math.Cos(r2);
+        //                    //    b.Vel.y = (float)Math.Sin(r2);
 
-                            }
+        //                    }
 
-                            b.Vel *= speed;
-                            b.Gravity = Gravity;
-                        }
-                        //int nss = 0;
-                        //nss++;
+        //                 //   b.Vel *= speed;
+        //                 //   b.Gravity = Gravity;
+        //                }
+        //                //int nss = 0;
+        //                //nss++;
 
 
-                    }
+        //            }
 
-                    if (guy.IsAnimationComplete())
-                    {
-                        guy.SetSprite(guy.IdleSprite, false, 0);//Idle. Wait for next attack
-                    }
-                }
+        //            if (guy.IsAnimationComplete())
+        //            {
+        //                guy.SetSprite(guy.IdleSprite, false, 0);//Idle. Wait for next attack
+        //            }
+        //        }
 
-            }
+        //    }
 
-        }
+        //}
         public static double FaceObject(Vector2 position, Vector2 target)
         {
             // Rotates one object to face another object (or position)
@@ -5428,10 +5631,10 @@ namespace Core
                 guy.ShieldClickNormal = GetAimNormal(guy, GetMovableItemOrigin(guy));
 
                 //Check for  the guy using sheild
-                UpdateShield(guy);
+                // UpdateShield(guy);
 
                 //Charge cPower Sword
-                UpdatePowerSword(guy, dt);
+                //UpdatePowerSword(guy, dt);
 
                 if (Screen.Game.Input.Global.Release())
                 {
@@ -5442,240 +5645,240 @@ namespace Core
             }
 
         }
-        private void UpdatePowerSword(Player guy, float dt)
-        {
-            //Charge cPower Sword
-            if (Screen.Game.Input.Global.Down() && guy.SwordOut == true)
-            {
-                if (guy.PowerSwordEnabled)
-                {
-                    if (guy.SwordModifier == SwordModifier.None)
-                    {
-                        guy.PowerSwordChargeWait -= dt;
-                        if (guy.PowerSwordChargeWait <= 0)
-                        {
-                            guy.PowerSwordChargeWait = 0;
+        //private void UpdatePowerSword(Player guy, float dt)
+        //{
+        //    //Charge cPower Sword
+        //    if (Screen.Game.Input.Global.Down() && guy.SwordOut == true)
+        //    {
+        //        if (guy.PowerSwordEnabled)
+        //        {
+        //            if (guy.SwordModifier == SwordModifier.None)
+        //            {
+        //                guy.PowerSwordChargeWait -= dt;
+        //                if (guy.PowerSwordChargeWait <= 0)
+        //                {
+        //                    guy.PowerSwordChargeWait = 0;
 
-                            if (guy.PowerSwordChargeBase == guy.PowerSwordChargeBaseMax)
-                            {
-                                if (chargeSound != null)
-                                {
-                                    chargeSound.Stop();
-                                    chargeSound = null;
-                                }
-                                chargeSound = Res.Audio.PlaySound(Res.SfxPowerSwordChargeBase);
-                                chargeSound.IsLooped = true;
+        //                    if (guy.PowerSwordChargeBase == guy.PowerSwordChargeBaseMax)
+        //                    {
+        //                        if (chargeSound != null)
+        //                        {
+        //                            chargeSound.Stop();
+        //                            chargeSound = null;
+        //                        }
+        //                        chargeSound = Res.Audio.PlaySound(Res.SfxPowerSwordChargeBase);
+        //                        chargeSound.IsLooped = true;
 
-                                //Set the sword angle
-                                //     guy.SwordSwingMaxAngleRadians = (float)Math.PI * 0.3f;
-                                guy.SwordSwingDelayMax = guy.SwordSwingDelayMax = guy.SwordSwingDelayMaxSwing1;
+        //                        //Set the sword angle
+        //                        //     guy.SwordSwingMaxAngleRadians = (float)Math.PI * 0.3f;
+        //                        guy.SwordSwingDelayMax = guy.SwordSwingDelayMax = guy.SwordSwingDelayMaxSwing1;
 
-                                //show pulse speed
-                                guy.PowerSwordChargePulseSpeed = 0.6f;
+        //                        //show pulse speed
+        //                        guy.PowerSwordChargePulseSpeed = 0.6f;
 
-                                //guy.EmitLight = true;
-                                guy.EmitColor = Player.PowerSwordEmitColor();
-                                guy.EmitRadiusInPixels = Player.PowerSwordEmitRadius() * guy.PowerSwordChargePulse;
+        //                        //guy.EmitLight = true;
+        //                        guy.EmitColor = Player.PowerSwordEmitColor();
+        //                        guy.EmitRadiusInPixels = Player.PowerSwordEmitRadius() * guy.PowerSwordChargePulse;
 
-                                //guy.EmitRadiusInPixels = Res.Tiles.TileWidthPixels ;
+        //                        //guy.EmitRadiusInPixels = Res.Tiles.TileWidthPixels ;
 
-                            }
+        //                    }
 
-                            guy.PowerSwordChargeBase -= dt;
-                            if (guy.PowerSwordChargeBase <= 0)
-                            {
-                                guy.PowerSwordChargeBase = 0;
-                                if (guy.PowerSwordChargeRise == guy.PowerSwordChargeRiseMax)
-                                {
-                                    if (chargeSound != null)
-                                    {
-                                        chargeSound.Stop();
-                                        chargeSound = null;
-                                    }
-                                    chargeSound = Res.Audio.PlaySound(Res.SfxPowerSwordChargeRise);
-                                    chargeSound.IsLooped = false;
-                                    //Show the sword glowing constantly
-                                    guy.PowerSwordChargePulseSpeed = 0.0f;
-                                    guy.PowerSwordChargePulse = 1.0f;
+        //                    guy.PowerSwordChargeBase -= dt;
+        //                    if (guy.PowerSwordChargeBase <= 0)
+        //                    {
+        //                        guy.PowerSwordChargeBase = 0;
+        //                        if (guy.PowerSwordChargeRise == guy.PowerSwordChargeRiseMax)
+        //                        {
+        //                            if (chargeSound != null)
+        //                            {
+        //                                chargeSound.Stop();
+        //                                chargeSound = null;
+        //                            }
+        //                            chargeSound = Res.Audio.PlaySound(Res.SfxPowerSwordChargeRise);
+        //                            chargeSound.IsLooped = false;
+        //                            //Show the sword glowing constantly
+        //                            guy.PowerSwordChargePulseSpeed = 0.0f;
+        //                            guy.PowerSwordChargePulse = 1.0f;
 
-                                }
+        //                        }
 
-                                guy.PowerSwordChargeRise -= dt;
-                                if (guy.PowerSwordChargeRise <= 0)
-                                {
-                                    guy.PowerSwordChargeRise = 0;
+        //                        guy.PowerSwordChargeRise -= dt;
+        //                        if (guy.PowerSwordChargeRise <= 0)
+        //                        {
+        //                            guy.PowerSwordChargeRise = 0;
 
-                                    if (guy.PowerSwordCharged == false)
-                                    {
-                                        guy.PowerSwordCharged = true;
-                                        if (chargeSound != null)
-                                        {
-                                            chargeSound.Stop();
-                                            chargeSound = null;
-                                        }
-                                        chargeSound = Res.Audio.PlaySound(Res.SfxPowerSwordChargeFinal);
-                                        chargeSound.IsLooped = true;
-                                        guy.PowerSwordChargePulseSpeed = 2.0f;
-                                    }
-                                }
-                            }
+        //                            if (guy.PowerSwordCharged == false)
+        //                            {
+        //                                guy.PowerSwordCharged = true;
+        //                                if (chargeSound != null)
+        //                                {
+        //                                    chargeSound.Stop();
+        //                                    chargeSound = null;
+        //                                }
+        //                                chargeSound = Res.Audio.PlaySound(Res.SfxPowerSwordChargeFinal);
+        //                                chargeSound.IsLooped = true;
+        //                                guy.PowerSwordChargePulseSpeed = 2.0f;
+        //                            }
+        //                        }
+        //                    }
 
-                        }
+        //                }
 
-                        //Update Pulse
-                        guy.PowerSwordChargePulse += dt * guy.PowerSwordChargePulseDirection * guy.PowerSwordChargePulseSpeed;
-                        guy.EmitRadiusInPixels = Player.PowerSwordEmitRadius() * 0.7f + Player.PowerSwordEmitRadius() * 0.3f * guy.PowerSwordChargePulse;
+        //                //Update Pulse
+        //                guy.PowerSwordChargePulse += dt * guy.PowerSwordChargePulseDirection * guy.PowerSwordChargePulseSpeed;
+        //                guy.EmitRadiusInPixels = Player.PowerSwordEmitRadius() * 0.7f + Player.PowerSwordEmitRadius() * 0.3f * guy.PowerSwordChargePulse;
 
-                        if (guy.PowerSwordChargePulse >= 1.0f)
-                        {
-                            guy.PowerSwordChargePulseDirection = -1.0f;
-                            guy.PowerSwordChargePulse = 1.0f;
-                        }
-                        else if (guy.PowerSwordChargePulse <= 0.0f)
-                        {
-                            guy.PowerSwordChargePulseDirection = 1.0f;
-                            guy.PowerSwordChargePulse = 0.0f;
-                        }
+        //                if (guy.PowerSwordChargePulse >= 1.0f)
+        //                {
+        //                    guy.PowerSwordChargePulseDirection = -1.0f;
+        //                    guy.PowerSwordChargePulse = 1.0f;
+        //                }
+        //                else if (guy.PowerSwordChargePulse <= 0.0f)
+        //                {
+        //                    guy.PowerSwordChargePulseDirection = 1.0f;
+        //                    guy.PowerSwordChargePulse = 0.0f;
+        //                }
 
 
-                    }//guy.owerswordenableed
-                }
-            }
+        //            }//guy.owerswordenableed
+        //        }
+        //    }
 
-            //Shoot the Power Sword Ball
-            if (Screen.Game.Input.Global.Release())
-            {
-                ReleasePowerSwordProjectile(guy);
-            }
+        //    //Shoot the Power Sword Ball
+        //    if (Screen.Game.Input.Global.Release())
+        //    {
+        //        ReleasePowerSwordProjectile(guy);
+        //    }
 
-            //Reset the power sword charge
-            if (Screen.Game.Input.Global.Up())
-            {
-                EndPowerSwordCharge(guy);
-            }
-        }
-        private void ReleasePowerSwordProjectile(Player guy)
-        {
-            if (guy.SwordOut == true)
-            {
-                if (guy.PowerSwordEnabled)
-                {
-                    if (guy.PowerSwordChargeBase < guy.PowerSwordChargeBaseMax)
-                    {
-                        //Base = 0-0.5, Rise = 0.5-1
-                        float shootPower = 0.4f * (1 - (guy.PowerSwordChargeBase / guy.PowerSwordChargeBaseMax)) + 0.1f;
-                        if (guy.PowerSwordChargeRise < guy.PowerSwordChargeRiseMax)
-                        {
-                            shootPower = 0.5f + (1 - (guy.PowerSwordChargeRise / guy.PowerSwordChargeRiseMax));
-                        }
+        //    //Reset the power sword charge
+        //    if (Screen.Game.Input.Global.Up())
+        //    {
+        //        EndPowerSwordCharge(guy);
+        //    }
+        //}
+        //private void ReleasePowerSwordProjectile(Player guy)
+        //{
+        //    if (guy.SwordOut == true)
+        //    {
+        //        if (guy.PowerSwordEnabled)
+        //        {
+        //            if (guy.PowerSwordChargeBase < guy.PowerSwordChargeBaseMax)
+        //            {
+        //                //Base = 0-0.5, Rise = 0.5-1
+        //                float shootPower = 0.4f * (1 - (guy.PowerSwordChargeBase / guy.PowerSwordChargeBaseMax)) + 0.1f;
+        //                if (guy.PowerSwordChargeRise < guy.PowerSwordChargeRiseMax)
+        //                {
+        //                    shootPower = 0.5f + (1 - (guy.PowerSwordChargeRise / guy.PowerSwordChargeRiseMax));
+        //                }
 
-                        Res.Audio.PlaySound(Res.SfxPowerSwordShoot);
+        //                Res.Audio.PlaySound(Res.SfxPowerSwordShoot);
 
-                        Projectile bullet = new Projectile(this);
-                        bullet.Origin = Res.Tiles.GetWHVec() * 0.5f;
-                        bullet.Pos = GetSwordHitPoint(guy) - bullet.Origin;
-                        float bs = 7;
-                        bullet.BoxRelative = new Box2f(-bs * shootPower, -bs * shootPower, bs * 2 * shootPower, bs * 2 * shootPower);
-                        bullet.SetSprite(Res.SprPowerSwordProjectile, true, 0);
+        //                Projectile bullet = new Projectile(this);
+        //                bullet.Origin = Res.Tiles.GetWHVec() * 0.5f;
+        //                bullet.Pos = GetSwordHitPoint(guy) - bullet.Origin;
+        //                float bs = 7;
+        //                bullet.BoxRelative = new Box2f(-bs * shootPower, -bs * shootPower, bs * 2 * shootPower, bs * 2 * shootPower);
+        //                bullet.SetSprite(Res.SprPowerSwordProjectile, true, 0);
 
-                        bullet.Power = 1 + shootPower * 9;//Power = [1,10]
+        //                bullet.Power = 1 + shootPower * 9;//Power = [1,10]
 
-                        bullet.Scale = shootPower;
-                        bullet.ScaleDelta.y = 0.8f + shootPower;
-                        bullet.ScalePingpongY = true;
-                        bullet.ScalePingpongYRange = new vec2(shootPower * 0.3f + 0.1f, shootPower + 0.1f);
-                        bullet.ScalePingpongX = true;
-                        bullet.ScaleDelta.x = 0.6f + shootPower;
-                        bullet.ScalePingpongXRange = new vec2(shootPower * 0.3f + 0.1f, shootPower + 0.1f);
+        //                bullet.Scale = shootPower;
+        //                bullet.ScaleDelta.y = 0.8f + shootPower;
+        //                bullet.ScalePingpongY = true;
+        //                bullet.ScalePingpongYRange = new vec2(shootPower * 0.3f + 0.1f, shootPower + 0.1f);
+        //                bullet.ScalePingpongX = true;
+        //                bullet.ScaleDelta.x = 0.6f + shootPower;
+        //                bullet.ScalePingpongXRange = new vec2(shootPower * 0.3f + 0.1f, shootPower + 0.1f);
 
-                        bullet.EmitLight = true;
-                        bullet.EmitColor = new vec4(1, 1, 1, 1);
-                        bullet.EmitRadiusInPixels = Res.Tiles.TileWidthPixels * 3;
+        //                bullet.EmitLight = true;
+        //                bullet.EmitColor = new vec4(1, 1, 1, 1);
+        //                bullet.EmitRadiusInPixels = Res.Tiles.TileWidthPixels * 3;
 
-                        bullet.Vel = GetThrowNormal(guy, bullet) * 300.0f;
-                        bullet.Friction = 0.0f;
+        //                bullet.Vel = GetThrowNormal(guy, bullet) * 300.0f;
+        //                bullet.Friction = 0.0f;
 
-                        Level.GameObjects.Add(bullet);
-                    }
-                    SwingSword(guy);
-                }
-            }
+        //                Level.GameObjects.Add(bullet);
+        //            }
+        //            SwingSword(guy);
+        //        }
+        //    }
 
-        }
-        private void EndPowerSwordCharge(Player guy)
-        {
-            if (guy.PowerSwordEnabled)
-            {
+        //}
+        //private void EndPowerSwordCharge(Player guy)
+        //{
+        //    if (guy.PowerSwordEnabled)
+        //    {
 
-                if (guy.PowerSwordChargeWait < guy.PowerSwordChargeWaitMax)
-                {
-                    if (chargeSound != null)
-                    {
-                        chargeSound.Stop();
-                        chargeSound = null;
-                    }
-                    guy.PowerSwordChargeRise = guy.PowerSwordChargeRiseMax;
-                    guy.PowerSwordChargeWait = guy.PowerSwordChargeWaitMax;
-                    guy.PowerSwordChargePulse = 0;
-                    guy.PowerSwordChargePulseDirection = 1;
-                    guy.PowerSwordChargeBase = guy.PowerSwordChargeBaseMax;
-                    guy.PowerSwordCharged = false;
-                    guy.PowerSwordChargePulseSpeed = 0.0f;
+        //        if (guy.PowerSwordChargeWait < guy.PowerSwordChargeWaitMax)
+        //        {
+        //            if (chargeSound != null)
+        //            {
+        //                chargeSound.Stop();
+        //                chargeSound = null;
+        //            }
+        //            guy.PowerSwordChargeRise = guy.PowerSwordChargeRiseMax;
+        //            guy.PowerSwordChargeWait = guy.PowerSwordChargeWaitMax;
+        //            guy.PowerSwordChargePulse = 0;
+        //            guy.PowerSwordChargePulseDirection = 1;
+        //            guy.PowerSwordChargeBase = guy.PowerSwordChargeBaseMax;
+        //            guy.PowerSwordCharged = false;
+        //            guy.PowerSwordChargePulseSpeed = 0.0f;
 
-                    guy.EmitColor = Player.PlayerBaseEmitColor();
-                    guy.EmitRadiusInPixels = Player.PlayerBaseEmitRadius();
+        //            guy.EmitColor = Player.PlayerBaseEmitColor();
+        //            guy.EmitRadiusInPixels = Player.PlayerBaseEmitRadius();
 
-                }
-            }
-        }
-        private void UpdateShield(Player guy)
-        {
-            if (guy.ShieldEnabled)
-            {
-                if (Rmb.Press())
-                {
-                    if (ShieldObject == null)
-                    {
-                        //Create the shield object
-                        ShieldObject = new GameObject(this, Res.SprShield);
-                        ShieldObject.Origin = Res.Tiles.GetWHVec() * 0.5f;
-                        ShieldObject.BoxRelative = new Box2f(-3, -3, 6, 6);
-                        ShieldObject.PhysicsBallRadiusPixels = 4;
-                        ShieldObject.PhysicsShape = PhysicsShape.Ball;
-                    }
-                    Res.Audio.PlaySound(Res.SfxShieldOut);
-                }
+        //        }
+        //    }
+        //}
+        //private void UpdateShield(Player guy)
+        //{
+        //    if (guy.ShieldEnabled)
+        //    {
+        //        if (Rmb.Press())
+        //        {
+        //            if (ShieldObject == null)
+        //            {
+        //                //Create the shield object
+        //                ShieldObject = new GameObject(this, Res.SprShield);
+        //                ShieldObject.Origin = Res.Tiles.GetWHVec() * 0.5f;
+        //                ShieldObject.BoxRelative = new Box2f(-3, -3, 6, 6);
+        //                ShieldObject.PhysicsBallRadiusPixels = 4;
+        //                ShieldObject.PhysicsShape = PhysicsShape.Ball;
+        //            }
+        //            Res.Audio.PlaySound(Res.SfxShieldOut);
+        //        }
 
-                guy.ShieldOut = false;
-                if (Rmb.PressOrDown() && (guy.ItemHeld == null))
-                {
-                    //TODO: make shield rotate
-                    // vec2 r = guy.DecomposeRotation();
-                    guy.ShieldOut = true;
-                    if (guy.Crouching)
-                    {
-                        guy.SetSprite(guy.CrouchAttackSprite);
-                    }
-                    else
-                    {
-                        guy.SetSprite(guy.WalkAttackSprite);
-                    }
+        //        guy.ShieldOut = false;
+        //        if (Rmb.PressOrDown() && (guy.ItemHeld == null))
+        //        {
+        //            //TODO: make shield rotate
+        //            // vec2 r = guy.DecomposeRotation();
+        //            guy.ShieldOut = true;
+        //            if (guy.Crouching)
+        //            {
+        //                guy.SetSprite(guy.CrouchAttackSprite);
+        //            }
+        //            else
+        //            {
+        //                guy.SetSprite(guy.WalkAttackSprite);
+        //            }
 
-                    float ShieldDistFromPlayer = 8.0f;
+        //            float ShieldDistFromPlayer = 8.0f;
 
-                    if (guy.IsFacingLeft())
-                    {
-                        ShieldObject.Pos = guy.WorldPos() + (guy.ShieldClickNormal) * ShieldDistFromPlayer - ShieldObject.Origin;
-                        ShieldObject.SpriteEffects = SpriteEffects.FlipHorizontally;
-                    }
-                    else
-                    {
-                        ShieldObject.Pos = guy.WorldPos() + (guy.ShieldClickNormal) * ShieldDistFromPlayer - ShieldObject.Origin;
-                    }
-                }
+        //            if (guy.IsFacingLeft())
+        //            {
+        //                ShieldObject.Pos = guy.WorldPos() + (guy.ShieldClickNormal) * ShieldDistFromPlayer - ShieldObject.Origin;
+        //                ShieldObject.SpriteEffects = SpriteEffects.FlipHorizontally;
+        //            }
+        //            else
+        //            {
+        //                ShieldObject.Pos = guy.WorldPos() + (guy.ShieldClickNormal) * ShieldDistFromPlayer - ShieldObject.Origin;
+        //            }
+        //        }
 
-            }
-        }
+        //    }
+        //}
         private void SwingSword(Player player)
         {
             //Remove sword modifier, reset emit
@@ -7506,14 +7709,16 @@ namespace Core
                 float alpha = 1 - (ScreenOverlayTextFade);
                 vec4 color = ScreenOverlayTextColor * alpha;
                 vec4 outline = ScreenOverlayTextOutline * alpha;
-                float pad = 0.03f;
+                float pad = 0.2f;
                 float width_pixels = Screen.Viewport.WidthPixels - Screen.Viewport.WidthPixels * pad * 2.0f;
-                float sy = Screen.DrawText_Fit_H_OR_V_Scale(overlayfont, false, ScreenOverlayText, width_pixels);
-                float font_height_px = Screen.GetFontSizePixels(overlayfont, ScreenOverlayText, sy).y;
+                string proto = "Perfect!";
+                float sy = Screen.DrawText_Fit_H_OR_V_Scale(overlayfont, false, proto, width_pixels); //**Note, we're using a constant string to keep the size consistent.
+                float font_height_px = Screen.GetFontSizePixels(overlayfont, proto, sy).y;
+
                 Screen.DrawText_Fit_H(sb, overlayfont, ScreenOverlayText,
                     width_pixels,
                     Screen.Viewport.Pos + new vec2(Screen.Viewport.WidthPixels * pad, Screen.Viewport.HeightPixels * 0.5f - font_height_px * 0.5f),
-                    color, 1, outline);
+                    color, 1, outline, proto);
             }
         }
 
@@ -7761,7 +7966,7 @@ namespace Core
 
             SetGraphicsOptions(false, DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight);
 
-            Window.Title = "The Legend Of Kevin";
+            Window.Title = "Rocket Jump";
         }
         bool DeviceResetting = false;
 

@@ -362,34 +362,38 @@ namespace Core
             float w = Game.GraphicsDevice.Viewport.Width;
             return (float)Math.Round((float)w / ((float)Viewport.TilesWidth - addl));//Important - or else you get a pixel glitch
         }
-        public float DrawText_Fit_H(SpriteBatch sb, SpriteFont font, string text, float width_pixels, vec2 pos, vec4 color, int outline = 0, vec4 outline_color = default(vec4))
+        public float DrawText_Fit_H(SpriteBatch sb, SpriteFont font, string text, float width_pixels, vec2 pos, 
+            vec4 color, int outline = 0, vec4 outline_color = default(vec4), string proto_string = "")
         {
             //Returns the scale used to scale the font
-            return DrawText_Fit( sb, font, text, width_pixels, 99999, pos, color, outline, outline_color);
+            return DrawText_Fit( sb, font, text, width_pixels, 99999, pos, color, outline, outline_color, true, proto_string);
         }
-        public float DrawText_Fit_V(SpriteBatch sb, SpriteFont font, string text, float height_pixels, vec2 pos, vec4 color, int outline = 0, vec4 outline_color = default(vec4))
+        public float DrawText_Fit_V(SpriteBatch sb, SpriteFont font, string text, float height_pixels, 
+            vec2 pos, vec4 color, int outline = 0, vec4 outline_color = default(vec4), string proto_string = "")
         {
             //Returns the scale used to scale the font
-            return DrawText_Fit( sb, font, text, 999999, height_pixels, pos, color, outline, outline_color);
+            return DrawText_Fit( sb, font, text, 999999, height_pixels, pos, color, outline, outline_color, true, proto_string);
         }
 
         public float DrawText_Fit(SpriteBatch sb, 
             SpriteFont font, string text, float width_pixels, float height_pixels, vec2 pos, vec4 color, int outline = 0, vec4 outline_color = default(vec4), 
-            bool center_h = false)
+            bool center_h = false, string proto_string = "")
         {
+            //Proto_string = A string that we pass in to keep width/height consistent.
             float w_vp_dv = 0;
 
             //Scale the text to fit the given w/h.  Auto-adjust the other dimension
             try
             {
-                float h = DrawText_Fit_HScale(font, text, width_pixels);
-                float v = DrawText_Fit_VScale(font, text, height_pixels);
-                w_vp_dv = h < v ? h : v;
+                string test_str = String.IsNullOrEmpty(proto_string) ? text : proto_string;
+
+                float h1 = DrawText_Fit_HScale(font, test_str, width_pixels);
+                float v1 = DrawText_Fit_VScale(font, test_str, height_pixels);
+                w_vp_dv = h1 < v1 ? h1 : v1;
 
                 if (center_h)
                 {
                     float ppx = Viewport.WidthPixels / Game.GraphicsDevice.Viewport.Width;
-
                     pos.x += width_pixels * 0.5f - (font.MeasureString(text).X * ppx) * w_vp_dv * 0.5f;
                 }
 

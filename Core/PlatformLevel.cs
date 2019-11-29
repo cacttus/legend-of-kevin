@@ -1246,7 +1246,7 @@ namespace Core
                 //Don't know whyt his would happen.
                 System.Diagnostics.Debugger.Break();
             }
-            if (Found.Count > 10000)//For the first area we're at 5670 so still, pretty big
+            if (Found.Count > 40000)//For the first area we're at 5670 so still, pretty big
             {
                 //Level is Too Big
                 //You probably forgot a portal or delimiter wall somewhere.
@@ -1869,7 +1869,11 @@ namespace Core
                 curTilePos, curTileWH,
                 30, (cell, iLayer, tb) => { })
             {
-                CanMine = false, BlockType = BlockType.None, BlocksLight = true, Blocking = true, CanBomb = false
+                CanMine = false,
+                BlockType = BlockType.None,
+                BlocksLight = true,
+                Blocking = true,
+                CanBomb = false
             });
 
 
@@ -2004,18 +2008,29 @@ namespace Core
             AddDecalTileGroup(Res.MonsterGrassTileId, true, true, BlockType.MonsterGrass,
                 new List<string> { Res.SprGrass0, Res.SprGrass1, Res.SprGrass2, Res.SprGrass3 });
 
-            AddTileToLut(Res.Sky_Level0, new Tile(World, Res.Tiles.GetSprite(Res.Spr_Sky_Level0), curTilePos, 
+            AddTileToLut(Res.Sky_Level0, new Tile(World, Res.Tiles.GetSprite(Res.Spr_Sky_Level0), curTilePos,
                 curTileWH, 100, (cell, iLayer, tb) => { })
-            { CanMine = false, BlockType = BlockType.None });
+            { CanMine = false, BlockType = BlockType.None, BlocksLight = false });
             AddTileToLut(Res.Sky_Level1, new Tile(World, Res.Tiles.GetSprite(Res.Spr_Sky_Level1), curTilePos,
     curTileWH, 100, (cell, iLayer, tb) => { })
-            { CanMine = false, BlockType = BlockType.None });
+            { CanMine = false, BlockType = BlockType.None, BlocksLight = false });
             AddTileToLut(Res.Sky_Level2, new Tile(World, Res.Tiles.GetSprite(Res.Spr_Sky_Level2), curTilePos,
 curTileWH, 100, (cell, iLayer, tb) => { })
-            { CanMine = false, BlockType = BlockType.None });
+            { CanMine = false, BlockType = BlockType.None, BlocksLight = false });
             AddTileToLut(Res.Sky_Level3, new Tile(World, Res.Tiles.GetSprite(Res.Spr_Sky_Level3), curTilePos,
 curTileWH, 100, (cell, iLayer, tb) => { })
-            { CanMine = false, BlockType = BlockType.None });
+            { CanMine = false, BlockType = BlockType.None, BlocksLight = false });
+
+            AddDecalTileGroup(Res.Tree_Doodad, true, true, BlockType.MonsterGrass,
+    new List<string> { Res.SprTree_Doodad, Res.SprGrass_Doodad1, Res.SprGrass_Doodad2 });
+            AddDecalTileGroup(Res.Grass_Doodad1, true, true, BlockType.MonsterGrass,
+    new List<string> { Res.SprTree_Doodad, Res.SprGrass_Doodad1, Res.SprGrass_Doodad2 });
+            AddDecalTileGroup(Res.Grass_Doodad2, true, true, BlockType.MonsterGrass,
+new List<string> { Res.SprTree_Doodad, Res.SprGrass_Doodad1, Res.SprGrass_Doodad2 });
+
+            AddDecalTileGroup(Res.Star_0, true, true, BlockType.MonsterGrass,
+new List<string> { Res.SprParticleSmall });
+
 
         }
 
@@ -2108,7 +2123,8 @@ curTileWH, 100, (cell, iLayer, tb) => { })
                 for (int iCol = 0; iCol < MapWidthTiles; ++iCol)
                 {
                     List<int> layers = new List<int>();
-                    for (int iLayer = 0; iLayer < PlatformLevel.LayerCount; ++iLayer) {
+                    for (int iLayer = 0; iLayer < PlatformLevel.LayerCount; ++iLayer)
+                    {
                         layers.Add(PlatformLevel.EMPTY_TILE);
                     }
                     GenTiles[iRow].Add(layers);// 3 layers **0 is out of bounds** so -1 is unset/null
@@ -2228,10 +2244,12 @@ curTileWH, 100, (cell, iLayer, tb) => { })
         }
         public void TrySetGenTile(int iCol, int iRow, int iLayer, int iTile)
         {
-            if (iRow < 0 || iRow >= MapHeightTiles) {
+            if (iRow < 0 || iRow >= MapHeightTiles)
+            {
                 return;
             }
-            if (iCol < 0 || iCol >= MapWidthTiles) {
+            if (iCol < 0 || iCol >= MapWidthTiles)
+            {
                 return;
             }
 
@@ -2389,7 +2407,7 @@ curTileWH, 100, (cell, iLayer, tb) => { })
             }
             this.GenTiles.TrySetGenTile(this.GenTiles.PlayerStartXY.x, this.GenTiles.PlayerStartXY.y, Midground, EMPTY_TILE);
             this.GenTiles.PlayerStartXY = guy_pos;
-           this.GenTiles. TrySetGenTile(this.GenTiles.PlayerStartXY.x, this.GenTiles.PlayerStartXY.y, Midground, Res.GuyTileId);
+            this.GenTiles.TrySetGenTile(this.GenTiles.PlayerStartXY.x, this.GenTiles.PlayerStartXY.y, Midground, Res.GuyTileId);
 
             MakeRoom(guy_pos);
         }
@@ -2570,7 +2588,7 @@ curTileWH, 100, (cell, iLayer, tb) => { })
 
             return d;
         }
- 
+
         public void FloodFillFromPointRecursive(ivec2 pt_origin, Room room)
         {
             //Flood fill an area demarcated by the boundary.
