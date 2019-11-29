@@ -8,399 +8,361 @@ using System.Text;
 
 namespace Core
 {
-    public class Res
+    public static class Res
     {
-        public Audio Audio { get; private set; }
-        public Tiles Tiles { get; private set; }
-        public SpriteFont Font { get; private set; }
-        public SpriteFont Font2 { get; private set; }
-        ContentManager Content;
+        public static Audio Audio { get; private set; }
+        public static Tiles Tiles { get; private set; }
+        public static SpriteFont Font { get; private set; }
+        public static SpriteFont Font2 { get; private set; }
+        public static ContentManager Content;
 
-        public string SfxMine = "mine";
-        public string SfxWhack = "whack";
-        public string SfxJump = "jump";
-        public string SfxChestOpen = "chestopen";
-        public string SfxGrassMove = "grassmove";
-        public string SfxBattleStart = "battlestart";
-        public string SfxClimb = "climb";
-        public string SfxLand = "land";
-        public string SfxChop = "chop";
-        public string SfxGrassCut = "grasscut";
-        public string SfxCoinGet = "coinget";
-        public string SfxSizzle = "sizzle";
-        public string SfxEnterWater = "enterwater";
-        public string SfxExitWater = "exitwater";
-        public string SfxZombHit0 = "zomb_hit_0";
-        public string SfxZombHit1 = "zomb_hit_1";
-        public string SfxZombGrowl0 = "zomb_growl_0";
-        public string SfxZombGrowl1 = "zomb_growl_1";
-        public string SfxDieSquishy = "die_squishy";
-        public string SfxLavaBall = "lavaball";
-        public string SfxSwordSwing = "axswing";
-        public string SfxExitStairs = "exit_stairs";
-        public string SfxBootsJump = "boots_jump";
-        public string SfxGetKeyItem = "getkeyitem";
-        public string SfxShowNewItem = "shownewitem";
-        public string SfxShowMenu = "showmenu";
-        public string SfxHideMenu = "hidemenu";
-        public string SfxTextBlip = "textblip";
-        public string SfxBombexplode = "bombexplode";
-        public string SfxTakeOutItem = "bombstart";
-        public string SfxBombsizzle = "bombsizzle";
-        public string SfxThrow = "throw";
-        public string SfxPickupItem = "pickupitem";
-        public string SfxPop1 = "pop1";
-        public string SfxPop2 = "pop2";
-        public string SfxPop3 = "pop3";
-        public string SfxMarbleDrop = "marbledrop";
-        public string SfxDoorOpen = "door_open";
-        public string SfxDoorLocked = "door_locked";
-        public string SfxDoorUnlock = "door_unlock";
-        public string SfxDoorClose = "door_close";
-        public string SfxGetPowerupLong = "get_powerup_long";
-        public string SfxGetPowerup = "get_powerup";
-        public string SfxPowerSwordChargeBase = "powerswordcharge";
-        public string SfxPowerSwordChargeFinal = "powerswordchargefinal";
-        public string SfxPowerSwordChargeRise = "powerswordchargerise";
-        public string SfxPowerSwordShoot = "powerswordshoot";
-        public string SfxTorchout = "torchout";
-        public string SfxFallthrough = "fallthrough";
-        public string SfxShieldOut = "shieldout";
-        public string SfxPlantBombGuyDamage = "plantbombguy_damage";
-        public string SfxPlantBombGuyHide = "plantbombguy_hide";
-        public string SfxPlantBombGuyUnHide = "plantbombguy_unhide";
-        public string SfxPlantBombExplode = "plantbomb_explode";
-        public string SfxShieldDeflect = "shield_deflect";
-        public string SfxSavePoint1 = "save_point_1";
-        public string SfxSavePoint2 = "save_point_2";
-        public string SfxSwitchButtonPress = "switch_button_press";
-        public string SfxPuzzleSolved = "good_thing";
-        public string SfxSwordLightFire = "sword_light_fire";
-        public string SfxElectronicNogo = "electronic_nogo";
-        public string SfxGrubDie = "grub_die";
-        public string SfxGrubHit = "grub_hit";
-        public string SfxChangeSubweapon = "change_subweapon";
-        public string SfxDrawBow = "draw_bow";
-        public string SfxArrowShoot = "arrow_shoot";
-        public string SfxNoArrowShoot = "bow_noarrow_shoot";
-        public string SfxDead = "dead";
-        public string SfxContinue = "continue";
-        //--------Sprites
-        //--------Sprites
-        //--------Sprites
-        //--------Sprites
-        public string SprGuyWalk = "SprGuyWalk";
-        //public string SprGuyCrouch = "SprGuyCrouch";
-        public string SprGuyItemHeldWalk = "SprGuyItemHeldWalk";
-        public string SprGuyJump = "SprGuyJump";
-        public string SprGuyHang = "SprGuyHang";
-        public string SprGuyClimb = "SprGuyClimb";
-        public string SprGuyMount = "SprGuyMount";
-        public string SprGuyCurl = "SprGuyCurl";
-        public string SprGuyWalkAttack = "SprGuyWalkAttack";
-        public string SprGuyCrouchAttack = "SprGuyCrouchAttack";
-        public string SprGuyFall = "SprGuyFall";
-        public string SprTileDirt = "SprTileDirt";
-        public string SprTileCoal = "SprTileCoal";
-        public string SprTileSilver = "SprTileSilver";
-        public string SprTileCopper = "SprTileCopper";
-        public string SprTileGold = "SprTileGold";
-
-        public string SprNoGo = "SprNoGo";
-        public string SprCrack = "SprCrack";
-        public string SprParticleSmall = "SprParticleBrown";
-        public string SprSword = "SprSword";
-        public string SprSwordItem = "SprSwordItem";
-        public string SprPowerSword = "SprPowerSword";
-        public string SprPowerSwordItem = "SprPowerSwordItem";
-        public string SprPowerSwordProjectile = "SprPowerSwordProjectile";
-        public string SprShield = "SprShield";
-        public string SprPlinthEmpty = "SprPlinthEmpty";
-        public string SprPlinthSword = "SprPlinthSword";
-        public string SprPlinthShield = "SprPlinthShield";
-        public string SprBow = "SprBow";
-        public string SprArrow = "SprArrow";
-        public string SprPlinthBow = "SprPlinthBow";
-        public string SprTorch = "SprTorch";
-        public string SprTorchOut = "SprTorchOut";
-        public string SprTorchWall = "SprTorchWall";
-        public string SprTorchOutWall = "SprTorchOutWall";
-        public string SprLantern = "SprLantern";
-        public string SprHorizon = "SprHorizon";
-        public string SprGrassBlockTiles = "SprGrassTiles";
-        public string SprRockMonsterTiles = "SprRockMonsterTiles";
-        public string SprTreeTiles = "SprTreeTiles";
-        public string SprLadderTiles = "SprLadderTiles";
-        public string SprBigChest = "SprBigChest";
-        public string SprMountainBackdrop = "SprMountainBackdrop";
-        public string SprCaveBackgroundBlockTiles = "SprCaveBackgroundBlockTiles";
-        public string SprWoodBackgroundBlockTiles = "SprWoodBackgroundBlockTiles";
-        public string SprSandRockBack = "SprSandRockBack";
-        public string SprBlock_Rock = "SprBlock_Rock";
-        public string SprBlock_Copper = "SprBlock_Copper";
-        public string SprBlock_Gold = "SprBlock_Gold";
-        public string SprBlock_Sandrock = "SprBlock_Sandrock";
-        public string SprSmallChest = "SprSmallChest";
-        public string SprSilverSmallChest = "SprSilverSmallChest";
-        public string SprGoldSmallChest = "SprGoldSmallChest";
-        public string SprGoldChest = "SprGoldChest";
-        public string SprCoin = "SprCoin";
-        public string SprCoinSm = "SprCoinSm";
-        public string SprZombieWalk = "SprZombieWalk";
-        public string SprSkeleWalk = "SprSkeleWalk";
-        public string SprBlock_Obsidian = "SprBlock_Obsidian";
-        public string SprCursorArrow = "SprCursorArrow";
-        public string SprCursorCrosshair = "SprCursorCrosshair";
-        public string SprCursorQuestion = "SprCursorQuestion";
-        public string SprCursorSword = "SprCursorSword";
-        public string SprCursorTalk = "SprCursorTalk";
+        public static string SfxMine = "mine";
+        public static string SfxWhack = "whack";
+        public static string SfxJump = "jump";
+        public static string SfxChestOpen = "chestopen";
+        public static string SfxGrassMove = "grassmove";
+        public static string SfxBattleStart = "battlestart";
+        public static string SfxClimb = "climb";
+        public static string SfxLand = "land";
+        public static string SfxChop = "chop";
+        public static string SfxGrassCut = "grasscut";
+        public static string SfxCoinGet = "coinget";
+        public static string SfxSizzle = "sizzle";
+        public static string SfxEnterWater = "enterwater";
+        public static string SfxExitWater = "exitwater";
+        public static string SfxZombHit0 = "zomb_hit_0";
+        public static string SfxZombHit1 = "zomb_hit_1";
+        public static string SfxZombGrowl0 = "zomb_growl_0";
+        public static string SfxZombGrowl1 = "zomb_growl_1";
+        public static string SfxDieSquishy = "die_squishy";
+        public static string SfxLavaBall = "lavaball";
+        public static string SfxSwordSwing = "axswing";
+        public static string SfxExitStairs = "exit_stairs";
+        public static string SfxBootsJump = "boots_jump";
+        public static string SfxGetKeyItem = "getkeyitem";
+        public static string SfxShowNewItem = "shownewitem";
+        public static string SfxShowMenu = "showmenu";
+        public static string SfxHideMenu = "hidemenu";
+        public static string SfxTextBlip = "textblip";
+        public static string SfxBombexplode = "bombexplode";
+        public static string SfxTakeOutItem = "bombstart";
+        public static string SfxBombsizzle = "bombsizzle";
+        public static string SfxThrow = "throw";
+        public static string SfxPickupItem = "pickupitem";
+        public static string SfxPop1 = "pop1";
+        public static string SfxPop2 = "pop2";
+        public static string SfxPop3 = "pop3";
+        public static string SfxMarbleDrop = "marbledrop";
+        public static string SfxDoorOpen = "door_open";
+        public static string SfxDoorLocked = "door_locked";
+        public static string SfxDoorUnlock = "door_unlock";
+        public static string SfxDoorClose = "door_close";
+        public static string SfxGetPowerupLong = "get_powerup_long";
+        public static string SfxGetPowerup = "get_powerup";
+        public static string SfxPowerSwordChargeBase = "powerswordcharge";
+        public static string SfxPowerSwordChargeFinal = "powerswordchargefinal";
+        public static string SfxPowerSwordChargeRise = "powerswordchargerise";
+        public static string SfxPowerSwordShoot = "powerswordshoot";
+        public static string SfxTorchout = "torchout";
+        public static string SfxFallthrough = "fallthrough";
+        public static string SfxShieldOut = "shieldout";
+        public static string SfxPlantBombGuyDamage = "plantbombguy_damage";
+        public static string SfxPlantBombGuyHide = "plantbombguy_hide";
+        public static string SfxPlantBombGuyUnHide = "plantbombguy_unhide";
+        public static string SfxPlantBombExplode = "plantbomb_explode";
+        public static string SfxShieldDeflect = "shield_deflect";
+        public static string SfxSavePoint1 = "save_point_1";
+        public static string SfxSavePoint2 = "save_point_2";
+        public static string SfxSwitchButtonPress = "switch_button_press";
+        public static string SfxPuzzleSolved = "good_thing";
+        public static string SfxSwordLightFire = "sword_light_fire";
+        public static string SfxElectronicNogo = "electronic_nogo";
+        public static string SfxGrubDie = "grub_die";
+        public static string SfxGrubHit = "grub_hit";
+        public static string SfxChangeSubweapon = "change_subweapon";
+        public static string SfxDrawBow = "draw_bow";
+        public static string SfxArrowShoot = "arrow_shoot";
+        public static string SfxNoArrowShoot = "bow_noarrow_shoot";
+        public static string SfxDead = "dead";
+        public static string SfxContinue = "continue";
+        public static string SprGuyWalk = "SprGuyWalk";
+        public static string SprGuyItemHeldWalk = "SprGuyItemHeldWalk";
+        public static string SprGuyJump = "SprGuyJump";
+        public static string SprGuyHang = "SprGuyHang";
+        public static string SprGuyClimb = "SprGuyClimb";
+        public static string SprGuyMount = "SprGuyMount";
+        public static string SprGuyCurl = "SprGuyCurl";
+        public static string SprGuyWalkAttack = "SprGuyWalkAttack";
+        public static string SprGuyCrouchAttack = "SprGuyCrouchAttack";
+        public static string SprGuyFall = "SprGuyFall";
+        public static string SprTileDirt = "SprTileDirt";
+        public static string SprTileCoal = "SprTileCoal";
+        public static string SprTileSilver = "SprTileSilver";
+        public static string SprTileCopper = "SprTileCopper";
+        public static string SprTileGold = "SprTileGold";
+        public static string SprNoGo = "SprNoGo";
+        public static string SprCrack = "SprCrack";
+        public static string SprParticleSmall = "SprParticleBrown";
+        public static string SprSword = "SprSword";
+        public static string SprSwordItem = "SprSwordItem";
+        public static string SprPowerSword = "SprPowerSword";
+        public static string SprPowerSwordItem = "SprPowerSwordItem";
+        public static string SprPowerSwordProjectile = "SprPowerSwordProjectile";
+        public static string SprShield = "SprShield";
+        public static string SprPlinthEmpty = "SprPlinthEmpty";
+        public static string SprPlinthSword = "SprPlinthSword";
+        public static string SprPlinthShield = "SprPlinthShield";
+        public static string SprBow = "SprBow";
+        public static string SprArrow = "SprArrow";
+        public static string SprPlinthBow = "SprPlinthBow";
+        public static string SprTorch = "SprTorch";
+        public static string SprTorchOut = "SprTorchOut";
+        public static string SprTorchWall = "SprTorchWall";
+        public static string SprTorchOutWall = "SprTorchOutWall";
+        public static string SprLantern = "SprLantern";
+        public static string SprHorizon = "SprHorizon";
+        public static string SprGrassBlockTiles = "SprGrassTiles";
+        public static string SprRockMonsterTiles = "SprRockMonsterTiles";
+        public static string SprTreeTiles = "SprTreeTiles";
+        public static string SprLadderTiles = "SprLadderTiles";
+        public static string SprBigChest = "SprBigChest";
+        public static string SprMountainBackdrop = "SprMountainBackdrop";
+        public static string SprCaveBackgroundBlockTiles = "SprCaveBackgroundBlockTiles";
+        public static string SprWoodBackgroundBlockTiles = "SprWoodBackgroundBlockTiles";
+        public static string SprSandRockBack = "SprSandRockBack";
+        public static string SprBlock_Rock = "SprBlock_Rock";
+        public static string SprBlock_Copper = "SprBlock_Copper";
+        public static string SprBlock_Gold = "SprBlock_Gold";
+        public static string SprBlock_Sandrock = "SprBlock_Sandrock";
+        public static string SprSmallChest = "SprSmallChest";
+        public static string SprSilverSmallChest = "SprSilverSmallChest";
+        public static string SprGoldSmallChest = "SprGoldSmallChest";
+        public static string SprGoldChest = "SprGoldChest";
+        public static string SprCoin = "SprCoin";
+        public static string SprCoinSm = "SprCoinSm";
+        public static string SprZombieWalk = "SprZombieWalk";
+        public static string SprSkeleWalk = "SprSkeleWalk";
+        public static string SprBlock_Obsidian = "SprBlock_Obsidian";
+        public static string SprCursorArrow = "SprCursorArrow";
+        public static string SprCursorCrosshair = "SprCursorCrosshair";
+        public static string SprCursorQuestion = "SprCursorQuestion";
+        public static string SprCursorSword = "SprCursorSword";
+        public static string SprCursorTalk = "SprCursorTalk";
+        public static string SprGrassDirt2Tiles = "SprGrassDirt2Tiles";
+        public static string SprRockMonsterWalk = "SprRockMonsterWalk";
+        public static string SprBlock_GrassDirt = "SprBlock_GrassDirt";
+        public static string SprBlock_GreenDot = "SprBlock_GreenDot";
+        public static string SprBlock_WaterGrass = "SprBlock_WaterGrass";
+        public static string SprBlock_Crag = "SprBlock_Crag";
+        public static string SprBlock_DirtBackground = "SprBlock_DirtBackground";
+        public static string SprBlock_WaterGrassBack = "SprBlock_WaterGrassBack";
+        public static string SprBomb = "SprMine";
+        public static string SprBombUI = "SprMineUI";
+        public static string SprBowUI = "SprBowUI";
+        public static string SprSelectedItemUI = "SprSelectedItemUI";
+        public static string SprCheckboxUI = "SprCheckboxUI";
+        public static string SprSmoke_Yellow = "SprSmoke_Yellow";
+        public static string SprMineshaftExit = "SprMineshaftExit";
+        public static string SprMenuUIInventory = "SprMenuUIInventory";
+        public static string SprMenuUIMap = "SprMenuUIMap";
+        public static string SprMenuUIOption = "SprMenuUIOption";
+        public static string SprGlowfish_Swim = "SprGlowfish_Swim";
+        public static string SprSeaweed = "SprSeaweed";
+        public static string SprBoots = "SprBoots";
+        public static string SprGuyOpenChest = "SprGuyOpenChest";
+        public static string SprTextBk = "SprTextBk";
+        public static string SprSign = "SprSign";
+        public static string SprMoreTextCursor = "SprMoreTextCursor";
+        public static string SprBackground_Trees = "SprBackground_Trees";
+        public static string SprCaveVineTiles = "SprCaveVineTiles";
+        public static string SprGlowFlower0 = "SprGlowFlower0";
+        public static string SprGlowFlower1 = "SprGlowFlower1";
+        public static string SprRock0 = "SprRock0";
+        public static string SprRock1 = "SprRock1";
+        public static string SprRock2 = "SprRock2";
+        public static string SprShroom0 = "SprShroom0";
+        public static string SprShroom1 = "SprShroom1";
+        public static string SprShroom2 = "SprShroom2";
+        public static string SprFlower0 = "SprFlower0";
+        public static string SprFlower1 = "SprFlower1";
+        public static string SprFlower2 = "SprFlower2";
+        public static string SprFlower3 = "SprFlower3";
+        public static string SprGrass0 = "SprGrass0";
+        public static string SprGrass1 = "SprGrass1";
+        public static string SprGrass2 = "SprGrass2";
+        public static string SprGrass3 = "SprGrass3";
+        public static string SprLever = "SprLever";
+        public static string SprParticleCloud = "SprParticleCloud";
+        public static string SprParticleRock = "SprParticleRock";
+        public static string SprItemPotion = "SprItemBomb";
+        public static string SprItemBomb = "SprItemPotion";
+        public static string SprHeartUI = "SprHeartUI";
+        public static string SprDoor_LR = "SprDoor_LR";
+        public static string SprDoor_TB = "SprDoor_TB";
+        public static string SprSmallKey = "SprSmallKey";
+        public static string SprSmallKeyUI = "SprSmallKeyUI";
+        public static string SprMarble = "SprMarble";
+        public static string SprMarbleUI = "SprMarbleUI";
+        public static string SprBlackNogo = "SprBlackNogo";
+        public static string SprGrub = "SprGrub";
+        public static string SprGrubLava = "SprGrubLava";
+        public static string SprGrubWater = "SprGrubWater";
+        public static string SprGrubRock = "SprGrubRock";
+        public static string SprBlock_Hedge = "SprBlock_Hedge";
+        public static string SprFallThroughDissolve = "SprFallThroughDissolve";
+        public static string SprPlantBombDudeAttack = "SprPlantBombDudeAttack";
+        public static string SprPlantBombDudeSleep = "SprPlantBombDudeSleep";
+        public static string SprPlantBombDudeCover = "SprPlantBombDudeCover";
+        public static string SprPlantBombDudeIdle = "SprPlantBombDudeIdle";
+        public static string SprPlantBomb = "SprPlantBomb";
+        public static string SprGuyHand = "SprGuyHand";
+        public static string SprSavePoint = "SprSavePoint";
+        public static string SprButtonSwitch = "SprButtonSwitch";
+        public static string SprBrazier = "SprBrazier";
+        public static string SprSparkle = "SprSparkle";
+        public static string SprApple = "SprApple";
+        public static string SprCapeGuyWalk = "SprCapeGuyWalk";
+        public static string SprCapeGuyTalk = "SprCapeGuyTalk";
+        public static string SprGuyDead = "SprGuyDead";
         public const string SprParticleBig = "SprParticleBig";
-        public string SprGrassDirt2Tiles = "SprGrassDirt2Tiles";
-        public string SprRockMonsterWalk = "SprRockMonsterWalk";
-        public string SprBlock_GrassDirt = "SprBlock_GrassDirt";
-        public string SprBlock_GreenDot = "SprBlock_GreenDot";
-        public string SprBlock_WaterGrass = "SprBlock_WaterGrass";
-        public string SprBlock_Crag = "SprBlock_Crag";
-        public string SprBlock_DirtBackground = "SprBlock_DirtBackground";
-        public string SprBlock_WaterGrassBack = "SprBlock_WaterGrassBack";
-        public string SprBomb = "SprMine";
-        public string SprBombUI = "SprMineUI";
-        public string SprBowUI = "SprBowUI";
-        public string SprSelectedItemUI = "SprSelectedItemUI";
-        public string SprCheckboxUI = "SprCheckboxUI";
-        public string SprSmoke_Yellow = "SprSmoke_Yellow";
-        public string SprMineshaftExit = "SprMineshaftExit";
-        public string SprMenuUIInventory = "SprMenuUIInventory";
-        public string SprMenuUIMap = "SprMenuUIMap";
-        public string SprMenuUIOption = "SprMenuUIOption";
-        public string SprGlowfish_Swim = "SprGlowfish_Swim";
-        public string SprSeaweed = "SprSeaweed";
-        public string SprBoots = "SprBoots";
-        public string SprGuyOpenChest = "SprGuyOpenChest";
-        public string SprTextBk = "SprTextBk";
-        public string SprSign = "SprSign";
-        public string SprMoreTextCursor = "SprMoreTextCursor";
-        public string SprBackground_Trees = "SprBackground_Trees";
-        public string SprCaveVineTiles = "SprCaveVineTiles";
-        public string SprGlowFlower0 = "SprGlowFlower0";
-        public string SprGlowFlower1 = "SprGlowFlower1";
-        public string SprRock0 = "SprRock0";
-        public string SprRock1 = "SprRock1";
-        public string SprRock2 = "SprRock2";
-        public string SprShroom0 = "SprShroom0";
-        public string SprShroom1 = "SprShroom1";
-        public string SprShroom2 = "SprShroom2";
-        public string SprFlower0 = "SprFlower0";
-        public string SprFlower1 = "SprFlower1";
-        public string SprFlower2 = "SprFlower2";
-        public string SprFlower3 = "SprFlower3";
-        public string SprGrass0 = "SprGrass0";
-        public string SprGrass1 = "SprGrass1";
-        public string SprGrass2 = "SprGrass2";
-        public string SprGrass3 = "SprGrass3";
 
-        public string SprLever = "SprLever";
-        public string SprParticleCloud = "SprParticleCloud";
-        public string SprParticleRock = "SprParticleRock";
-        public string SprItemPotion = "SprItemBomb";
-        public string SprItemBomb = "SprItemPotion";
-        public string SprHeartUI = "SprHeartUI";
-        public string SprDoor_LR = "SprDoor_LR";
-        public string SprDoor_TB = "SprDoor_TB";
-        public string SprSmallKey = "SprSmallKey";
-        public string SprSmallKeyUI = "SprSmallKeyUI";
-        public string SprMarble = "SprMarble";
-        public string SprMarbleUI = "SprMarbleUI";
-        public string SprBlackNogo = "SprBlackNogo";
-        public string SprGrub = "SprGrub";
-        public string SprGrubLava = "SprGrubLava";
-        public string SprGrubWater = "SprGrubWater";
-        public string SprGrubRock = "SprGrubRock";
-        public string SprBlock_Hedge = "SprBlock_Hedge";
-        public string SprFallThroughDissolve = "SprFallThroughDissolve";
-        public string SprPlantBombDudeAttack = "SprPlantBombDudeAttack";
-        public string SprPlantBombDudeSleep = "SprPlantBombDudeSleep";
-        public string SprPlantBombDudeCover = "SprPlantBombDudeCover";
-        public string SprPlantBombDudeIdle = "SprPlantBombDudeIdle";
-        public string SprPlantBomb = "SprPlantBomb";
-        public string SprGuyHand = "SprGuyHand";
-        public string SprSavePoint = "SprSavePoint";
-        public string SprButtonSwitch = "SprButtonSwitch";
-        public string SprBrazier = "SprBrazier";
-        public string SprSparkle = "SprSparkle";
-        public string SprApple = "SprApple";
-        public string SprCapeGuyWalk = "SprCapeGuyWalk";
-        public string SprCapeGuyTalk = "SprCapeGuyTalk";
-        public string SprGuyDead = "SprGuyDead";
+        public static int NoGoTileId = 9999;//**NOT IN THE SPRITE KEY - this is the default "black" background tile so player can't see shit.
+        public static int BorderTileId { get; private set; } = 1;// World
+        public static int BlockTileId_Rock { get; private set; } = 2;// Wo
+        public static int BlockTileId_Copper { get; private set; } = 3;// 
+        public static int LadderTileId_R { get; private set; } = 4;// Worl
+        public static int BlockTileId_SandRock { get; private set; } = 5;
+        public static int BlockTileID_CaveBack { get; private set; } = 6;
+        public static int SwordItemTileId { get; private set; } = 7;
+        public static int Sun_20Percent { get; private set; } = 8;
+        public static int Sun_5Percent { get; private set; } = 9;
+        public static int SilverSmallChestTileId { get; private set; } = 10;
+        public static int GoldSmallChestTileId { get; private set; } = 11;
+        public static int SandRockBackTileId { get; private set; } = 12;
+        public static int BigChestTileId { get; private set; } = 13;
+        public static int LadderTileId_L { get; private set; } = 14;// Worl
+        public static int TreeTileId { get; private set; } = 15;// World.Re
+        public static int TorchTileId { get; private set; } = 16;// World.R
+        public static int MonsterGrassTileId { get; private set; } = 17;// 
+        public static int GuyTileId { get; private set; } = 19;
+        public static int SmallChestTileId { get; private set; } = 20;
+        public static int PlantBombGuyTileId { get; private set; } = 21;
+        public static int ShieldItemTileId { get; private set; } = 22;
+        public static int BrazierTileId { get; private set; } = 23;
+        public static int GoldChestTileId { get; private set; } = 24;
+        public static int FlowerTileId { get; private set; } = 25; //50% water
+        public static int ZombieTileId { get; private set; } = 26;
+        public static int BootsTileId { get; private set; } = 27;
+        public static int Water100TileId { get; private set; } = 28; //100% water
+        public static int Water50TileId { get; private set; } = 29; //50% water
+        public static int Lava100TileId { get; private set; } = 30; //100% water
+        public static int Lava50TileId { get; private set; } = 31; //50% water
+        public static int BlockTileId_Obsidian { get; private set; } = 32; //50% water
+        public static int TriggerTileId0 { get; private set; } = 33;
+        public static int TriggerTileId1 { get; private set; } = 34;
+        public static int TriggerTileId2 { get; private set; } = 35;
+        public static int TriggerTileId3 { get; private set; } = 36;
+        public static int TriggerTileId4 { get; private set; } = 37;
+        public static int TriggerTileId5 { get; private set; } = 38;
+        public static int TriggerTileId6 { get; private set; } = 39;
+        public static int TriggerTileId7 { get; private set; } = 40;
+        public static int TriggerTileId8 { get; private set; } = 41;
+        public static int TriggerTileId9 { get; private set; } = 42;
+        public static int RockMonsterTileId { get; private set; } = 43; //50% water
+        public static int RockTileId { get; private set; } = 44; //50% water
+        public static int MushroomTileId { get; private set; } = 45; //50% water
+        public static int BlockTileId_GrassDirt { get; private set; } = 46;
+        public static int LanternTileId { get; private set; } = 47;// World.Res.
+        public static int BlockTileId_GreenDot { get; private set; } = 48;
+        public static int Key_MonsterTileId { get; private set; } = 49; //50% water
+        public static int SkeleTileId { get; private set; } = 50;
+        public static int BlockTileId_Hedge { get; private set; } = 51;
+        public static int Door_Nolock_TileId { get; private set; } = 52;
+        public static int FallThrough_Tile_TileId { get; private set; } = 53;
+        public static int Bombable_Tile_TileId { get; private set; } = 54;
+        public static int SmallKey_TileId { get; private set; } = 55; //50% water
+        public static int Door_Lock_TileId { get; private set; } = 56; //50% water
+        public static int Door_Lock_Monster_TileId { get; private set; } = 57; //50% water
+        public static int Door_Lock_RightOnly_TileId { get; private set; } = 58; //50% water
+        public static int Door_Lock_LeftOnly_TileId { get; private set; } = 59; //50% water
+        public static int Doorless_Portal_TileId { get; private set; } = 60; //50% water
+        public static int BlockTileId_WaterGrass { get; private set; } = 61;
+        public static int BlockTileId_WaterGrassBack { get; private set; } = 62;
+        public static int SeaweedTileId { get; private set; } = 63;
+        public static int GlowfishTileId { get; private set; } = 64;
+        public static int SignTileId_0 { get; private set; } = 66;
+        public static int SignTileId_1 { get; private set; } = 67;
+        public static int SignTileId_2 { get; private set; } = 68;
+        public static int SignTileId_3 { get; private set; } = 69;
+        public static int SignTileId_4 { get; private set; } = 70;
+        public static int SignTileId_5 { get; private set; } = 71;
+        public static int SignTileId_6 { get; private set; } = 72;
+        public static int SignTileId_7 { get; private set; } = 73;
+        public static int SignTileId_8 { get; private set; } = 74;
+        public static int SignTileId_9 { get; private set; } = 75;
+        public static int SignTileId_10 { get; private set; } = 76;
+        public static int BombTileId { get; private set; } = 77;
+        public static int BombPowerupTileId { get; private set; } = 78;
+        public static int CaveVineTileId { get; private set; } = 79;
+        public static int GlowFlowerTileId { get; private set; } = 80;
+        public static int LeverTileId_0 { get; private set; } = 81;//Levers + Gates
+        public static int LeverTileId_1 { get; private set; } = 82;
+        public static int LeverTileId_2 { get; private set; } = 83;
+        public static int LeverTileId_3 { get; private set; } = 84;
+        public static int LeverTileId_4 { get; private set; } = 85;
+        public static int LeverTileId_5 { get; private set; } = 86;
+        public static int LeverTileId_6 { get; private set; } = 87;
+        public static int LeverTileId_7 { get; private set; } = 88;
+        public static int GateTileId_0 { get; private set; } = 89;
+        public static int GateTileId_1 { get; private set; } = 90;
+        public static int GateTileId_2 { get; private set; } = 91;
+        public static int GateTileId_3 { get; private set; } = 92;
+        public static int GateTileId_4 { get; private set; } = 93;
+        public static int GateTileId_5 { get; private set; } = 94;
+        public static int GateTileId_6 { get; private set; } = 95;
+        public static int GateTileId_7 { get; private set; } = 96;
+        public static int SlopeTile_BR { get; private set; } = 97;
+        public static int SlopeTile_BL { get; private set; } = 98;
+        public static int SlopeTile_TR { get; private set; } = 99;
+        public static int SlopeTile_TL { get; private set; } = 100;
+        public static int EnemSharkTileId { get; private set; } = 101;
+        public static int EnemGrubGrassTileId { get; private set; } = 102;
+        public static int PowerSwordTileId { get; private set; } = 103;
+        public static int CrystalRockTileId { get; private set; } = 104;
+        public static int Elevator_A_TileId { get; private set; } = 105;
+        public static int Elevator_B_TileId { get; private set; } = 106;
+        public static int BugTileId { get; private set; } = 107;
+        public static int EnemGrubWaterTileId { get; private set; } = 108;
+        public static int SavePointTileId { get; private set; } = 109;
+        public static int SwitchButtonTileId { get; private set; } = 110;
+        public static int SwitchDoorTileId { get; private set; } = 111;
+        public static int SwitchConduitTileId { get; private set; } = 112;
+        public static int Tar80TileId { get; private set; } = 114;
+        public static int BlockTileId_Crag { get; private set; } = 115;
+        public static int EnemGrubLavaTileId { get; private set; } = 116;
+        public static int EnemGrubRockTileId { get; private set; } = 117;
+        public static int BlockTileID_DirtBackground { get; private set; } = 118;
+        public static int BowItemTileId { get; private set; } = 119;
+        public static int Spike1_LTileId { get; private set; } = 120;
+        public static int Spike1_RTileId { get; private set; } = 121;
+        public static int Spike1_TTileId { get; private set; } = 122;
+        public static int Spike1_BTileId { get; private set; } = 123;
+        public static int Spike2_LTileId { get; private set; } = 124;
+        public static int Spike2_RTileId { get; private set; } = 125;
+        public static int Spike2_TTileId { get; private set; } = 126;
+        public static int Spike2_BTileId { get; private set; } = 127;
+        public static int CapeGuyTileId = 128;
+        public static int AppleTileId = 129;
+        public static int BlockTileID_WoodBackground = 130;
 
-        public int NoGoTileId = 9999;//**NOT IN THE SPRITE KEY - this is the default "black" background tile so player can't see shit.
-        public int BorderTileId { get; private set; } = 1;// World
-        public int BlockTileId_Rock { get; private set; } = 2;// Wo
-        public int BlockTileId_Copper { get; private set; } = 3;// 
-        public int LadderTileId_R { get; private set; } = 4;// Worl
-        public int BlockTileId_SandRock { get; private set; } = 5;
-        public int BlockTileID_CaveBack { get; private set; } = 6;
-
-        public int SwordItemTileId { get; private set; } = 7;
-        public int Sun_20Percent { get; private set; } = 8;
-        public int Sun_5Percent { get; private set; } = 9;
-        public int SilverSmallChestTileId { get; private set; } = 10;
-        public int GoldSmallChestTileId { get; private set; } = 11;
-        public int SandRockBackTileId { get; private set; } = 12;
-
-        public int BigChestTileId { get; private set; } = 13;
-        public int LadderTileId_L { get; private set; } = 14;// Worl
-        public int TreeTileId { get; private set; } = 15;// World.Re
-        public int TorchTileId { get; private set; } = 16;// World.R
-        public int MonsterGrassTileId { get; private set; } = 17;// 
-        //Monster Rock Tile Id
-
-        public int GuyTileId { get; private set; } = 19;
-        public int SmallChestTileId { get; private set; } = 20;
-        public int PlantBombGuyTileId { get; private set; } = 21;
-
-        public int ShieldItemTileId { get; private set; } = 22;
-        public int BrazierTileId { get; private set; } = 23;
-        public int GoldChestTileId { get; private set; } = 24;
-
-        public int FlowerTileId { get; private set; } = 25; //50% water
-        public int ZombieTileId { get; private set; } = 26;
-        public int BootsTileId { get; private set; } = 27;
-        public int Water100TileId { get; private set; } = 28; //100% water
-        public int Water50TileId { get; private set; } = 29; //50% water
-        public int Lava100TileId { get; private set; } = 30; //100% water
-
-        public int Lava50TileId { get; private set; } = 31; //50% water
-        public int BlockTileId_Obsidian { get; private set; } = 32; //50% water
-        public int TriggerTileId0 { get; private set; } = 33;
-        public int TriggerTileId1 { get; private set; } = 34;
-        public int TriggerTileId2 { get; private set; } = 35;
-        public int TriggerTileId3 { get; private set; } = 36;
-
-        public int TriggerTileId4 { get; private set; } = 37;
-        public int TriggerTileId5 { get; private set; } = 38;
-        public int TriggerTileId6 { get; private set; } = 39;
-        public int TriggerTileId7 { get; private set; } = 40;
-        public int TriggerTileId8 { get; private set; } = 41;
-        public int TriggerTileId9 { get; private set; } = 42;
-
-        public int RockMonsterTileId { get; private set; } = 43; //50% water
-        public int RockTileId { get; private set; } = 44; //50% water
-        public int MushroomTileId { get; private set; } = 45; //50% water
-        public int BlockTileId_GrassDirt { get; private set; } = 46;
-        public int LanternTileId { get; private set; } = 47;// World.Res.
-        public int BlockTileId_GreenDot { get; private set; } = 48;
-
-        public int Key_MonsterTileId { get; private set; } = 49; //50% water
-        public int SkeleTileId { get; private set; } = 50;
-        public int BlockTileId_Hedge { get; private set; } = 51;
-        public int Door_Nolock_TileId { get; private set; } = 52;
-
-        public int FallThrough_Tile_TileId { get; private set; } = 53;
-        public int Bombable_Tile_TileId { get; private set; } = 54;
-
-        public int SmallKey_TileId { get; private set; } = 55; //50% water
-        public int Door_Lock_TileId { get; private set; } = 56; //50% water
-        public int Door_Lock_Monster_TileId { get; private set; } = 57; //50% water
-        public int Door_Lock_RightOnly_TileId { get; private set; } = 58; //50% water
-        public int Door_Lock_LeftOnly_TileId { get; private set; } = 59; //50% water
-        public int Doorless_Portal_TileId { get; private set; } = 60; //50% water
-
-        public int BlockTileId_WaterGrass { get; private set; } = 61;
-        public int BlockTileId_WaterGrassBack { get; private set; } = 62;
-        public int SeaweedTileId { get; private set; } = 63;
-        public int GlowfishTileId { get; private set; } = 64;
-        //Ice Block
-        public int SignTileId_0 { get; private set; } = 66;
-
-        public int SignTileId_1 { get; private set; } = 67;
-        public int SignTileId_2 { get; private set; } = 68;
-        public int SignTileId_3 { get; private set; } = 69;
-        public int SignTileId_4 { get; private set; } = 70;
-        public int SignTileId_5 { get; private set; } = 71;
-        public int SignTileId_6 { get; private set; } = 72;
-
-        public int SignTileId_7 { get; private set; } = 73;
-        public int SignTileId_8 { get; private set; } = 74;
-        public int SignTileId_9 { get; private set; } = 75;
-        public int SignTileId_10 { get; private set; } = 76;
-        public int BombTileId { get; private set; } = 77;
-        public int BombPowerupTileId { get; private set; } = 78;
-
-        public int CaveVineTileId { get; private set; } = 79;
-        public int GlowFlowerTileId { get; private set; } = 80;
-        public int LeverTileId_0 { get; private set; } = 81;//Levers + Gates
-        public int LeverTileId_1 { get; private set; } = 82;
-        public int LeverTileId_2 { get; private set; } = 83;
-        public int LeverTileId_3 { get; private set; } = 84;
-
-        public int LeverTileId_4 { get; private set; } = 85;
-        public int LeverTileId_5 { get; private set; } = 86;
-        public int LeverTileId_6 { get; private set; } = 87;
-        public int LeverTileId_7 { get; private set; } = 88;
-        public int GateTileId_0 { get; private set; } = 89;
-        public int GateTileId_1 { get; private set; } = 90;
-
-        public int GateTileId_2 { get; private set; } = 91;
-        public int GateTileId_3 { get; private set; } = 92;
-        public int GateTileId_4 { get; private set; } = 93;
-        public int GateTileId_5 { get; private set; } = 94;
-        public int GateTileId_6 { get; private set; } = 95;
-        public int GateTileId_7 { get; private set; } = 96;
-
-        public int SlopeTile_BR { get; private set; } = 97;
-        public int SlopeTile_BL { get; private set; } = 98;
-        public int SlopeTile_TR { get; private set; } = 99;
-        public int SlopeTile_TL { get; private set; } = 100;
-        public int EnemSharkTileId { get; private set; } = 101;
-        public int EnemGrubGrassTileId { get; private set; } = 102;
-
-        public int PowerSwordTileId { get; private set; } = 103;
-        public int CrystalRockTileId { get; private set; } = 104;
-        public int Elevator_A_TileId { get; private set; } = 105;
-        public int Elevator_B_TileId { get; private set; } = 106;
-        public int BugTileId { get; private set; } = 107;
-        public int EnemGrubWaterTileId { get; private set; } = 108;
-
-        public int SavePointTileId { get; private set; } = 109;
-        public int SwitchButtonTileId { get; private set; } = 110;
-        public int SwitchDoorTileId { get; private set; } = 111;
-        public int SwitchConduitTileId { get; private set; } = 112;
-        //113
-        public int Tar80TileId { get; private set; } = 114;
-
-        public int BlockTileId_Crag { get; private set; } = 115;
-        public int EnemGrubLavaTileId { get; private set; } = 116;
-        public int EnemGrubRockTileId { get; private set; } = 117;
-        public int BlockTileID_DirtBackground { get; private set; } = 118;
-        public int BowItemTileId { get; private set; } = 119;
-        public int Spike1_LTileId { get; private set; } = 120;
-
-        public int Spike1_RTileId { get; private set; } = 121;
-        public int Spike1_TTileId { get; private set; } = 122;
-        public int Spike1_BTileId { get; private set; } = 123;
-        public int Spike2_LTileId { get; private set; } = 124;
-        public int Spike2_RTileId { get; private set; } = 125;
-        public int Spike2_TTileId { get; private set; } = 126;
-
-        public int Spike2_BTileId { get; private set; } = 127;
-        public int CapeGuyTileId = 128;
-        public int AppleTileId = 129;
-        public int BlockTileID_WoodBackground = 130;
-
-        public Res(ContentManager c)
+        public static void Load(ContentManager c, GraphicsDevice d)
         {
-            Content = c;
-            Audio = new Audio();
-            Tiles = new Tiles();
-        }
-
-
-        public void Load(GraphicsDevice d)
-        {
+            Res.Content = c;
+            Res.Audio = new Audio();
+            Res.Tiles = new Tiles();
             Font = Content.Load<SpriteFont>("Font");
             Font2 = Content.Load<SpriteFont>("Font2");
-            Tiles.Texture = Content.Load<Texture2D>("miner-16x16");
+            Tiles.Texture = Content.Load<Texture2D>("sprites");
 
             //**NOGO is alwasy a seamless tile
             //Mesh the grass with the various rocks
@@ -413,12 +375,10 @@ namespace Core
                     BlockTileId_GreenDot
             };
 
-           
-
             //Create3x3Tiles(SprGrassBlockTiles, 12, 0, 6, 9, GrassTileId, SeamlessRock);
-            Create3x3Tiles(SprCaveBackgroundBlockTiles, 18 + 6 * 0, 0, 6, 9, BlockTileID_CaveBack,  new List<int> { NoGoTileId, BlockTileID_WoodBackground, BlockTileID_CaveBack, BlockTileId_WaterGrassBack, BlockTileID_DirtBackground });
-            Create3x3Tiles(SprWoodBackgroundBlockTiles, 18 + 6 * 1, 0, 6, 9, BlockTileID_WoodBackground,  new List<int> { NoGoTileId, BlockTileID_WoodBackground, BlockTileID_CaveBack, BlockTileId_WaterGrassBack, BlockTileID_DirtBackground });
-            Create3x3Tiles(SprBlock_Sandrock, 18 + 6 * 2 , 0, 6, 9, BlockTileId_SandRock, SeamlessRock);
+            Create3x3Tiles(SprCaveBackgroundBlockTiles, 18 + 6 * 0, 0, 6, 9, BlockTileID_CaveBack, new List<int> { NoGoTileId, BlockTileID_WoodBackground, BlockTileID_CaveBack, BlockTileId_WaterGrassBack, BlockTileID_DirtBackground });
+            Create3x3Tiles(SprWoodBackgroundBlockTiles, 18 + 6 * 1, 0, 6, 9, BlockTileID_WoodBackground, new List<int> { NoGoTileId, BlockTileID_WoodBackground, BlockTileID_CaveBack, BlockTileId_WaterGrassBack, BlockTileID_DirtBackground });
+            Create3x3Tiles(SprBlock_Sandrock, 18 + 6 * 2, 0, 6, 9, BlockTileId_SandRock, SeamlessRock);
             Create3x3Tiles(SprBlock_GrassDirt, 18 + 6 * 3, 0, 6, 9, BlockTileId_GrassDirt, SeamlessRock);
             Create3x3Tiles(SprBlock_GreenDot, 18 + 6 * 4, 0, 6, 9, BlockTileId_GreenDot, new List<int>() { NoGoTileId, BlockTileId_GreenDot, BlockTileId_GrassDirt });
             Create3x3Tiles(SprBlock_WaterGrass, 18 + 6 * 5, 0, 6, 9, BlockTileId_WaterGrass, new List<int>() { NoGoTileId, BlockTileId_WaterGrass, BlockTileId_GrassDirt });
@@ -432,11 +392,11 @@ namespace Core
 
             Create3x3Tiles(SprBlock_DirtBackground, 30 + 6 * 0, 18, 6, 9, BlockTileID_DirtBackground, new List<int> { NoGoTileId, BlockTileID_WoodBackground, BlockTileID_CaveBack, BlockTileId_WaterGrassBack, BlockTileID_DirtBackground });
 
-            Tiles.AddSprite(SprCursorArrow, new List<Rectangle>() {new Rectangle(10, 2, 1, 1),}, 0.0f, Tiling.Single);
-            Tiles.AddSprite(SprCursorCrosshair  , new List<Rectangle>() { new Rectangle(11, 2, 1, 1),}, 0.0f, Tiling.Single);
-            Tiles.AddSprite(SprCursorQuestion, new List<Rectangle>() { new Rectangle(12, 2, 1, 1),}, 0.0f, Tiling.Single);
+            Tiles.AddSprite(SprCursorArrow, new List<Rectangle>() { new Rectangle(10, 2, 1, 1), }, 0.0f, Tiling.Single);
+            Tiles.AddSprite(SprCursorCrosshair, new List<Rectangle>() { new Rectangle(11, 2, 1, 1), }, 0.0f, Tiling.Single);
+            Tiles.AddSprite(SprCursorQuestion, new List<Rectangle>() { new Rectangle(12, 2, 1, 1), }, 0.0f, Tiling.Single);
             Tiles.AddSprite(SprCursorTalk, new List<Rectangle>() { new Rectangle(12, 1, 1, 1), }, 0.0f, Tiling.Single);
-            Tiles.AddSprite(SprCursorSword, new List<Rectangle>() { new Rectangle(13, 2, 1, 1),}, 0.0f, Tiling.Single);
+            Tiles.AddSprite(SprCursorSword, new List<Rectangle>() { new Rectangle(13, 2, 1, 1), }, 0.0f, Tiling.Single);
 
             Tiles.AddSprite(SprBow, new List<Rectangle>() { new Rectangle(12, 3, 1, 1) }, 0.6f);
             Tiles.AddSprite(SprArrow, new List<Rectangle>() { new Rectangle(13, 3, 1, 1), new Rectangle(15, 2, 1, 1) }, 0.6f);
@@ -455,7 +415,7 @@ namespace Core
             Tiles.AddSprite(SprSmoke_Yellow, new List<Rectangle>() { new Rectangle(12, 9, 1, 1), }, 0.0f, Tiling.Single);
             Tiles.AddSprite(SprBowUI, new List<Rectangle>() { new Rectangle(15, 0, 2, 2), }, 0.0f, Tiling.Single);
             Tiles.AddSprite(SprSelectedItemUI, new List<Rectangle>() { new Rectangle(15, 2, 2, 2), }, 0.0f, Tiling.Single);
-            Tiles.AddSprite(SprCheckboxUI, new List<Rectangle>() { new Rectangle(9, 22, 1, 1), new Rectangle(10, 22, 1, 1),}, 0.0f, Tiling.Single);
+            Tiles.AddSprite(SprCheckboxUI, new List<Rectangle>() { new Rectangle(9, 22, 1, 1), new Rectangle(10, 22, 1, 1), }, 0.0f, Tiling.Single);
 
             //BLOCK
             Tiles.AddSprite(SprBlock_Rock, new List<Rectangle>() {
@@ -494,14 +454,14 @@ namespace Core
                 new Rectangle(1, 0, 1, 1),
             }, 0.8f);
             Tiles.AddSprite(SprGuyWalk, new List<Rectangle>() {
-               new Rectangle(4, 0, 1, 1),
-                new Rectangle(5, 0, 1, 1),
-                new Rectangle(6, 0, 1, 1),
-                new Rectangle(5, 0, 1, 1),
+               new Rectangle(0, 0, 1, 1),
+                new Rectangle(1, 0, 1, 1),
+                new Rectangle(0, 0, 1, 1),
+                new Rectangle(2, 0, 1, 1),
             }, 0.8f);
 
             Tiles.AddSprite(SprGuyJump, new List<Rectangle>() {
-               new Rectangle(7, 0, 1, 1),
+               new Rectangle(1, 0, 1, 1),
             }, 0.8f);
             Tiles.AddSprite(SprGuyHang, new List<Rectangle>() {
                new Rectangle(8, 0, 1, 1),
@@ -747,7 +707,7 @@ namespace Core
                 new Rectangle(14, 8, 1, 1),
                 new Rectangle(15, 8, 1, 1),
                 }, .3f, Tiling.Single);
-            Tiles.AddSprite(SprGuyFall, new List<Rectangle>() {new Rectangle(9,1,1,1), new Rectangle(10,1,1,1) }, 0.6f);
+            Tiles.AddSprite(SprGuyFall, new List<Rectangle>() { new Rectangle(9, 1, 1, 1), new Rectangle(10, 1, 1, 1) }, 0.6f);
 
             //plant bomb guy / bomb
             Tiles.AddSprite(SprPlantBombDudeIdle, new List<Rectangle>() { new Rectangle(4, 15, 1, 1) }, 0.6f);
@@ -762,7 +722,7 @@ namespace Core
 
 
             Tiles.AddSprite(SprGuyHand, new List<Rectangle>() { new Rectangle(11, 1, 1, 1) }, 0.0f);//Attack Hand
-            Tiles.AddSprite(SprSavePoint, new List<Rectangle>() { new Rectangle(9, 19, 1, 1), new Rectangle(10,19,1,1) }, 0.0f);//Attack Hand
+            Tiles.AddSprite(SprSavePoint, new List<Rectangle>() { new Rectangle(9, 19, 1, 1), new Rectangle(10, 19, 1, 1) }, 0.0f);//Attack Hand
 
 
             Tiles.AddSprite(SprButtonSwitch, new List<Rectangle>() { new Rectangle(5, 20, 1, 1), new Rectangle(6, 20, 1, 1) }, 0.0f);//Attack Hand
@@ -783,7 +743,7 @@ namespace Core
                 new Rectangle(11, 0, 1, 1),
                 new Rectangle(12, 0, 1, 1)
             }
-            ,0.82f);//Attack Hand
+            , 0.82f);//Attack Hand
 
             Tiles.AddSprite(SprGuyDead, new List<Rectangle>() {
                 new Rectangle(2, 3, 1, 1),
@@ -861,13 +821,13 @@ namespace Core
             Audio.Sounds.Add(Content.Load<SoundEffect>(SfxNoArrowShoot));
             Audio.Sounds.Add(Content.Load<SoundEffect>(SfxDead));
             Audio.Sounds.Add(Content.Load<SoundEffect>(SfxContinue));
-            
+
 
 
         }
 
 
-        public void Create3x3Tiles(string name, int x0, int y0, int w, int h, int TileId, List<int> SeamlessIds)
+        public static void Create3x3Tiles(string name, int x0, int y0, int w, int h, int TileId, List<int> SeamlessIds)
         {
             //Creates a seamless set of tiles for a 3x3 grid configuration
             List<Rectangle> rects = new List<Rectangle>();

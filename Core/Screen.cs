@@ -21,12 +21,12 @@ namespace Core
 
         public float WidthPixels {
             get {
-                return TilesWidth * Screen.Game.Res.Tiles.TileWidthPixels;
+                return TilesWidth * Res.Tiles.TileWidthPixels;
             }
         }
         public float HeightPixels {
             get {
-                return TilesHeight * Screen.Game.Res.Tiles.TileHeightPixels;
+                return TilesHeight * Res.Tiles.TileHeightPixels;
             }
         }
         //public vec2 WH { get; set; }
@@ -51,9 +51,9 @@ namespace Core
             //Follow a game object
             //Call with LimitScrollBounds to limit scrolling in a region
             Screen.Viewport.Pos = new vec2(
-            ob.Pos.x - Screen.Game.Res.Tiles.TileWidthPixels * Screen.Viewport.TilesWidth * 0.5f + Screen.Game.Res.Tiles.TileWidthPixels * 0.5f
+            ob.Pos.x - Res.Tiles.TileWidthPixels * Screen.Viewport.TilesWidth * 0.5f + Res.Tiles.TileWidthPixels * 0.5f
             ,
-            ob.Pos.y - Screen.Game.Res.Tiles.TileHeightPixels * Screen.Viewport.TilesHeight * 0.5f + Screen.Game.Res.Tiles.TileHeightPixels * 0.5f
+            ob.Pos.y - Res.Tiles.TileHeightPixels * Screen.Viewport.TilesHeight * 0.5f + Res.Tiles.TileHeightPixels * 0.5f
             ) + Screen.ScreenShake.ScreenShakeOffset;
         }
         public void LimitScrollBounds(Box2f box)
@@ -343,7 +343,7 @@ namespace Core
             vec2 scale, float rotation = 0.0f, vec2 origin = default(vec2), SpriteEffects se = SpriteEffects.None)
         {
             Rectangle r = Viewport.WorldToDevice(pos_pixels, wh_pixels * scale);
-            sb.Draw(Game.Res.Tiles.Texture,
+            sb.Draw(Res.Tiles.Texture,
                 r,
                 rect_tiles
                 , color , rotation, origin.toXNA(), se, 0.0f);
@@ -352,7 +352,7 @@ namespace Core
     float a = 1.0f, float scale = 1.0f, float rotation = 0.0f, vec2 origin = default(vec2))
         {
             //Draws without converting world to device
-            sb.Draw(Game.Res.Tiles.Texture,
+            sb.Draw(Res.Tiles.Texture,
                 deviceRect,
                 rect_tiles
                 , color * a, rotation, origin.toXNA(), SpriteEffects.None, 0.0f);
@@ -459,7 +459,7 @@ namespace Core
         }
         public void DrawUIFrame(SpriteBatch sb, string sprite_name, int iFrame, vec2 xy, vec2 wh, vec4 color)
         {
-            Sprite sp = Game.Res.Tiles.GetSprite(sprite_name);
+            Sprite sp = Res.Tiles.GetSprite(sprite_name);
             if (sp != null && sp.Frames !=null && sp.Frames.Count > iFrame)
             {
                 Frame fr = sp.Frames[iFrame];
@@ -474,7 +474,7 @@ namespace Core
         public void DrawUIFrame(SpriteBatch sb, Frame fr, vec2 xy, vec2 wh, vec4 color)
         {
             sb.Draw(
-                Game.Res.Tiles.Texture,
+                Res.Tiles.Texture,
                 Viewport.WorldToDevice(Viewport.Pos + xy, wh),
                 fr.R,
                 color.toXNAColor(),

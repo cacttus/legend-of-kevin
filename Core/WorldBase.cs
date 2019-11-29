@@ -16,6 +16,8 @@ namespace Core
     }
     public abstract class WorldBase
     {
+        public vec2 Gravity = new vec2(0, 400.0f);
+
         public Screen Screen { get; private set; }
         public List<GameObject> Particles { get; private set; } = new List<GameObject>();
 

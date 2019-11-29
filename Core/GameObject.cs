@@ -41,10 +41,6 @@ namespace Core
         public Cell CreatedCell = null;//Cell on which this was created.
         public int CreatedLayer = -1;   
 
-        public Res GetRes()
-        {
-            return (World as World).Res;
-        }
         public virtual void UpdateSprite()
         {
             //Update sprite 
@@ -285,7 +281,7 @@ namespace Core
         //}
         public void SetSprite(string name, bool loop = true, int iFrame=-1)
         {
-            Sprite spr = World.Screen.Game.Res.Tiles.GetSprite(name);
+            Sprite spr = Res.Tiles.GetSprite(name);
             SetSprite(spr,loop);
             if (iFrame >=0)
             {

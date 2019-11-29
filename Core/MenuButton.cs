@@ -45,14 +45,14 @@ namespace Core
             Rectangle d = new Rectangle(0,0,0,0);
             if (TouchState == TouchState.Up || TouchState == TouchState.Release)
             {
-                if (fCustomWidth > 0) { width = fCustomWidth; } else { width = tex_up_rect.Width * Screen.Game.Res.Tiles.TileWidthPixels; }
-                if (fCustomHeight > 0) { height = fCustomHeight; } else { height = tex_up_rect.Height * Screen.Game.Res.Tiles.TileHeightPixels; }
+                if (fCustomWidth > 0) { width = fCustomWidth; } else { width = tex_up_rect.Width * Res.Tiles.TileWidthPixels; }
+                if (fCustomHeight > 0) { height = fCustomHeight; } else { height = tex_up_rect.Height * Res.Tiles.TileHeightPixels; }
 
             }
             else
             {
-                if (fCustomWidth > 0) { width = fCustomWidth; } else { width = tex_down_rect.Width * Screen.Game.Res.Tiles.TileWidthPixels; }
-                if (fCustomHeight > 0) { height = fCustomHeight; } else { height = tex_down_rect.Height * Screen.Game.Res.Tiles.TileHeightPixels; }
+                if (fCustomWidth > 0) { width = fCustomWidth; } else { width = tex_down_rect.Width * Res.Tiles.TileWidthPixels; }
+                if (fCustomHeight > 0) { height = fCustomHeight; } else { height = tex_down_rect.Height * Res.Tiles.TileHeightPixels; }
 
             }
 
@@ -82,7 +82,7 @@ namespace Core
 
             Screen.DrawFrameRectDevice(
                 batch, 
-                Screen.Game.Res.Tiles.FrameRect(frame),
+                Res.Tiles.FrameRect(frame),
                 device,
                 Color);
 

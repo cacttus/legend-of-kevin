@@ -1,5 +1,4 @@
 using System;
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -249,7 +248,7 @@ namespace Core
         public float MaxLineWidthPixels()
         {
             float box_pad_LR = 0.1f;
-            return (World.Screen.Viewport.TilesWidth - 2) * World.Res.Tiles.TileWidthPixels * (1.0f - box_pad_LR * 2.0f);
+            return (World.Screen.Viewport.TilesWidth - 2) * Res.Tiles.TileWidthPixels * (1.0f - box_pad_LR * 2.0f);
         }
         public void ShowDialog(List<string> text, Guy NPC = null)
         {
@@ -270,21 +269,21 @@ namespace Core
         private vec2 GetTextBasePos()
         {
             return World.Screen.Viewport.Pos + new vec2(
-                    World.Res.Tiles.TileWidthPixels * 1.35f,
-                    World.Screen.Viewport.HeightPixels - (World.Res.Tiles.TileHeightPixels) * 1.7f
+                    Res.Tiles.TileWidthPixels * 1.35f,
+                    World.Screen.Viewport.HeightPixels - (Res.Tiles.TileHeightPixels) * 1.7f
                     );
         }
         public float GetTextVHeightPixels()
         {
             float v_pad = 0.05f;
-            float v_height = World.Res.Tiles.TileHeightPixels - (World.Res.Tiles.TileHeightPixels * v_pad) * 2.0f;
+            float v_height = Res.Tiles.TileHeightPixels - (Res.Tiles.TileHeightPixels * v_pad) * 2.0f;
 
             return v_height;
         }
         public float GetTextLineHeightPixels()
         {
             float v_pad = 0.20f;
-            float v_height = World.Res.Tiles.TileHeightPixels - (World.Res.Tiles.TileHeightPixels * v_pad) * 2.0f;
+            float v_height = Res.Tiles.TileHeightPixels - (Res.Tiles.TileHeightPixels * v_pad) * 2.0f;
 
             return v_height;
         }
@@ -294,7 +293,7 @@ namespace Core
             {
                 if (TextCursor == null)
                 {
-                    TextCursor = new GameObject(World, World.Res.SprMoreTextCursor);
+                    TextCursor = new GameObject(World, Res.SprMoreTextCursor);
                     TextCursor.Animate = true;
                 }
                 TextCursor.Update(World.Screen.Game.Input, dt);
@@ -364,7 +363,7 @@ namespace Core
                     {
                         if (Char.IsWhiteSpace(Text[_iMessage][_iChar]) == false)
                         {
-                            World.Res.Audio.PlaySound(World.Res.SfxTextBlip);
+                            Res.Audio.PlaySound(Res.SfxTextBlip);
                         }
 
                         AddChar(Text[_iMessage][_iChar]);
@@ -548,12 +547,12 @@ namespace Core
                 //Draw the cursor
                 if (WaitForUser && Halt == false)
                 {
-                    vec2 wh = new vec2(World.Res.Tiles.TileWidthPixels, World.Res.Tiles.TileHeightPixels);
+                    vec2 wh = new vec2(Res.Tiles.TileWidthPixels, Res.Tiles.TileHeightPixels);
                     World.Screen.DrawUIFrame(sb,
                         TextCursor.Frame,
                         new vec2(
-                            World.Screen.Viewport.WidthPixels - (World.Res.Tiles.TileWidthPixels) * 2.0f,
-                            World.Screen.Viewport.HeightPixels - (World.Res.Tiles.TileHeightPixels) * 0.8f),
+                            World.Screen.Viewport.WidthPixels - (Res.Tiles.TileWidthPixels) * 2.0f,
+                            World.Screen.Viewport.HeightPixels - (Res.Tiles.TileHeightPixels) * 0.8f),
                         wh, new vec4(1, 1, 1, 1));
                 }
 
@@ -574,45 +573,45 @@ namespace Core
         }
         public void DrawDialogBackground(SpriteBatch sb)
         {
-            Sprite spr = World.Res.Tiles.GetSprite(World.Res.SprTextBk);
+            Sprite spr = Res.Tiles.GetSprite(Res.SprTextBk);
             vec2 wh = new vec2(
-                    World.Res.Tiles.TileWidthPixels,
-                     World.Res.Tiles.TileHeightPixels
+                    Res.Tiles.TileWidthPixels,
+                     Res.Tiles.TileHeightPixels
                     );
             World.Screen.DrawUIFrame(sb,
-                World.Res.SprTextBk, 0,
-                new vec2((World.Res.Tiles.TileWidthPixels) * (1), World.Screen.Viewport.HeightPixels - (World.Res.Tiles.TileHeightPixels) * 2),
+                Res.SprTextBk, 0,
+                new vec2((Res.Tiles.TileWidthPixels) * (1), World.Screen.Viewport.HeightPixels - (Res.Tiles.TileHeightPixels) * 2),
                 wh, new vec4(1, 1, 1, 1));
             World.Screen.DrawUIFrame(sb,
-                World.Res.SprTextBk, 3,
-                new vec2((World.Res.Tiles.TileWidthPixels) * (1), World.Screen.Viewport.HeightPixels - (World.Res.Tiles.TileHeightPixels) * 1),
+                Res.SprTextBk, 3,
+                new vec2((Res.Tiles.TileWidthPixels) * (1), World.Screen.Viewport.HeightPixels - (Res.Tiles.TileHeightPixels) * 1),
                 wh, new vec4(1, 1, 1, 1));
 
             for (int i = 2; i < World.Screen.Viewport.TilesWidth - 2; ++i)
             {
                 World.Screen.DrawUIFrame(sb,
-                    World.Res.SprTextBk, 1,
+                    Res.SprTextBk, 1,
                     new vec2(
-                        (World.Res.Tiles.TileWidthPixels) * (i),
-                    World.Screen.Viewport.HeightPixels - (World.Res.Tiles.TileHeightPixels) * 2),
+                        (Res.Tiles.TileWidthPixels) * (i),
+                    World.Screen.Viewport.HeightPixels - (Res.Tiles.TileHeightPixels) * 2),
                     wh, new vec4(1, 1, 1, 1));
                 World.Screen.DrawUIFrame(sb,
-                    World.Res.SprTextBk, 4,
+                    Res.SprTextBk, 4,
                     new vec2(
-                        (World.Res.Tiles.TileWidthPixels) * (i),
-                    World.Screen.Viewport.HeightPixels - (World.Res.Tiles.TileHeightPixels) * 1),
+                        (Res.Tiles.TileWidthPixels) * (i),
+                    World.Screen.Viewport.HeightPixels - (Res.Tiles.TileHeightPixels) * 1),
                     wh, new vec4(1, 1, 1, 1));
             }
 
             World.Screen.DrawUIFrame(sb,
-                World.Res.SprTextBk, 2,
-                new vec2(World.Screen.Viewport.WidthPixels - (World.Res.Tiles.TileWidthPixels) * 2,
-                World.Screen.Viewport.HeightPixels - (World.Res.Tiles.TileHeightPixels) * 2),
+                Res.SprTextBk, 2,
+                new vec2(World.Screen.Viewport.WidthPixels - (Res.Tiles.TileWidthPixels) * 2,
+                World.Screen.Viewport.HeightPixels - (Res.Tiles.TileHeightPixels) * 2),
                 wh, new vec4(1, 1, 1, 1));
             World.Screen.DrawUIFrame(sb,
-                World.Res.SprTextBk, 5,
-                new vec2(World.Screen.Viewport.WidthPixels - (World.Res.Tiles.TileWidthPixels) * 2,
-                World.Screen.Viewport.HeightPixels - (World.Res.Tiles.TileHeightPixels) * 1),
+                Res.SprTextBk, 5,
+                new vec2(World.Screen.Viewport.WidthPixels - (Res.Tiles.TileWidthPixels) * 2,
+                World.Screen.Viewport.HeightPixels - (Res.Tiles.TileHeightPixels) * 1),
                 wh, new vec4(1, 1, 1, 1));
         }
 
@@ -630,13 +629,11 @@ namespace Core
             set;
         } = GameState.Play;
         DrawState DrawState = DrawState.Normal;//For cuscenese
-        public Res Res { get; private set; }
 
         public HoverState HoverState = HoverState.Normal;
 
         public bool bLoadingRoom = false;
 
-        public vec2 Gravity = new vec2(0, 400.0f);
 
         public PlatformLevel Level { get; private set; }
 
@@ -699,13 +696,15 @@ namespace Core
         Box2f MenuTab1Box = new Box2f(47, 12, 32, 8);
         Box2f MenuTab2Box = new Box2f(47 + 34, 12, 32, 8);
         Box2f MenuMapBox = new Box2f(16, 22, 130, 60);
-
-        public World(Screen screen, Res r) : base(screen)
+        TileDefs td;
+        public World(Screen screen) : base(screen)
         {
-            Res = r;
-            Dialog = new Dialog(this, this.Res.Font);
+            td = new TileDefs(this);
+            Dialog = new Dialog(this, Res.Font);
             Screen.Game.AdMan.HideAd("MainAd");
-            Level = new PlatformLevel(this, "World-0");
+
+            TileMap tm = new TileMap("World-0");
+            Level = new PlatformLevel(this, tm);
 
             DoCheats();
         }
@@ -7525,7 +7524,7 @@ namespace Core
         {
             World = null;
             GC.Collect();
-            World = new World(this, (this.Game as MainGame).Res);
+            World = new World(this);
         }
         public override void Init(GameBase game)
         {
@@ -7542,13 +7541,11 @@ namespace Core
                 World.Level.SerializeLevel();
 
                 //**Save previous world imgae
-                Game.Res.Audio.PlaySound(Game.Res.SfxExitStairs);
+                Res.Audio.PlaySound(Res.SfxExitStairs);
                 PortalTransition = new PortalTransition(this.World, TransitionDoor.PortalTransitionEffect);
                 PortalTransition.RenderPrevWorld(World);
                 LastGameState = World.GameState;
                 World.GameState = GameState.LevelTransition;
-
-
 
                 //Load the actual next area.
 
@@ -7762,8 +7759,7 @@ namespace Core
         }
         protected override void LoadContent()
         {
-            Res = new Res(Content);
-            Res.Load(this.GraphicsDevice);
+            Res.Load(Content, this.GraphicsDevice);
 
             //Do not do any usage of GameSystem ehre
 

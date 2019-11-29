@@ -113,17 +113,17 @@ namespace Core
                     new vec2(6, 2), new vec2(2, 2),
                     new vec2(6, 2), new vec2(2, 2),
                     new vec2(
-                        0, Screen.Viewport.HeightPixels - Screen.Game.Res.Tiles.TileWidthPixels * 2.0f),
-                    true, Screen.Game.Res.Tiles.TileWidthPixels * 2.0f, Screen.Game.Res.Tiles.TileWidthPixels * 2.0f, Color.White * 0.5f));
+                        0, Screen.Viewport.HeightPixels - Res.Tiles.TileWidthPixels * 2.0f),
+                    true, Res.Tiles.TileWidthPixels * 2.0f, Res.Tiles.TileWidthPixels * 2.0f, Color.White * 0.5f));
 
-                joystickBasePos = new vec2(Screen.Game.Res.Tiles.TileWidthPixels * 0.5f, Screen.Viewport.HeightPixels - Screen.Game.Res.Tiles.TileWidthPixels * 1.5f);
+                joystickBasePos = new vec2(Res.Tiles.TileWidthPixels * 0.5f, Screen.Viewport.HeightPixels - Res.Tiles.TileWidthPixels * 1.5f);
 
                 Screen.MenuButtons.Add(Stick = new MenuButton(Screen,
                     new vec2(8, 2), new vec2(1, 1),
                     new vec2(8, 2), new vec2(1, 1),
                     new vec2(
                         joystickBasePos.x, joystickBasePos.y),
-                    true, Screen.Game.Res.Tiles.TileWidthPixels * 1.0f, Screen.Game.Res.Tiles.TileWidthPixels * 1.0f, Color.White * 0.5f));
+                    true, Res.Tiles.TileWidthPixels * 1.0f, Res.Tiles.TileWidthPixels * 1.0f, Color.White * 0.5f));
                 Stick.Press = (x) =>
                 {
                     //Don't put any extra logic in here. put in stargame
@@ -141,9 +141,9 @@ namespace Core
                 new vec2(0, 10), new vec2(2, 2),
                 new vec2(0, 12), new vec2(2, 2),
                 new vec2(
-                    Screen.Viewport.WidthPixels - Screen.Game.Res.Tiles.TileWidthPixels*2, 
-                    Screen.Viewport.HeightPixels - Screen.Game.Res.Tiles.TileWidthPixels * 2.0f),
-                true, Screen.Game.Res.Tiles.TileWidthPixels * 2.0f, Screen.Game.Res.Tiles.TileWidthPixels * 2.0f, Color.White * 0.5f));
+                    Screen.Viewport.WidthPixels - Res.Tiles.TileWidthPixels*2, 
+                    Screen.Viewport.HeightPixels - Res.Tiles.TileWidthPixels * 2.0f),
+                true, Res.Tiles.TileWidthPixels * 2.0f, Res.Tiles.TileWidthPixels * 2.0f, Color.White * 0.5f));
                 AButton.Press = (x) => { AButtonPressOrDown = true; };
                 AButton.Down = (x) => { AButtonPressOrDown = true; };
                 AButton.Release = (x) => { AButtonPressOrDown = false; };
@@ -186,7 +186,7 @@ namespace Core
                             vec2 vchange = (Screen.Game.Input.LastTouch - startTouch);
 
                             //Move at least 1/2 tile
-                            if (vchange.Len2() >= Math.Pow(Screen.Game.Res.Tiles.TileHeightPixels * 0.5f, 2))
+                            if (vchange.Len2() >= Math.Pow(Res.Tiles.TileHeightPixels * 0.5f, 2))
                             {
                                 vchange.Normalize();
 
@@ -201,22 +201,22 @@ namespace Core
                                 if (ud > angle)
                                 {
                                     bUp = true;
-                                    vStickAngle += new vec2(0, Screen.Game.Res.Tiles.TileWidthPixels * -0.5f);
+                                    vStickAngle += new vec2(0, Res.Tiles.TileWidthPixels * -0.5f);
                                 }
                                 else if (ud < -angle)
                                 {
                                     bDown = true;
-                                    vStickAngle += new vec2(0, Screen.Game.Res.Tiles.TileWidthPixels * 0.5f);
+                                    vStickAngle += new vec2(0, Res.Tiles.TileWidthPixels * 0.5f);
                                 }
                                 if (rd > angle)
                                 {
                                     bRight = true;
-                                    vStickAngle += new vec2(Screen.Game.Res.Tiles.TileWidthPixels * 0.5f, 0);
+                                    vStickAngle += new vec2(Res.Tiles.TileWidthPixels * 0.5f, 0);
                                 }
                                 else if (rd < -angle)
                                 {
                                     bLeft = true;
-                                    vStickAngle += new vec2(Screen.Game.Res.Tiles.TileWidthPixels * -0.5f, 0);
+                                    vStickAngle += new vec2(Res.Tiles.TileWidthPixels * -0.5f, 0);
                                 }
 
                                 Stick.Pos = joystickBasePos + vStickAngle;

@@ -12,8 +12,6 @@ namespace Core
         public AdMan AdMan { get; set; }
         public GameSystem GameSystem { get; set; }
 
-        public Res Res { get; protected set; }
-
         public Platform Platform { get; protected set; } = Platform.Android;
         public Action ExitAction { get; protected set; } = null;
         public Input Input { get; private set; }
