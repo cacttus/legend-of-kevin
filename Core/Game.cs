@@ -699,11 +699,50 @@ namespace Core
         TileDefs td;
         public World(Screen screen) : base(screen)
         {
-            td = new TileDefs(this);
             Dialog = new Dialog(this, Res.Font);
             Screen.Game.AdMan.HideAd("MainAd");
 
-            TileMap tm = new TileMap("World-0");
+            td = new TileDefs(this);
+            //Legend of Kevin Map
+            //TileMap tm = new TileMap("World-0");
+            //Our Map.
+            TileMap tm = new TileMap(100, 40);
+
+            int playerX = 1;
+            int playerY = tm.MapHeightTiles - 5;
+            tm.PlayerStartXY = new ivec2(playerX, playerY);
+            tm.TrySetGenTile(playerX, playerY, PlatformLevel.Midground, Res.GuyTileId);
+
+            for (int gy = 0; gy < tm.MapHeightTiles; ++gy)
+            {
+                for (int gx = 0; gx < tm.MapWidthTiles; ++gx)
+                {
+                    tm.TrySetGenTile(gx, gy, PlatformLevel.Midback, Res.Sky_Level0);
+                }
+            }
+
+            for (int gy = playerY + 1; gy < tm.MapHeightTiles+1; ++gy)
+            {
+                for (int gx = 0; gx < tm.MapWidthTiles; ++gx)
+                {
+                    if (gx > 40 && gx < 70)
+                    {
+                        if (gy > playerY + 1)
+                        {
+                            tm.TrySetGenTile(gx, gy, PlatformLevel.Midground, Res.Water100TileId);
+                        }
+                        else
+                        {
+                            tm.TrySetGenTile(gx, gy, PlatformLevel.Midground, Res.Water50TileId);
+                        }
+                    }
+                    else
+                    {
+                        tm.TrySetGenTile(gx, gy, PlatformLevel.Midground, Res.BlockTileId_GrassDirt);
+                    }
+                }
+            }
+
             Level = new PlatformLevel(this, tm);
 
             DoCheats();

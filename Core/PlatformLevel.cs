@@ -1278,7 +1278,7 @@ namespace Core
             this.World = w;
             BuildTileLUT();
             BuildObjLUT();
-            //BuildSpecialItemLUT();
+            BuildSpecialItemLUT();
             //BuildSignLUT();
             DoorTilesLUT = new List<int>() {
                     Res.Doorless_Portal_TileId,
@@ -1290,10 +1290,155 @@ namespace Core
                     Res.SwitchDoorTileId
                 };
         }
-        public void BuildObjLUT()
+        private void BuildObjLUT()
         {
-            ObjLUT = new Dictionary<int, Func<Cell, int, GameObject>>();
+            if (ObjLUT != null)
+            {
+                return;
+            }
 
+            ObjLUT = new Dictionary<int, Func<Cell, int, GameObject>>();
+            BuildMonsterObjLUT();
+            BuildItemObjLUT();
+            BuildTriggerObjLUT();
+            BuildNPCObjLut();
+        }
+        public void BuildItemObjLUT()
+        {
+            ObjLUT.Add(Res.TorchTileId, (cell, ilayer) =>
+            {
+                GameObject g = new GameObject(World, Res.SprTorch, cell.Pos());
+                g.Pos = cell.Pos();
+                g.Animate = true;
+                g.BlocksLight = false;
+                g.EmitLight = true;
+                g.EmitRadiusInPixels = 16 * 4;
+                g.EmitColor = new vec4(
+                    Globals.Random(0, 1),
+                    Globals.Random(0, 1),
+                    Globals.Random(0, 1),
+                    1.0f);
+                g.EmitColor.SetMinLightValue(1.5f);
+
+                return g;
+            });
+            ObjLUT.Add(Res.LanternTileId, (cell, ilayer) =>
+            {
+                GameObject g = new GameObject(World, Res.SprLantern, cell.Pos());
+                g.Pos = cell.Pos();
+                g.Animate = true;
+                g.BlocksLight = false;
+                g.EmitLight = true;
+                g.EmitRadiusInPixels = 16 * 9;
+                g.EmitColor = new vec4(
+                    Globals.Random(0, 1),
+                    Globals.Random(0, 1),
+                    Globals.Random(0, 1),
+                    1.0f);
+
+                g.EmitColor.SetMinLightValue(1.5f);
+
+                return g;
+            });
+            ObjLUT.Add(Res.SmallChestTileId, (cell, ilayer) =>
+            {
+                TreasureChest g = new TreasureChest(World, Res.SprSmallChest, cell.Pos());
+                g.Pos = cell.Pos();
+                g.Animate = false;
+                g.BlocksLight = false;
+                g.EmitLight = false;
+                g.Money = 1;// Globals.RandomInt(3, 10);
+
+                return g;
+            });
+            ObjLUT.Add(Res.SilverSmallChestTileId, (cell, ilayer) =>
+            {
+                TreasureChest g = new TreasureChest(World, Res.SprSilverSmallChest, cell.Pos());
+                g.Pos = cell.Pos();
+                g.Animate = false;
+                g.BlocksLight = false;
+                g.EmitLight = false;
+                g.Money = Globals.RandomInt(10, 20);
+
+                return g;
+            });
+            ObjLUT.Add(Res.GoldSmallChestTileId, (cell, ilayer) =>
+            {
+                TreasureChest g = new TreasureChest(World, Res.SprGoldSmallChest, cell.Pos());
+                g.Pos = cell.Pos();
+                g.Animate = false;
+                g.BlocksLight = false;
+                g.EmitLight = false;
+                g.Money = Globals.RandomInt(20, 50);
+
+                return g;
+            });
+            ObjLUT.Add(Res.SavePointTileId, (cell, ilayer) =>
+            {
+                GameObject g = new GameObject(World, Res.SprSavePoint, cell.Pos());
+                g.Pos = cell.Pos();
+                g.Animate = false;
+                g.SetFrame(1);
+                g.BoxRelative = new Box2f(3, 3, 16 - 2 * 2, 16 - 3 * 2);
+
+                g.BlocksLight = false;
+                g.EmitLight = true;
+                g.EmitRadiusInPixels = 16 * 4;
+                g.EmitColor = new vec4(
+                    Globals.Random(.7f, 1),
+                    Globals.Random(.6f, 1),
+                    Globals.Random(.1f, 1),
+                    1.0f);
+
+                return g;
+            });
+            ObjLUT.Add(Res.SwitchButtonTileId, (cell, ilayer) =>
+            {
+                ButtonSwitch g = new ButtonSwitch(World);
+                g.Pos = cell.Pos();
+                g.Animate = false;
+                g.SetSprite(Res.SprButtonSwitch);
+                g.SetFrame(0);
+                g.BoxRelative = new Box2f(4, 12, 16 - 8, 4);
+                g.BlocksLight = false;
+                g.EmitLight = false;
+
+                return g;
+            });
+            ObjLUT.Add(Res.BrazierTileId, (cell, ilayer) =>
+            {
+                GameObject g = new GameObject(World);
+                g.Pos = cell.Pos();
+                g.Animate = true;
+                g.SetSprite(Res.SprBrazier);
+                g.SetFrame(0);
+                g.BoxRelative = new Box2f(3, 2, 16 - 6, 14);
+                g.BlocksLight = false;
+                g.EmitLight = true;
+                g.EmitRadiusInPixels = Res.Tiles.TileWidthPixels * 3;
+                g.EmitColor = new vec4(0.93f, 0.85f, 0, 1);
+                return g;
+            });
+            ObjLUT.Add(Res.AppleTileId, (cell, ilayer) =>
+            {
+                GameObject g = new GameObject(World);
+                g.Pos = cell.Pos();
+                g.Animate = false;
+                g.SetSprite(Res.SprApple);
+                g.SetFrame(0);
+                g.Origin = new vec2(8, 8);
+                g.BoxRelative = new Box2f(-2, -2, 4, 4);
+                g.PhysicsResponse = PhysicsResponse.Bounce_And_Roll;
+                g.PhysicsShape = PhysicsShape.Ball;
+                g.PhysicsBallRadiusPixels = 3;
+                g.Gravity = World.Gravity;
+                g.Health = 1;
+                return g;
+            });
+
+        }
+        public void BuildMonsterObjLUT()
+        {
             ObjLUT.Add(Res.GuyTileId, (cell, ilayer) =>
             {
                 Player g = new Player(World, Res.SprGuyWalk, AIState.Player);
@@ -1332,6 +1477,378 @@ namespace Core
 
                 return g;
             });
+            ObjLUT.Add(Res.ZombieTileId, (cell, ilayer) =>
+            {
+                Guy g = new Guy(World, Res.SprZombieWalk, AIState.Wander);
+                g.Pos = cell.Pos();
+                g.BoxRelative = new Box2f(-4, -6, 8, 14);
+                g.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, Res.Tiles.TileHeightPixels * 0.5f);
+                g.Animate = true;
+                g.Power = 1;
+                g.BlocksLight = false;
+                g.EmitLight = false;
+                g.Health = 2;
+                g.Speed = 10.0f;
+                g.MaxAcc = 50;
+                g.Knockback = 20.0f;
+                g.Gravity = World.Gravity;
+
+                g.Friction = 8.0f;//Make this less than the player so we can knockback easier
+
+                g.HitSounds.Add(Res.SfxZombHit0);
+                g.HitSounds.Add(Res.SfxZombHit1);
+
+                g.GrowlSounds.Add(Res.SfxZombGrowl0);
+                g.GrowlSounds.Add(Res.SfxZombGrowl1);
+
+                g.SetAllMotionSprites(Res.SprZombieWalk);
+
+                return g;
+            });
+            ObjLUT.Add(Res.SkeleTileId, (cell, ilayer) =>
+            {
+                Guy g = new Guy(World, Res.SprSkeleWalk, AIState.Wander);
+                g.Pos = cell.Pos();
+                g.BoxRelative = new Box2f(-4, -6, 8, 14);
+                g.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, Res.Tiles.TileHeightPixels * 0.5f);
+                g.Animate = true;
+                g.Power = 1;
+                g.BlocksLight = false;
+                g.EmitLight = false;
+                g.Health = 30;
+                g.Speed = 30.0f;
+                g.MaxAcc = 50;
+                g.Knockback = 20.0f;
+                g.Gravity = World.Gravity;
+
+                g.Friction = 8.0f;//Make this less than the player so we can knockback easier
+
+                g.HitSounds.Add(Res.SfxZombHit0);
+                g.HitSounds.Add(Res.SfxZombHit1);
+
+                g.GrowlSounds.Add(Res.SfxZombGrowl0);
+                g.GrowlSounds.Add(Res.SfxZombGrowl1);
+                g.SetAllMotionSprites(Res.SprSkeleWalk);
+
+                return g;
+            });
+            ObjLUT.Add(Res.GlowfishTileId, (cell, ilayer) =>
+            {
+                string MainSprite = Res.SprGlowfish_Swim;
+
+                Guy g = new Guy(World, MainSprite, AIState.SwimLeftRight);
+                g.Pos = cell.Pos();
+                g.BoxRelative = new Box2f(-4, -4, 8, 8);
+                g.Animate = true;
+                g.Power = 1;
+                g.Gravity = World.Gravity;// new vec2(0, 0);//we HAVE gravity, but only when OUT of water
+
+                //Lives in water and swims. Reverse gravity.  if in water - 
+                g.NormalDamp = 1;
+                g.NormalDampGrav = 1;// g.WaterDampGrav;
+                g.WaterDamp = 1.0f;
+                g.WaterDampGrav = 0.0f; //No gravity influence if in water
+
+                g.BlocksLight = false;
+                g.EmitLight = true;
+                g.EmitColor = new vec4(0.6f, 0.6f, 0.6f, 1.0f);
+                // g.EmitColor.SetMinLightValue(1.5f);
+                g.EmitRadiusInPixels = Res.Tiles.TileWidthPixels * 5;
+                g.Health = 30;
+                g.Speed = 10.0f;
+                g.MaxAcc = 1;
+                g.Knockback = 20.0f;
+                g.CanJump = false;
+                g.AISetRandomDir();
+
+                g.Friction = 0.0f;//Make this less than the player so we can knockback easier
+
+                g.HitSounds.Add(Res.SfxZombHit0);
+                g.HitSounds.Add(Res.SfxZombHit1);
+
+                g.GrowlSounds.Add(Res.SfxZombGrowl0);
+                g.GrowlSounds.Add(Res.SfxZombGrowl1);
+                g.SetAllMotionSprites(MainSprite);
+
+                return g;
+            });
+            ObjLUT.Add(Res.RockMonsterTileId, (cell, ilayer) =>
+            {
+                Guy g = new Guy(World, Res.SprRockMonsterWalk, AIState.Wander);
+                g.Pos = cell.Pos();
+                g.BoxRelative = new Box2f(-4, -4, 8, 8);
+                g.Animate = true;
+                g.Power = 1;
+                g.BlocksLight = false;
+                g.EmitLight = false;
+                // g.EmitRadiusInPixels = 16 * 3;
+                g.Health = 80;
+                g.Speed = 4.0f;
+                g.MaxAcc = 20;
+                g.Knockback = 10.0f;
+                g.CanJump = false;
+                g.WaterDamp = g.WaterDampGrav = 1.0f; //Lives in water, no speed reduction
+                g.Gravity = World.Gravity;
+
+                g.Friction = 8.0f;//Make this less than the player so we can knockback easier
+
+                g.HitSounds.Add(Res.SfxZombHit0);
+                g.HitSounds.Add(Res.SfxZombHit1);
+
+                g.GrowlSounds.Add(Res.SfxZombGrowl0);
+                g.GrowlSounds.Add(Res.SfxZombGrowl1);
+                g.SetAllMotionSprites(Res.SprRockMonsterWalk);
+
+                return g;
+            });
+
+            Func<Cell, int, string, Guy> GrubBase = (Cell cell, int ilayer, string sprite) =>
+            {
+                Guy g = new Guy(World, sprite, AIState.MoveLRConstant);
+                g.Pos = cell.Pos();
+                g.BoxRelative = new Box2f(-5, -8, 10, 9);
+                g.AIPhysics = AIPhysics.Grapple;
+                g.Animate = true;
+                g.Power = 1;
+                g.Origin = new vec2(8, 15.1f);
+                g.BlocksLight = false;
+                g.EmitLight = false;
+                g.Health = 80;
+                g.MaxAcc = 20;
+                g.Knockback = 0.0f;
+                g.CanJump = false;
+
+                g.WaterDamp = g.WaterDampGrav = 1.0f; //Lives in water, no speed reduction
+                g.Gravity = 0.0f;
+                g.GrappleDir = ((Globals.Random(0, 1) > 0.5f) ? 1 : 0);//1 = move clockwise / right
+
+                g.Friction = 0.0f;//Make this less than the player so we can knockback easier
+                g.HitSounds.Add(Res.SfxGrubHit);
+                g.DieSounds.Add(Res.SfxGrubDie);
+                g.SetAllMotionSprites(sprite);
+
+                return g;
+            };
+
+            ObjLUT.Add(Res.EnemGrubGrassTileId, (cell, ilayer) =>
+            {
+                Guy grub = GrubBase(cell, ilayer, Res.SprGrub);
+                grub.Speed = 0.5f;// * ;
+                grub.Power = 1;
+                grub.Health = 2;
+                return grub;
+            });
+            ObjLUT.Add(Res.EnemGrubWaterTileId, (cell, ilayer) =>
+            {
+                Guy grub = GrubBase(cell, ilayer, Res.SprGrubWater);
+                grub.Speed = 0.55f;// * ;
+                grub.Power = 2;
+                grub.Health = 3;
+                grub.EmitLight = true;
+                grub.EmitColor = new vec4(0.0f, 0.2f, 1.0f, 1.0f);
+                grub.EmitRadiusInPixels = Res.Tiles.TileWidthPixels * 3;
+                return grub;
+            });
+            ObjLUT.Add(Res.EnemGrubRockTileId, (cell, ilayer) =>
+            {
+                Guy grub = GrubBase(cell, ilayer, Res.SprGrubRock);
+                grub.Speed = 0.6f;// * ;
+                grub.Power = 4;
+                grub.Health = 5;
+                return grub;
+            });
+            ObjLUT.Add(Res.EnemGrubLavaTileId, (cell, ilayer) =>
+            {
+                Guy grub = GrubBase(cell, ilayer, Res.SprGrubLava);
+                grub.Speed = 0.6f;// * ;
+                grub.Power = 5;
+                grub.Health = 6;
+
+                grub.EmitLight = true;
+                grub.EmitColor = new vec4(1.0f, 0.8f, 0.0f, 1.0f);
+                grub.EmitRadiusInPixels = Res.Tiles.TileWidthPixels * 3;
+
+                return grub;
+            });
+
+
+            ObjLUT.Add(Res.PlantBombGuyTileId, (cell, ilayer) =>
+            {
+                Guy g = new Guy(World, Res.SprPlantBombDudeIdle, AIState.Sleep);
+                g.Pos = cell.Pos();
+                g.BoxRelative = new Box2f(-6, -4, 8, 12);
+                g.AIPhysics = AIPhysics.PlantBombGuy;
+                g.Animate = true;
+                g.Power = 1;
+                g.Origin = new vec2(8, 15.1f);
+                g.BlocksLight = false;
+                g.EmitLight = false;
+                g.Health = 80;
+                g.Speed = 0.5f;// * ;
+                g.MaxAcc = 20;
+                g.Knockback = 0.0f;
+                g.CanJump = false;
+                g.WaterDamp = g.WaterDampGrav = 1.0f; //Lives in water, no speed reduction
+                g.Gravity = 0.0f;
+
+                g.GrappleDir = ((Globals.Random(0, 1) > 0.5f) ? 1 : 0);//1 = move clockwise / right
+
+                g.Friction = 0.0f;//Make this less than the player so we can knockback easier
+
+                g.HitSounds.Add(Res.SfxPlantBombGuyDamage);
+
+                g.IdleSprite = Res.SprPlantBombDudeIdle;
+                g.WalkAttackSprite = Res.SprPlantBombDudeAttack;
+                g.SleepSprite = Res.SprPlantBombDudeSleep;
+                g.DefendSprite = Res.SprPlantBombDudeCover;
+
+                //MUST set this to null to prevent attack from not showing when we throw an item
+                g.WalkSprite = Res.SprPlantBombDudeAttack;
+                g.ItemHeldWalkSprite = Res.SprPlantBombDudeAttack;
+
+                g.WakeRadiusPixels = 16 * 3;
+                g.CanDefend = true;
+                g.DefendRadiusPixels = 16 * 1.5f;
+                g.AttackTime = g.MaxAttackTime = 1.0f;//This is more of an initial delay when the player encounters, because we throw new when the bomb dies
+
+                return g;
+            });
+
+        }
+        public void BuildTriggerObjLUT()
+        {
+            //Triggers
+            for (int i = 0; i < 10; ++i)
+            {
+                int xx = i;
+                ObjLUT.Add(Res.TriggerTileId0 + xx, (cell, ilayer) =>
+                {
+                    GameObject g = new GameObject(World);
+                    g.Pos = cell.Pos();
+                    g.Animate = false;
+                    g.Visible = false;
+                    g.Frame = null;
+                    g.TileId = Res.TriggerTileId0 + xx;
+                    return g;
+                });
+            }
+
+        }
+        private void BuildNPCObjLut()
+        {
+            ObjLUT.Add(Res.CapeGuyTileId, (cell, ilayer) =>
+            {
+                Guy g = new Guy(World, Res.SprCapeGuyWalk, AIState.Wander);
+                g.Pos = cell.Pos();
+                g.BoxRelative = new Box2f(-4, -6, 8, 14);
+                g.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, Res.Tiles.TileHeightPixels * 0.5f);
+                g.Animate = true;
+                g.Power = 1;
+                g.BlocksLight = false;
+                g.EmitLight = false;
+                g.Health = 2;
+                g.Speed = 10.0f;
+                g.MaxAcc = 30;
+                g.Knockback = 20.0f;
+                g.Gravity = World.Gravity;
+                g.IsNpc = true;
+                g.Friction = 8.0f;//Make this less than the player so we can knockback easier
+                g.NpcDialog = new List<List<string>>() {
+                    new List<string>() { "Do you think we should get the bow or the bomb first?", "...","I don't get out much." }
+                };
+                g.NpcName = "DAN";
+
+                g.SetAllMotionSprites(Res.SprCapeGuyWalk);
+                g.TalkSprite = Res.SprCapeGuyTalk;
+
+                return g;
+            });
+        }
+        public void BuildSpecialItemLUT()
+        {
+            SpecialItem se = null;
+
+            SpecialItemLUT = new Dictionary<int, SpecialItem>();
+            SpecialItemLUT.Add(Res.BootsTileId, new SpecialItem(
+                "Spring Boots",
+                new List<string>() {
+                    "*SPRING *BOOTS",
+                    "Spring boots let Joe jump twice as high. ",
+                    "Hold *jump before hitting the ground to spring into the air."
+                }, Res.BootsTileId, Res.Tiles.GetSprite(Res.SprBoots), SpecialItemChestType.Normal_Big, true));
+            SpecialItemLUT.Add(Res.SwordItemTileId, new SpecialItem(
+                "KiranSword",
+                new List<string>() {
+                    "*Kiran *Sword",
+                    "The sword of legend warrior Kiran.  Holding it makes you feel the power of old." +
+                    "Click left Mouse button to use.",
+                }, Res.SwordItemTileId, Res.Tiles.GetSprite(Res.SprSwordItem), SpecialItemChestType.Plinth_Sword, true));
+            SpecialItemLUT.Add(Res.ShieldItemTileId, new SpecialItem(
+                "KiranShield",
+                new List<string>() {
+                    "*Kiran *Shield",
+                    "The shield of the sage warrior." ,
+                    "Hold the Right Mouse button to block.",
+                }, Res.ShieldItemTileId, Res.Tiles.GetSprite(Res.SprShield), SpecialItemChestType.Plinth_Shield, true));
+            SpecialItemLUT.Add(Res.BowItemTileId, new SpecialItem(
+                "DracBow",
+                new List<string>() {
+                                "*Drac *Bow",
+                                "The bow of the Drac warrior." ,
+                                "Click and hold left mouse button to use.",
+                                "Aim with the mouse cursor.",
+                }, Res.BowItemTileId, Res.Tiles.GetSprite(Res.SprBow), SpecialItemChestType.Plinth_Bow, true));
+
+            SpecialItemLUT.Add(Res.BombTileId, new SpecialItem(
+                "Bomb",
+                new List<string>() {
+                    "*BOMB",
+                    "Bombs blast through rock too tough for a pickaxe. ",
+                    "Press E to throw a bomb.",
+                    "Caution! Bombs are dangerous."
+                }, Res.BombTileId, Res.Tiles.GetSprite(Res.SprBomb), SpecialItemChestType.Normal_Big, true));
+
+
+            se = new SpecialItem(
+                "Power Sword",
+                new List<string>() {
+                    "*POWER *SWORD",
+                    "Power sword releases energy waves that attack from a distance. ",
+                    "Hold the attack button to charge your sword.",
+                    "Release the attack button to fire.",
+                }, Res.PowerSwordTileId, Res.Tiles.GetSprite(Res.SprPowerSwordItem), SpecialItemChestType.Normal_Big, false);
+            se.AfterInfoDialogClosed = (World w, float dt) =>
+            {
+                //Extinguish all torches so player uses powersword to navigate through area.
+                foreach (GameObject ob_torch in w.Level.GameObjects)
+                {
+                    if (ob_torch.TileId == Res.TorchTileId)
+                    {
+                        ob_torch.EmitLight = false;
+                        ob_torch.SetSprite(Res.SprTorchOut);
+                    }
+                }
+                Res.Audio.PlaySound(Res.SfxTorchout);
+                return false;
+            };
+
+            SpecialItemLUT.Add(Res.PowerSwordTileId, se);
+
+            //Sub-Special items
+            se = new SpecialItem(
+                "Bomb_Powerup",
+                new List<string>() { "Bomb capacity increased by 1" }, Res.BombPowerupTileId,
+                Res.Tiles.GetSprite(Res.SprBomb), SpecialItemChestType.Normal_Big, false);
+            se.CutsceneType = CutsceneType.Powerup;
+            SpecialItemLUT.Add(Res.BombPowerupTileId, se);
+
+            se = new SpecialItem("Small Key",
+                    new List<string>() { "You found a Small key." }, Res.SmallKey_TileId,
+                    Res.Tiles.GetSprite(Res.SprSmallKey), SpecialItemChestType.Normal_Small, false);
+            se.CutsceneType = CutsceneType.Powerup;
+            SpecialItemLUT.Add(Res.SmallKey_TileId, se);
+
+
         }
         public void BuildTileLUT()
         {
@@ -1351,7 +1868,9 @@ namespace Core
                 Res.Tiles.GetSprite(Res.SprBlackNogo),
                 curTilePos, curTileWH,
                 30, (cell, iLayer, tb) => { })
-            { CanMine = false, BlockType = BlockType.None, BlocksLight = true, Blocking = true, CanBomb = false });
+            {
+                CanMine = false, BlockType = BlockType.None, BlocksLight = true, Blocking = true, CanBomb = false
+            });
 
 
             AddTileToLut(Res.TreeTileId, new Tile(
@@ -1485,6 +2004,18 @@ namespace Core
             AddDecalTileGroup(Res.MonsterGrassTileId, true, true, BlockType.MonsterGrass,
                 new List<string> { Res.SprGrass0, Res.SprGrass1, Res.SprGrass2, Res.SprGrass3 });
 
+            AddTileToLut(Res.Sky_Level0, new Tile(World, Res.Tiles.GetSprite(Res.Spr_Sky_Level0), curTilePos, 
+                curTileWH, 100, (cell, iLayer, tb) => { })
+            { CanMine = false, BlockType = BlockType.None });
+            AddTileToLut(Res.Sky_Level1, new Tile(World, Res.Tiles.GetSprite(Res.Spr_Sky_Level1), curTilePos,
+    curTileWH, 100, (cell, iLayer, tb) => { })
+            { CanMine = false, BlockType = BlockType.None });
+            AddTileToLut(Res.Sky_Level2, new Tile(World, Res.Tiles.GetSprite(Res.Spr_Sky_Level2), curTilePos,
+curTileWH, 100, (cell, iLayer, tb) => { })
+            { CanMine = false, BlockType = BlockType.None });
+            AddTileToLut(Res.Sky_Level3, new Tile(World, Res.Tiles.GetSprite(Res.Spr_Sky_Level3), curTilePos,
+curTileWH, 100, (cell, iLayer, tb) => { })
+            { CanMine = false, BlockType = BlockType.None });
 
         }
 
@@ -1545,6 +2076,14 @@ namespace Core
         public List<List<List<int>>> GenTiles;
         public ivec2 PlayerStartXY = new ivec2(Int32.MaxValue, Int32.MaxValue);
 
+        public TileMap(int width, int height)
+        {
+            MapWidthTiles = width;
+            MapHeightTiles = height;
+            PlayerStartXY = new ivec2(Int32.MaxValue, Int32.MaxValue);
+            InitGenTileGrid();
+        }
+
         public TileMap(string level_name)
         {
             LevelName = level_name;
@@ -1555,12 +2094,12 @@ namespace Core
 
             //Create teh world data
             PlayerStartXY = new ivec2(Int32.MaxValue, Int32.MaxValue);
-            InitGenTileGrid(map);
-            ParseGenTiles(map);
-
+            InitGenTileGrid();
+            ParseTmxMap(map);
         }
-        public void InitGenTileGrid(TmxMap map)
+        public void InitGenTileGrid()
         {
+            //Create an empty tile map.
             GenTiles = new List<List<List<int>>>();
             for (int iRow = 0; iRow < MapHeightTiles; ++iRow)
             {
@@ -1569,12 +2108,14 @@ namespace Core
                 for (int iCol = 0; iCol < MapWidthTiles; ++iCol)
                 {
                     List<int> layers = new List<int>();
-                    for (int iLayer = 0; iLayer < PlatformLevel.LayerCount; ++iLayer) { layers.Add(PlatformLevel.EMPTY_TILE); }
+                    for (int iLayer = 0; iLayer < PlatformLevel.LayerCount; ++iLayer) {
+                        layers.Add(PlatformLevel.EMPTY_TILE);
+                    }
                     GenTiles[iRow].Add(layers);// 3 layers **0 is out of bounds** so -1 is unset/null
                 }
             }
         }
-        public void ParseGenTiles(TmxMap map)
+        public void ParseTmxMap(TmxMap map)
         {
             var version = map.Version;
 
@@ -1687,8 +2228,12 @@ namespace Core
         }
         public void TrySetGenTile(int iCol, int iRow, int iLayer, int iTile)
         {
-            if (iRow < 0 || iRow >= MapHeightTiles) { return; }
-            if (iCol < 0 || iCol >= MapWidthTiles) { return; }
+            if (iRow < 0 || iRow >= MapHeightTiles) {
+                return;
+            }
+            if (iCol < 0 || iCol >= MapWidthTiles) {
+                return;
+            }
 
             GenTiles[iRow][iCol][iLayer] = iTile;//already set, but debug here
         }
@@ -1719,7 +2264,6 @@ namespace Core
         public PlatformLevel(World world, TileMap gt)
         {
             World = world;
-
 
             //Load the Map Data
             this.GenTiles = gt;
@@ -2026,13 +2570,19 @@ namespace Core
 
             return d;
         }
-
  
         public void FloodFillFromPointRecursive(ivec2 pt_origin, Room room)
         {
             //Flood fill an area demarcated by the boundary.
             List<ivec2> toCheck = new List<ivec2>();
             toCheck.Add(pt_origin);
+
+            if (pt_origin.x < 0 || pt_origin.y < 0 || pt_origin.x > this.GenTiles.MapWidthTiles || pt_origin.y > this.GenTiles.MapHeightTiles)
+            {
+                //Player is outside room, flood fill can't work.
+                System.Diagnostics.Debugger.Break();
+                return;
+            }
 
             while (toCheck.Count > 0)
             {
@@ -2042,14 +2592,15 @@ namespace Core
 
                 if (pt.x < 0 || pt.y < 0 || pt.x > this.GenTiles.MapWidthTiles || pt.y > this.GenTiles.MapHeightTiles)
                 {
-                    return;
+                    continue;
                 }
 
                 int iTile = this.GenTiles.TileXY(pt.x, pt.y, Midground);
 
                 if (room.Found.Contains(pt))
                 {
-
+                    int n = 0;
+                    n++;
                 }
                 else if (iTile == Res.BorderTileId)
                 {
@@ -2106,566 +2657,6 @@ namespace Core
             }
         }
 
-        //private void BuildObjLUT()
-        //{
-        //    if (ObjLUT != null)
-        //    {
-        //        return;
-        //    }
-
-        //    ObjLUT = new Dictionary<int, Func<Cell, int, GameObject>>();
-        //    BuildMonsterObjLUT();
-        //    BuildItemObjLUT();
-        //    BuildTriggerObjLUT();
-        //    BuildNPCObjLut();
-        //}
-        //public void BuildItemObjLUT()
-        //{
-        //    ObjLUT.Add(Res.TorchTileId, (cell, ilayer) =>
-        //    {
-        //        GameObject g = new GameObject(World, Res.SprTorch, cell.Pos());
-        //        g.Pos = cell.Pos();
-        //        g.Animate = true;
-        //        g.BlocksLight = false;
-        //        g.EmitLight = true;
-        //        g.EmitRadiusInPixels = 16 * 4;
-        //        g.EmitColor = new vec4(
-        //            Globals.Random(0, 1),
-        //            Globals.Random(0, 1),
-        //            Globals.Random(0, 1),
-        //            1.0f);
-        //        g.EmitColor.SetMinLightValue(1.5f);
-
-        //        return g;
-        //    });
-        //    ObjLUT.Add(Res.LanternTileId, (cell, ilayer) =>
-        //    {
-        //        GameObject g = new GameObject(World, Res.SprLantern, cell.Pos());
-        //        g.Pos = cell.Pos();
-        //        g.Animate = true;
-        //        g.BlocksLight = false;
-        //        g.EmitLight = true;
-        //        g.EmitRadiusInPixels = 16 * 9;
-        //        g.EmitColor = new vec4(
-        //            Globals.Random(0, 1),
-        //            Globals.Random(0, 1),
-        //            Globals.Random(0, 1),
-        //            1.0f);
-
-        //        g.EmitColor.SetMinLightValue(1.5f);
-
-        //        return g;
-        //    });
-        //    ObjLUT.Add(Res.SmallChestTileId, (cell, ilayer) =>
-        //    {
-        //        TreasureChest g = new TreasureChest(World, Res.SprSmallChest, cell.Pos());
-        //        g.Pos = cell.Pos();
-        //        g.Animate = false;
-        //        g.BlocksLight = false;
-        //        g.EmitLight = false;
-        //        g.Money = 1;// Globals.RandomInt(3, 10);
-
-        //        return g;
-        //    });
-        //    ObjLUT.Add(Res.SilverSmallChestTileId, (cell, ilayer) =>
-        //    {
-        //        TreasureChest g = new TreasureChest(World, Res.SprSilverSmallChest, cell.Pos());
-        //        g.Pos = cell.Pos();
-        //        g.Animate = false;
-        //        g.BlocksLight = false;
-        //        g.EmitLight = false;
-        //        g.Money = Globals.RandomInt(10, 20);
-
-        //        return g;
-        //    });
-        //    ObjLUT.Add(Res.GoldSmallChestTileId, (cell, ilayer) =>
-        //    {
-        //        TreasureChest g = new TreasureChest(World, Res.SprGoldSmallChest, cell.Pos());
-        //        g.Pos = cell.Pos();
-        //        g.Animate = false;
-        //        g.BlocksLight = false;
-        //        g.EmitLight = false;
-        //        g.Money = Globals.RandomInt(20, 50);
-
-        //        return g;
-        //    });
-        //    ObjLUT.Add(Res.SavePointTileId, (cell, ilayer) =>
-        //    {
-        //        GameObject g = new GameObject(World, Res.SprSavePoint, cell.Pos());
-        //        g.Pos = cell.Pos();
-        //        g.Animate = false;
-        //        g.SetFrame(1);
-        //        g.BoxRelative = new Box2f(3, 3, 16 - 2 * 2, 16 - 3 * 2);
-
-        //        g.BlocksLight = false;
-        //        g.EmitLight = true;
-        //        g.EmitRadiusInPixels = 16 * 4;
-        //        g.EmitColor = new vec4(
-        //            Globals.Random(.7f, 1),
-        //            Globals.Random(.6f, 1),
-        //            Globals.Random(.1f, 1),
-        //            1.0f);
-
-        //        return g;
-        //    });
-        //    ObjLUT.Add(Res.SwitchButtonTileId, (cell, ilayer) =>
-        //    {
-        //        ButtonSwitch g = new ButtonSwitch(World);
-        //        g.Pos = cell.Pos();
-        //        g.Animate = false;
-        //        g.SetSprite(Res.SprButtonSwitch);
-        //        g.SetFrame(0);
-        //        g.BoxRelative = new Box2f(4, 12, 16 - 8, 4);
-        //        g.BlocksLight = false;
-        //        g.EmitLight = false;
-
-        //        return g;
-        //    });
-        //    ObjLUT.Add(Res.BrazierTileId, (cell, ilayer) =>
-        //    {
-        //        GameObject g = new GameObject(World);
-        //        g.Pos = cell.Pos();
-        //        g.Animate = true;
-        //        g.SetSprite(Res.SprBrazier);
-        //        g.SetFrame(0);
-        //        g.BoxRelative = new Box2f(3, 2, 16 - 6, 14);
-        //        g.BlocksLight = false;
-        //        g.EmitLight = true;
-        //        g.EmitRadiusInPixels = Res.Tiles.TileWidthPixels * 3;
-        //        g.EmitColor = new vec4(0.93f, 0.85f, 0, 1);
-        //        return g;
-        //    });
-        //    ObjLUT.Add(Res.AppleTileId, (cell, ilayer) =>
-        //    {
-        //        GameObject g = new GameObject(World);
-        //        g.Pos = cell.Pos();
-        //        g.Animate = false;
-        //        g.SetSprite(Res.SprApple);
-        //        g.SetFrame(0);
-        //        g.Origin = new vec2(8, 8);
-        //        g.BoxRelative = new Box2f(-2, -2, 4, 4);
-        //        g.PhysicsResponse = PhysicsResponse.Bounce_And_Roll;
-        //        g.PhysicsShape = PhysicsShape.Ball;
-        //        g.PhysicsBallRadiusPixels = 3;
-        //        g.Gravity = World.Gravity;
-        //        g.Health = 1;
-        //        return g;
-        //    });
-
-        //}
-        //public void BuildMonsterObjLUT()
-        //{
-        //    ObjLUT.Add(Res.GuyTileId, (cell, ilayer) =>
-        //    {
-        //        Player g = new Player(World, Res.SprGuyWalk, AIState.Player);
-        //        g.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, Res.Tiles.TileHeightPixels * 0.5f);
-        //        g.Pos = cell.Pos();
-        //        g.BoxRelative = new Box2f(-4, -6, 8, 14);
-        //        g.BoxRelativeCrouch = new Box2f(-4, 0, 8, 7);
-        //        g.Animate = true;
-        //        g.Speed = 80.0f;
-        //        g.Power = 1;
-        //        g.MaxAcc = 200;
-        //        g.Knockback = 60.0f;
-        //        g.Gravity = World.Gravity;
-
-        //        g.HurtTimeMax = 0.4f;
-
-        //        g.cposrelL = new vec2(g.Origin.x + g.BoxRelative.Min.x, 14);
-        //        g.cposrelR = new vec2(g.Origin.x + g.BoxRelative.Max.x, 14);
-
-        //        g.BlocksLight = false;
-        //        g.EmitLight = true;
-        //        g.EmitRadiusInPixels = Player.PlayerBaseEmitRadius();
-        //        g.EmitColor = Player.PlayerBaseEmitColor();
-
-        //        g.ItemHeldWalkSprite = Res.SprGuyWalk;
-        //        g.WalkSprite = Res.SprGuyWalk;
-        //        g.CrouchSprite = Res.SprGuyWalk;
-        //        g.JumpSprite = Res.SprGuyJump;
-        //        g.HangSprite = Res.SprGuyWalk;
-        //        g.MountSprite = Res.SprGuyWalk;
-        //        g.ClimbSprite = Res.SprGuyWalk;
-        //        g.SpringJumpSprite = Res.SprGuyJump;
-        //        g.WalkAttackSprite = Res.SprGuyWalk;
-        //        g.CrouchAttackSprite = Res.SprGuyWalk;
-        //        g.FallSprite = Res.SprGuyWalk;
-
-        //        return g;
-        //    });
-        //    ObjLUT.Add(Res.ZombieTileId, (cell, ilayer) =>
-        //    {
-        //        Guy g = new Guy(World, Res.SprZombieWalk, AIState.Wander);
-        //        g.Pos = cell.Pos();
-        //        g.BoxRelative = new Box2f(-4, -6, 8, 14);
-        //        g.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, Res.Tiles.TileHeightPixels * 0.5f);
-        //        g.Animate = true;
-        //        g.Power = 1;
-        //        g.BlocksLight = false;
-        //        g.EmitLight = false;
-        //        g.Health = 2;
-        //        g.Speed = 10.0f;
-        //        g.MaxAcc = 50;
-        //        g.Knockback = 20.0f;
-        //        g.Gravity = World.Gravity;
-
-        //        g.Friction = 8.0f;//Make this less than the player so we can knockback easier
-
-        //        g.HitSounds.Add(Res.SfxZombHit0);
-        //        g.HitSounds.Add(Res.SfxZombHit1);
-
-        //        g.GrowlSounds.Add(Res.SfxZombGrowl0);
-        //        g.GrowlSounds.Add(Res.SfxZombGrowl1);
-
-        //        g.SetAllMotionSprites(Res.SprZombieWalk);
-
-        //        return g;
-        //    });
-        //    ObjLUT.Add(Res.SkeleTileId, (cell, ilayer) =>
-        //    {
-        //        Guy g = new Guy(World, Res.SprSkeleWalk, AIState.Wander);
-        //        g.Pos = cell.Pos();
-        //        g.BoxRelative = new Box2f(-4, -6, 8, 14);
-        //        g.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, Res.Tiles.TileHeightPixels * 0.5f);
-        //        g.Animate = true;
-        //        g.Power = 1;
-        //        g.BlocksLight = false;
-        //        g.EmitLight = false;
-        //        g.Health = 30;
-        //        g.Speed = 30.0f;
-        //        g.MaxAcc = 50;
-        //        g.Knockback = 20.0f;
-        //        g.Gravity = World.Gravity;
-
-        //        g.Friction = 8.0f;//Make this less than the player so we can knockback easier
-
-        //        g.HitSounds.Add(Res.SfxZombHit0);
-        //        g.HitSounds.Add(Res.SfxZombHit1);
-
-        //        g.GrowlSounds.Add(Res.SfxZombGrowl0);
-        //        g.GrowlSounds.Add(Res.SfxZombGrowl1);
-        //        g.SetAllMotionSprites(Res.SprSkeleWalk);
-
-        //        return g;
-        //    });
-        //    ObjLUT.Add(Res.GlowfishTileId, (cell, ilayer) =>
-        //    {
-        //        string MainSprite = Res.SprGlowfish_Swim;
-
-        //        Guy g = new Guy(World, MainSprite, AIState.SwimLeftRight);
-        //        g.Pos = cell.Pos();
-        //        g.BoxRelative = new Box2f(-4, -4, 8, 8);
-        //        g.Animate = true;
-        //        g.Power = 1;
-        //        g.Gravity = World.Gravity;// new vec2(0, 0);//we HAVE gravity, but only when OUT of water
-
-        //        //Lives in water and swims. Reverse gravity.  if in water - 
-        //        g.NormalDamp = 1;
-        //        g.NormalDampGrav = 1;// g.WaterDampGrav;
-        //        g.WaterDamp = 1.0f;
-        //        g.WaterDampGrav = 0.0f; //No gravity influence if in water
-
-        //        g.BlocksLight = false;
-        //        g.EmitLight = true;
-        //        g.EmitColor = new vec4(0.6f, 0.6f, 0.6f, 1.0f);
-        //        // g.EmitColor.SetMinLightValue(1.5f);
-        //        g.EmitRadiusInPixels = Res.Tiles.TileWidthPixels * 5;
-        //        g.Health = 30;
-        //        g.Speed = 10.0f;
-        //        g.MaxAcc = 1;
-        //        g.Knockback = 20.0f;
-        //        g.CanJump = false;
-        //        g.AISetRandomDir();
-
-        //        g.Friction = 0.0f;//Make this less than the player so we can knockback easier
-
-        //        g.HitSounds.Add(Res.SfxZombHit0);
-        //        g.HitSounds.Add(Res.SfxZombHit1);
-
-        //        g.GrowlSounds.Add(Res.SfxZombGrowl0);
-        //        g.GrowlSounds.Add(Res.SfxZombGrowl1);
-        //        g.SetAllMotionSprites(MainSprite);
-
-        //        return g;
-        //    });
-        //    ObjLUT.Add(Res.RockMonsterTileId, (cell, ilayer) =>
-        //    {
-        //        Guy g = new Guy(World, Res.SprRockMonsterWalk, AIState.Wander);
-        //        g.Pos = cell.Pos();
-        //        g.BoxRelative = new Box2f(-4, -4, 8, 8);
-        //        g.Animate = true;
-        //        g.Power = 1;
-        //        g.BlocksLight = false;
-        //        g.EmitLight = false;
-        //        // g.EmitRadiusInPixels = 16 * 3;
-        //        g.Health = 80;
-        //        g.Speed = 4.0f;
-        //        g.MaxAcc = 20;
-        //        g.Knockback = 10.0f;
-        //        g.CanJump = false;
-        //        g.WaterDamp = g.WaterDampGrav = 1.0f; //Lives in water, no speed reduction
-        //        g.Gravity = World.Gravity;
-
-        //        g.Friction = 8.0f;//Make this less than the player so we can knockback easier
-
-        //        g.HitSounds.Add(Res.SfxZombHit0);
-        //        g.HitSounds.Add(Res.SfxZombHit1);
-
-        //        g.GrowlSounds.Add(Res.SfxZombGrowl0);
-        //        g.GrowlSounds.Add(Res.SfxZombGrowl1);
-        //        g.SetAllMotionSprites(Res.SprRockMonsterWalk);
-
-        //        return g;
-        //    });
-
-        //    Func<Cell, int, string, Guy> GrubBase = (Cell cell, int ilayer, string sprite) =>
-        //    {
-        //        Guy g = new Guy(World, sprite, AIState.MoveLRConstant);
-        //        g.Pos = cell.Pos();
-        //        g.BoxRelative = new Box2f(-5, -8, 10, 9);
-        //        g.AIPhysics = AIPhysics.Grapple;
-        //        g.Animate = true;
-        //        g.Power = 1;
-        //        g.Origin = new vec2(8, 15.1f);
-        //        g.BlocksLight = false;
-        //        g.EmitLight = false;
-        //        g.Health = 80;
-        //        g.MaxAcc = 20;
-        //        g.Knockback = 0.0f;
-        //        g.CanJump = false;
-
-        //        g.WaterDamp = g.WaterDampGrav = 1.0f; //Lives in water, no speed reduction
-        //        g.Gravity = 0.0f;
-        //        g.GrappleDir = ((Globals.Random(0, 1) > 0.5f) ? 1 : 0);//1 = move clockwise / right
-
-        //        g.Friction = 0.0f;//Make this less than the player so we can knockback easier
-        //        g.HitSounds.Add(Res.SfxGrubHit);
-        //        g.DieSounds.Add(Res.SfxGrubDie);
-        //        g.SetAllMotionSprites(sprite);
-
-        //        return g;
-        //    };
-
-        //    ObjLUT.Add(Res.EnemGrubGrassTileId, (cell, ilayer) =>
-        //    {
-        //        Guy grub = GrubBase(cell, ilayer, Res.SprGrub);
-        //        grub.Speed = 0.5f;// * ;
-        //        grub.Power = 1;
-        //        grub.Health = 2;
-        //        return grub;
-        //    });
-        //    ObjLUT.Add(Res.EnemGrubWaterTileId, (cell, ilayer) =>
-        //    {
-        //        Guy grub = GrubBase(cell, ilayer, Res.SprGrubWater);
-        //        grub.Speed = 0.55f;// * ;
-        //        grub.Power = 2;
-        //        grub.Health = 3;
-        //        grub.EmitLight = true;
-        //        grub.EmitColor = new vec4(0.0f, 0.2f, 1.0f, 1.0f);
-        //        grub.EmitRadiusInPixels = Res.Tiles.TileWidthPixels * 3;
-        //        return grub;
-        //    });
-        //    ObjLUT.Add(Res.EnemGrubRockTileId, (cell, ilayer) =>
-        //    {
-        //        Guy grub = GrubBase(cell, ilayer, Res.SprGrubRock);
-        //        grub.Speed = 0.6f;// * ;
-        //        grub.Power = 4;
-        //        grub.Health = 5;
-        //        return grub;
-        //    });
-        //    ObjLUT.Add(Res.EnemGrubLavaTileId, (cell, ilayer) =>
-        //    {
-        //        Guy grub = GrubBase(cell, ilayer, Res.SprGrubLava);
-        //        grub.Speed = 0.6f;// * ;
-        //        grub.Power = 5;
-        //        grub.Health = 6;
-
-        //        grub.EmitLight = true;
-        //        grub.EmitColor = new vec4(1.0f, 0.8f, 0.0f, 1.0f);
-        //        grub.EmitRadiusInPixels = Res.Tiles.TileWidthPixels * 3;
-
-        //        return grub;
-        //    });
-
-
-        //    ObjLUT.Add(Res.PlantBombGuyTileId, (cell, ilayer) =>
-        //    {
-        //        Guy g = new Guy(World, Res.SprPlantBombDudeIdle, AIState.Sleep);
-        //        g.Pos = cell.Pos();
-        //        g.BoxRelative = new Box2f(-6, -4, 8, 12);
-        //        g.AIPhysics = AIPhysics.PlantBombGuy;
-        //        g.Animate = true;
-        //        g.Power = 1;
-        //        g.Origin = new vec2(8, 15.1f);
-        //        g.BlocksLight = false;
-        //        g.EmitLight = false;
-        //        g.Health = 80;
-        //        g.Speed = 0.5f;// * ;
-        //        g.MaxAcc = 20;
-        //        g.Knockback = 0.0f;
-        //        g.CanJump = false;
-        //        g.WaterDamp = g.WaterDampGrav = 1.0f; //Lives in water, no speed reduction
-        //        g.Gravity = 0.0f;
-
-        //        g.GrappleDir = ((Globals.Random(0, 1) > 0.5f) ? 1 : 0);//1 = move clockwise / right
-
-        //        g.Friction = 0.0f;//Make this less than the player so we can knockback easier
-
-        //        g.HitSounds.Add(Res.SfxPlantBombGuyDamage);
-
-        //        g.IdleSprite = Res.SprPlantBombDudeIdle;
-        //        g.WalkAttackSprite = Res.SprPlantBombDudeAttack;
-        //        g.SleepSprite = Res.SprPlantBombDudeSleep;
-        //        g.DefendSprite = Res.SprPlantBombDudeCover;
-
-        //        //MUST set this to null to prevent attack from not showing when we throw an item
-        //        g.WalkSprite = Res.SprPlantBombDudeAttack;
-        //        g.ItemHeldWalkSprite = Res.SprPlantBombDudeAttack;
-
-        //        g.WakeRadiusPixels = 16 * 3;
-        //        g.CanDefend = true;
-        //        g.DefendRadiusPixels = 16 * 1.5f;
-        //        g.AttackTime = g.MaxAttackTime = 1.0f;//This is more of an initial delay when the player encounters, because we throw new when the bomb dies
-
-        //        return g;
-        //    });
-
-        //}
-        //public void BuildTriggerObjLUT()
-        //{
-        //    //Triggers
-        //    for (int i = 0; i < 10; ++i)
-        //    {
-        //        int xx = i;
-        //        ObjLUT.Add(Res.TriggerTileId0 + xx, (cell, ilayer) =>
-        //        {
-        //            GameObject g = new GameObject(World);
-        //            g.Pos = cell.Pos();
-        //            g.Animate = false;
-        //            g.Visible = false;
-        //            g.Frame = null;
-        //            g.TileId = Res.TriggerTileId0 + xx;
-        //            return g;
-        //        });
-        //    }
-
-        //}
-        //private void BuildNPCObjLut()
-        //{
-        //    ObjLUT.Add(Res.CapeGuyTileId, (cell, ilayer) =>
-        //    {
-        //        Guy g = new Guy(World, Res.SprCapeGuyWalk, AIState.Wander);
-        //        g.Pos = cell.Pos();
-        //        g.BoxRelative = new Box2f(-4, -6, 8, 14);
-        //        g.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, Res.Tiles.TileHeightPixels * 0.5f);
-        //        g.Animate = true;
-        //        g.Power = 1;
-        //        g.BlocksLight = false;
-        //        g.EmitLight = false;
-        //        g.Health = 2;
-        //        g.Speed = 10.0f;
-        //        g.MaxAcc = 30;
-        //        g.Knockback = 20.0f;
-        //        g.Gravity = World.Gravity;
-        //        g.IsNpc = true;
-        //        g.Friction = 8.0f;//Make this less than the player so we can knockback easier
-        //        g.NpcDialog = new List<List<string>>() {
-        //            new List<string>() { "Do you think we should get the bow or the bomb first?", "...","I don't get out much." }
-        //        };
-        //        g.NpcName = "DAN";
-
-        //        g.SetAllMotionSprites(Res.SprCapeGuyWalk);
-        //        g.TalkSprite = Res.SprCapeGuyTalk;
-
-        //        return g;
-        //    });
-        //}
-        //public void BuildSpecialItemLUT()
-        //{
-        //    SpecialItem se = null;
-
-        //    SpecialItemLUT = new Dictionary<int, SpecialItem>();
-        //    SpecialItemLUT.Add(Res.BootsTileId, new SpecialItem(
-        //        "Spring Boots",
-        //        new List<string>() {
-        //            "*SPRING *BOOTS",
-        //            "Spring boots let Joe jump twice as high. ",
-        //            "Hold *jump before hitting the ground to spring into the air."
-        //        }, Res.BootsTileId, Res.Tiles.GetSprite(Res.SprBoots), SpecialItemChestType.Normal_Big, true));
-        //    SpecialItemLUT.Add(Res.SwordItemTileId, new SpecialItem(
-        //        "KiranSword",
-        //        new List<string>() {
-        //            "*Kiran *Sword",
-        //            "The sword of legend warrior Kiran.  Holding it makes you feel the power of old." +
-        //            "Click left Mouse button to use.",
-        //        }, Res.SwordItemTileId, Res.Tiles.GetSprite(Res.SprSwordItem), SpecialItemChestType.Plinth_Sword, true));
-        //    SpecialItemLUT.Add(Res.ShieldItemTileId, new SpecialItem(
-        //        "KiranShield",
-        //        new List<string>() {
-        //            "*Kiran *Shield",
-        //            "The shield of the sage warrior." ,
-        //            "Hold the Right Mouse button to block.",
-        //        }, Res.ShieldItemTileId, Res.Tiles.GetSprite(Res.SprShield), SpecialItemChestType.Plinth_Shield, true));
-        //    SpecialItemLUT.Add(Res.BowItemTileId, new SpecialItem(
-        //        "DracBow",
-        //        new List<string>() {
-        //                        "*Drac *Bow",
-        //                        "The bow of the Drac warrior." ,
-        //                        "Click and hold left mouse button to use.",
-        //                        "Aim with the mouse cursor.",
-        //        }, Res.BowItemTileId, Res.Tiles.GetSprite(Res.SprBow), SpecialItemChestType.Plinth_Bow, true));
-
-        //    SpecialItemLUT.Add(Res.BombTileId, new SpecialItem(
-        //        "Bomb",
-        //        new List<string>() {
-        //            "*BOMB",
-        //            "Bombs blast through rock too tough for a pickaxe. ",
-        //            "Press E to throw a bomb.",
-        //            "Caution! Bombs are dangerous."
-        //        }, Res.BombTileId, Res.Tiles.GetSprite(Res.SprBomb), SpecialItemChestType.Normal_Big, true));
-
-
-        //    se = new SpecialItem(
-        //        "Power Sword",
-        //        new List<string>() {
-        //            "*POWER *SWORD",
-        //            "Power sword releases energy waves that attack from a distance. ",
-        //            "Hold the attack button to charge your sword.",
-        //            "Release the attack button to fire.",
-        //        }, Res.PowerSwordTileId, Res.Tiles.GetSprite(Res.SprPowerSwordItem), SpecialItemChestType.Normal_Big, false);
-        //    se.AfterInfoDialogClosed = (World w, float dt) =>
-        //    {
-        //        //Extinguish all torches so player uses powersword to navigate through area.
-        //        foreach (GameObject ob_torch in w.Level.GameObjects)
-        //        {
-        //            if (ob_torch.TileId == w.Res.TorchTileId)
-        //            {
-        //                ob_torch.EmitLight = false;
-        //                ob_torch.SetSprite(w.Res.SprTorchOut);
-        //            }
-        //        }
-        //        w.Res.Audio.PlaySound(w.Res.SfxTorchout);
-        //        return false;
-        //    };
-
-        //    SpecialItemLUT.Add(Res.PowerSwordTileId, se);
-
-        //    //Sub-Special items
-        //    se = new SpecialItem(
-        //        "Bomb_Powerup",
-        //        new List<string>() { "Bomb capacity increased by 1" }, Res.BombPowerupTileId,
-        //        Res.Tiles.GetSprite(Res.SprBomb), SpecialItemChestType.Normal_Big, false);
-        //    se.CutsceneType = CutsceneType.Powerup;
-        //    SpecialItemLUT.Add(Res.BombPowerupTileId, se);
-
-        //    se = new SpecialItem("Small Key",
-        //            new List<string>() { "You found a Small key." }, Res.SmallKey_TileId,
-        //            Res.Tiles.GetSprite(Res.SprSmallKey), SpecialItemChestType.Normal_Small, false);
-        //    se.CutsceneType = CutsceneType.Powerup;
-        //    SpecialItemLUT.Add(Res.SmallKey_TileId, se);
-
-
-        //}
         public Tile GetTile(int tileId)
         {
             Tile tile = null;
@@ -2896,10 +2887,10 @@ namespace Core
                                     GameObject ob = obCreate(cell, iLayer);
                                     AddGameObject(ob, iTileId, cell, iLayer, cell.GetTilePosGlobal(), iLayer);
                                 }
-                                //else if (SignLUT.TryGetValue(iTileId, out obSigns))
+                                //else if (TileDefs.SignLUT.TryGetValue(iTileId, out obSigns))
                                 //{
                                 //    List<string> texts = null;
-                                //    if (obSigns.TryGetValue(LevelName, out texts))
+                                //    if (obSigns.TryGetValue(this.GenTiles.LevelName, out texts))
                                 //    {
                                 //        Sign sign = new Sign(World, texts);
                                 //        sign.Pos = cell.Pos();
@@ -2907,50 +2898,50 @@ namespace Core
                                 //        AddGameObject(sign, iTileId, cell, iLayer, cell.GetTilePosGlobal(), iLayer);
                                 //    }
                                 //}
-                                //else if (SpecialItemLUT.TryGetValue(iTileId, out si))
-                                //{
-                                //    //Create a chest
-                                //    TreasureChest ob = new TreasureChest(World, "", cell.Pos());
+                                else if (TileDefs.SpecialItemLUT.TryGetValue(iTileId, out si))
+                                {
+                                    //Create a chest
+                                    TreasureChest ob = new TreasureChest(World, "", cell.Pos());
 
-                                //    //Note: We shouldn't be using small chests for special item.
-                                //    int tilee = 0;
-                                //    if (si.SpecialItemChestType == SpecialItemChestType.Normal_Big)
-                                //    {
-                                //        ob.SetSprite(Res.SprBigChest);
-                                //    }
-                                //    else if (si.SpecialItemChestType == SpecialItemChestType.Gold_Big)
-                                //    {
-                                //        ob.SetSprite(Res.SprGoldChest);
-                                //    }
-                                //    else if (si.SpecialItemChestType == SpecialItemChestType.Normal_Small)
-                                //    {
-                                //        ob.SetSprite(Res.SprSmallChest);
-                                //    }
-                                //    else if (si.SpecialItemChestType == SpecialItemChestType.Silver_Small)
-                                //    {
-                                //        ob.SetSprite(Res.SprSilverSmallChest);
-                                //    }
-                                //    else if (si.SpecialItemChestType == SpecialItemChestType.Plinth_Shield)
-                                //    {
-                                //        ob.SetSprite(Res.SprPlinthShield);
-                                //    }
-                                //    else if (si.SpecialItemChestType == SpecialItemChestType.Plinth_Bow)
-                                //    {
-                                //        ob.SetSprite(Res.SprPlinthBow);
-                                //    }
-                                //    else if (si.SpecialItemChestType == SpecialItemChestType.Plinth_Sword)
-                                //    {
-                                //        ob.SetSprite(Res.SprPlinthSword);
-                                //    }
-                                //    else
-                                //    {
-                                //        System.Diagnostics.Debugger.Break();
-                                //    }
+                                    //Note: We shouldn't be using small chests for special item.
+                                    int tilee = 0;
+                                    if (si.SpecialItemChestType == SpecialItemChestType.Normal_Big)
+                                    {
+                                        ob.SetSprite(Res.SprBigChest);
+                                    }
+                                    else if (si.SpecialItemChestType == SpecialItemChestType.Gold_Big)
+                                    {
+                                        ob.SetSprite(Res.SprGoldChest);
+                                    }
+                                    else if (si.SpecialItemChestType == SpecialItemChestType.Normal_Small)
+                                    {
+                                        ob.SetSprite(Res.SprSmallChest);
+                                    }
+                                    else if (si.SpecialItemChestType == SpecialItemChestType.Silver_Small)
+                                    {
+                                        ob.SetSprite(Res.SprSilverSmallChest);
+                                    }
+                                    else if (si.SpecialItemChestType == SpecialItemChestType.Plinth_Shield)
+                                    {
+                                        ob.SetSprite(Res.SprPlinthShield);
+                                    }
+                                    else if (si.SpecialItemChestType == SpecialItemChestType.Plinth_Bow)
+                                    {
+                                        ob.SetSprite(Res.SprPlinthBow);
+                                    }
+                                    else if (si.SpecialItemChestType == SpecialItemChestType.Plinth_Sword)
+                                    {
+                                        ob.SetSprite(Res.SprPlinthSword);
+                                    }
+                                    else
+                                    {
+                                        System.Diagnostics.Debugger.Break();
+                                    }
 
-                                //    ob.SpecialItem = si;
+                                    ob.SpecialItem = si;
 
-                                //    AddGameObject(ob, tilee, cell, iLayer, cell.GetTilePosGlobal(), iLayer);
-                                //}
+                                    AddGameObject(ob, tilee, cell, iLayer, cell.GetTilePosGlobal(), iLayer);
+                                }
                                 else if (iTileId == Res.Water100TileId)
                                 {
                                     cell.Water = 1.0f;

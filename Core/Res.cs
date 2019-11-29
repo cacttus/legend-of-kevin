@@ -2,9 +2,7 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Core
 {
@@ -226,6 +224,8 @@ namespace Core
         public static string SprGuyDead = "SprGuyDead";
         public const string SprParticleBig = "SprParticleBig";
 
+            
+
         public static int NoGoTileId = 9999;//**NOT IN THE SPRITE KEY - this is the default "black" background tile so player can't see shit.
         public static int BorderTileId { get; private set; } = 1;// World
         public static int BlockTileId_Rock { get; private set; } = 2;// Wo
@@ -355,6 +355,17 @@ namespace Core
         public static int AppleTileId = 129;
         public static int BlockTileID_WoodBackground = 130;
 
+        public static string Spr_Sky_Level0 = "Spr_Sky_Level0";
+        public static string Spr_Sky_Level1 = "Spr_Sky_Level1";
+        public static string Spr_Sky_Level2 = "Spr_Sky_Level2";
+        public static string Spr_Sky_Level3 = "Spr_Sky_Level3";
+
+        public static int Sky_Level0 = 131;
+        public static int Sky_Level1 = 132;
+        public static int Sky_Level2 = 133;
+        public static int Sky_Level3 = 134;
+
+
         public static void Load(ContentManager c, GraphicsDevice d)
         {
             Res.Content = c;
@@ -367,30 +378,34 @@ namespace Core
             //**NOGO is alwasy a seamless tile
             //Mesh the grass with the various rocks
             List<int> SeamlessRock = new List<int>() {
-                NoGoTileId,
-                BlockTileId_Rock             ,
-                BlockTileId_Copper       ,
-                    BlockTileId_SandRock,
-                    BlockTileId_GrassDirt,
-                    BlockTileId_GreenDot
+                NoGoTileId
+                ,BlockTileId_Rock
+                ,BlockTileId_Copper
+                ,BlockTileId_SandRock
+                ,BlockTileId_GrassDirt
+                ,BlockTileId_GreenDot
             };
 
             //Create3x3Tiles(SprGrassBlockTiles, 12, 0, 6, 9, GrassTileId, SeamlessRock);
-            Create3x3Tiles(SprCaveBackgroundBlockTiles, 18 + 6 * 0, 0, 6, 9, BlockTileID_CaveBack, new List<int> { NoGoTileId, BlockTileID_WoodBackground, BlockTileID_CaveBack, BlockTileId_WaterGrassBack, BlockTileID_DirtBackground });
-            Create3x3Tiles(SprWoodBackgroundBlockTiles, 18 + 6 * 1, 0, 6, 9, BlockTileID_WoodBackground, new List<int> { NoGoTileId, BlockTileID_WoodBackground, BlockTileID_CaveBack, BlockTileId_WaterGrassBack, BlockTileID_DirtBackground });
-            Create3x3Tiles(SprBlock_Sandrock, 18 + 6 * 2, 0, 6, 9, BlockTileId_SandRock, SeamlessRock);
-            Create3x3Tiles(SprBlock_GrassDirt, 18 + 6 * 3, 0, 6, 9, BlockTileId_GrassDirt, SeamlessRock);
-            Create3x3Tiles(SprBlock_GreenDot, 18 + 6 * 4, 0, 6, 9, BlockTileId_GreenDot, new List<int>() { NoGoTileId, BlockTileId_GreenDot, BlockTileId_GrassDirt });
-            Create3x3Tiles(SprBlock_WaterGrass, 18 + 6 * 5, 0, 6, 9, BlockTileId_WaterGrass, new List<int>() { NoGoTileId, BlockTileId_WaterGrass, BlockTileId_GrassDirt });
-            Create3x3Tiles(SprBlock_WaterGrassBack, 18 + 6 * 6, 0, 6, 9, BlockTileId_WaterGrassBack, new List<int>() { NoGoTileId, BlockTileId_WaterGrassBack, BlockTileID_CaveBack });
+            //Create3x3Tiles(SprCaveBackgroundBlockTiles, 18 + 6 * 0, 0, 6, 9, BlockTileID_CaveBack, new List<int> { NoGoTileId, BlockTileID_WoodBackground, BlockTileID_CaveBack, BlockTileId_WaterGrassBack, BlockTileID_DirtBackground });
+            //Create3x3Tiles(SprWoodBackgroundBlockTiles, 18 + 6 * 1, 0, 6, 9, BlockTileID_WoodBackground, new List<int> { NoGoTileId, BlockTileID_WoodBackground, BlockTileID_CaveBack, BlockTileId_WaterGrassBack, BlockTileID_DirtBackground });
+            //Create3x3Tiles(SprBlock_Sandrock, 18 + 6 * 2, 0, 6, 9, BlockTileId_SandRock, SeamlessRock);
+            Create3x3Tiles(SprBlock_GrassDirt, 15, 0, 6, 9, BlockTileId_GrassDirt, SeamlessRock);
+            //Create3x3Tiles(SprBlock_GreenDot, 18 + 6 * 4, 0, 6, 9, BlockTileId_GreenDot, new List<int>() { NoGoTileId, BlockTileId_GreenDot, BlockTileId_GrassDirt });
+            //Create3x3Tiles(SprBlock_WaterGrass, 18 + 6 * 5, 0, 6, 9, BlockTileId_WaterGrass, new List<int>() { NoGoTileId, BlockTileId_WaterGrass, BlockTileId_GrassDirt });
+            //Create3x3Tiles(SprBlock_WaterGrassBack, 18 + 6 * 6, 0, 6, 9, BlockTileId_WaterGrassBack, new List<int>() { NoGoTileId, BlockTileId_WaterGrassBack, BlockTileID_CaveBack });
 
-            //ice glass
-            Create3x3Tiles(SprBlock_Hedge, 30 + 6 * 1, 9, 6, 9, BlockTileId_Hedge, new List<int>() { NoGoTileId, BlockTileId_Hedge });
-            //Old grass tiles
-            Create3x3Tiles(SprSandRockBack, 30 + 6 * 3, 9, 6, 9, BlockTileID_CaveBack, new List<int> { NoGoTileId, SandRockBackTileId });
-            Create3x3Tiles(SprBlock_Crag, 30 + 6 * 4, 9, 6, 9, BlockTileId_Crag, new List<int>() { NoGoTileId, BlockTileId_Crag });
+            ////ice glass
+            //Create3x3Tiles(SprBlock_Hedge, 30 + 6 * 1, 9, 6, 9, BlockTileId_Hedge, new List<int>() { NoGoTileId, BlockTileId_Hedge });
+            ////Old grass tiles
+            //Create3x3Tiles(SprSandRockBack, 30 + 6 * 3, 9, 6, 9, BlockTileID_CaveBack, new List<int> { NoGoTileId, SandRockBackTileId });
+            //Create3x3Tiles(SprBlock_Crag, 30 + 6 * 4, 9, 6, 9, BlockTileId_Crag, new List<int>() { NoGoTileId, BlockTileId_Crag });
 
-            Create3x3Tiles(SprBlock_DirtBackground, 30 + 6 * 0, 18, 6, 9, BlockTileID_DirtBackground, new List<int> { NoGoTileId, BlockTileID_WoodBackground, BlockTileID_CaveBack, BlockTileId_WaterGrassBack, BlockTileID_DirtBackground });
+            //Create3x3Tiles(SprBlock_DirtBackground, 30 + 6 * 0, 18, 6, 9, BlockTileID_DirtBackground, new List<int> { NoGoTileId, BlockTileID_WoodBackground, BlockTileID_CaveBack, BlockTileId_WaterGrassBack, BlockTileID_DirtBackground });
+            Tiles.AddSprite(Spr_Sky_Level0, new List<Rectangle>() { new Rectangle(5, 2, 1, 1), }, 0.0f, Tiling.Single);
+            Tiles.AddSprite(Spr_Sky_Level1, new List<Rectangle>() { new Rectangle(9, 2, 1, 1), }, 0.0f, Tiling.Single);
+            Tiles.AddSprite(Spr_Sky_Level2, new List<Rectangle>() { new Rectangle(12, 2, 1, 1), }, 0.0f, Tiling.Single);
+            Tiles.AddSprite(Spr_Sky_Level3, new List<Rectangle>() { new Rectangle(13, 2, 1, 1), }, 0.0f, Tiling.Single);
 
             Tiles.AddSprite(SprCursorArrow, new List<Rectangle>() { new Rectangle(10, 2, 1, 1), }, 0.0f, Tiling.Single);
             Tiles.AddSprite(SprCursorCrosshair, new List<Rectangle>() { new Rectangle(11, 2, 1, 1), }, 0.0f, Tiling.Single);
@@ -681,7 +696,7 @@ namespace Core
             Tiles.AddSprite(SprMarbleUI, new List<Rectangle>() { new Rectangle(12, 16, 2, 2) }, 0f, Tiling.Single);
 
             Tiles.AddSprite(SprSmallKey, new List<Rectangle>() { new Rectangle(6, 19, 1, 1) }, 0f, Tiling.Single);
-            Tiles.AddSprite(SprBlackNogo, new List<Rectangle>() { new Rectangle(0, 1, 1, 1) }, 0f, Tiling.Single);
+            Tiles.AddSprite(SprBlackNogo, new List<Rectangle>() { new Rectangle(5, 0, 1, 1) }, 0f, Tiling.Single);
 
             Tiles.AddSprite(SprGrub, new List<Rectangle>() { new Rectangle(0, 19, 1, 1), new Rectangle(1, 19, 1, 1) }, .5f, Tiling.Single);
             Tiles.AddSprite(SprGrubLava, new List<Rectangle>() {
