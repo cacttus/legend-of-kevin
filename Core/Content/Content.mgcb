@@ -465,3 +465,9 @@
 /processorParam:Quality=Best
 /build:zomb_hit_1.ogg
 
+#begin duck-quack.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:duck-quack.ogg
+

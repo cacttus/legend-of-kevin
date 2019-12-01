@@ -363,16 +363,16 @@ namespace Core
             return (float)Math.Round((float)w / ((float)Viewport.TilesWidth - addl));//Important - or else you get a pixel glitch
         }
         public float DrawText_Fit_H(SpriteBatch sb, SpriteFont font, string text, float width_pixels, vec2 pos, 
-            vec4 color, int outline = 0, vec4 outline_color = default(vec4), string proto_string = "")
+            vec4 color, int outline = 0, vec4 outline_color = default(vec4), string proto_string = "", bool center=true)
         {
             //Returns the scale used to scale the font
-            return DrawText_Fit( sb, font, text, width_pixels, 99999, pos, color, outline, outline_color, true, proto_string);
+            return DrawText_Fit( sb, font, text, width_pixels, Game.GraphicsDevice.Viewport.Height, pos, color, outline, outline_color, center, proto_string);
         }
         public float DrawText_Fit_V(SpriteBatch sb, SpriteFont font, string text, float height_pixels, 
-            vec2 pos, vec4 color, int outline = 0, vec4 outline_color = default(vec4), string proto_string = "")
+            vec2 pos, vec4 color, int outline = 0, vec4 outline_color = default(vec4), string proto_string = "", bool center=true)
         {
             //Returns the scale used to scale the font
-            return DrawText_Fit( sb, font, text, 999999, height_pixels, pos, color, outline, outline_color, true, proto_string);
+            return DrawText_Fit( sb, font, text, Game.GraphicsDevice.Viewport.Width, height_pixels, pos, color, outline, outline_color, center, proto_string);
         }
 
         public float DrawText_Fit(SpriteBatch sb, 
@@ -387,14 +387,29 @@ namespace Core
             {
                 string test_str = String.IsNullOrEmpty(proto_string) ? text : proto_string;
 
-                float h1 = DrawText_Fit_HScale(font, test_str, width_pixels);
-                float v1 = DrawText_Fit_VScale(font, test_str, height_pixels);
-                w_vp_dv = h1 < v1 ? h1 : v1;
+                Vector2 stringwh = font.MeasureString(text);
+
+                float h1 = 0;
+                float v1 = 0;
+                float actualWidth_Pixels = 0;
+
+                h1 = DrawText_Fit_HScale(font, test_str, width_pixels);
+                v1 = DrawText_Fit_VScale(font, test_str, height_pixels);
+                if (h1 < v1)
+                {
+                    w_vp_dv = h1;
+                    actualWidth_Pixels = width_pixels;// height_pixels * w_vp_dv;
+                }
+                else
+                {
+                    w_vp_dv = v1;
+                    actualWidth_Pixels = stringwh.X;
+                }
 
                 if (center_h)
                 {
                     float ppx = Viewport.WidthPixels / Game.GraphicsDevice.Viewport.Width;
-                    pos.x += width_pixels * 0.5f - (font.MeasureString(text).X * ppx) * w_vp_dv * 0.5f;
+                    pos.x += actualWidth_Pixels * 0.5f - (stringwh.X * ppx) * w_vp_dv * 0.5f;
                 }
 
                 vec2 wp_device = Viewport.WorldToDevice(pos);

@@ -241,6 +241,10 @@ namespace Core
             World = w;
             Font = f;
         }
+        public void Quit()
+        {
+            Text = null;
+        }
         public bool IsEnabled()
         {
             return Text != null && Text.Count > 0;
@@ -252,6 +256,7 @@ namespace Core
         }
         public void ShowDialog(List<string> text, Guy NPC = null)
         {
+            //Halt = halt;
             Text = new List<string>(text);//We edit this , so make a new 
             _fNextChar = _fTextSpeed;
             _iChar = 0;
@@ -275,7 +280,7 @@ namespace Core
         }
         public float GetTextVHeightPixels()
         {
-            float v_pad = 0.05f;
+            float v_pad = 0.15f;
             float v_height = Res.Tiles.TileHeightPixels - (Res.Tiles.TileHeightPixels * v_pad) * 2.0f;
 
             return v_height;
@@ -377,10 +382,9 @@ namespace Core
                 if (Halt == false)
                 {
                     Guy guy = World.GetPlayer();
-                    if (guy.Joystick.Ok.Press())
+                    if (guy.Joystick.Ok.Press() || guy.Joystick.Action.Press() || this.World.Rmb.PressOrDown() || this.World.Lmb.PressOrDown())
                     {
                         this.World.GetPlayer().HasInteractedThisFrame = true;
-
 
                         _iChar = 0;
                         _iMessage += 1;
@@ -563,7 +567,7 @@ namespace Core
                     foreach (TextBlock block in line)
                     {
                         World.Screen.DrawText_Fit_V(sb, Font, block.Text,
-                            GetTextVHeightPixels(), vp_off + block.Pos, block.Color * block.Alpha, 2, new vec4(1, 1, 1, 1) * block.Alpha);
+                            GetTextVHeightPixels(), vp_off + block.Pos, block.Color * block.Alpha, 2, new vec4(1, 1, 1, 1) * block.Alpha, "", false);
                     }
                 }
 
@@ -683,8 +687,8 @@ namespace Core
         float SaveTime;
         bool bSaving = false;
 
-        ButtonBase Rmb = new ButtonBase();
-        ButtonBase Lmb = new ButtonBase();
+        public ButtonBase Rmb = new ButtonBase();
+        public ButtonBase Lmb = new ButtonBase();
 
         GameObject ShieldObject = null;
 
@@ -697,16 +701,210 @@ namespace Core
         Box2f MenuTab2Box = new Box2f(47 + 34, 12, 32, 8);
         Box2f MenuMapBox = new Box2f(16, 22, 130, 60);
         TileDefs td;
+
+        bool StartRunning = false;
+
         public World(Screen screen) : base(screen)
         {
             Dialog = new Dialog(this, Res.Font);
             Screen.Game.AdMan.HideAd("MainAd");
 
+            GenerateLevel();
+            DoCheats();
+            if (Res.ShownTutorial == false)
+            {
+                PlayIntroCutscene();
+                Res.ShownTutorial = true;
+            }
+            else
+            {
+                StartRunning = true;
+            }
+        }
+        private void PlayIntroCutscene()
+        {
+
+            Cutscene = new Cutscene()
+                .Then(0, (s, dt) =>
+                {
+                    IntroTutorial = true;
+                    GetPlayer().Joystick.IsUser = false;
+                    GetPlayer().SetSprite(Res.SprGuyWalk, true, 1);
+                    return false;
+                })
+                .Then(2, (s, dt) =>
+                {
+                    //Wait an initial 2 seconds.
+                    if (Rmb.Press())
+                    {
+                        Dialog.Quit();
+                        return false;//Skip
+                    }
+                    return s.Duration > 0;
+                })
+                .Then(0, (s, dt) =>
+                {
+                    Dialog.ShowDialog(new List<string>
+                    {
+                        "Welcome to Rocket Jump",
+                        "This is Bill, the Rocket Jump champion."
+                    }, null);
+                    return false;
+                })
+                .Then(0, (s, dt) =>
+                {
+                    if (Rmb.Press())
+                    {
+                        Dialog.Quit();
+                        return false;//Skip
+                    }
+                    return Dialog.IsEnabled();
+                })
+                .Then(0, (s, dt) =>
+                {
+                    GetPlayer().SetSprite(Res.SprGuyWave, true);
+                    GetPlayer().Animate = true;
+                    GetPlayer().Waving = true;
+                    return false;
+                })
+                .Then(3, (s, dt) =>
+                {
+                    if (Rmb.Press())
+                    {
+                        Dialog.Quit();
+                        return false;//Skip
+                    }
+                    return s.Duration > 0;
+                })
+                .Then(0, (s, dt) =>
+                {
+                    GetPlayer().SetSprite(Res.SprGuyWalk, true, 1);
+                    GetPlayer().Animate = false;
+                    GetPlayer().Waving = false;
+                    Dialog.ShowDialog(new List<string>
+                    {
+                        "Bill is performing the Rocket Jump today.",
+                        "Press Spacebar to make Bill jump."
+                    }, null);
+
+                    return false;
+                })
+                .Then(0, (s, dt) =>
+                {
+                    if (Rmb.Press())
+                    {
+                        Dialog.Quit();
+                        return false;//Skip
+                    }
+                    return Dialog.IsEnabled();
+                })
+                .Then(3f, (s, dt) =>
+                {
+                    GetPlayer().Joystick.AIJump = true;
+                    if (Rmb.Press())
+                    {
+                        Dialog.Quit();
+                        return false;//Skip
+                    }
+                    return s.Duration > 0;
+                })
+                .Then(0, (s, dt) =>
+                {
+                    GetPlayer().Joystick.AIJump = false;
+                    Dialog.ShowDialog(new List<string>
+                    {
+                        "Jump again when Bill hits the ground to jump higher."
+                        ,"After the 4th jump, Bill launches into space!"
+                    }, null);
+                    return false;
+                })
+                .Then(0, (s, dt) =>
+                {
+                    if (Rmb.Press())
+                    {
+                        Dialog.Quit();
+                        return false;//Skip
+                    }
+                    return Dialog.IsEnabled();
+                })
+                .Then(.8f, (s, dt) =>
+                {
+                    GetPlayer().Joystick.AIJump = true;
+                    if (Rmb.Press())
+                    {
+                        Dialog.Quit();
+                        return false;//Skip
+                    }
+                    return s.Duration > 0;
+                })
+                .Then(0, (s, dt) =>
+                {
+                    GetPlayer().Joystick.AIJump = false;
+                    Dialog.ShowDialog(new List<string>
+                    {
+                    "Try to jump the furthest you can!"
+                        ,"And don't hit the water!"
+                    }, null);
+                    return false;
+                })
+                .Then(0, (s, dt) =>
+                {
+                    if (Rmb.Press())
+                    {
+                        Dialog.Quit();
+                        return false;//Skip
+                    }
+                    return Dialog.IsEnabled();
+                })
+                .Then(0, (s, dt) =>
+                {
+                    IntroTutorial = false;
+                    GetPlayer().Joystick.IsUser = true;
+                    StartRunning = true;
+                    return false;
+                });
+            ;
+
+        }
+        private void CreateDucks()
+        {
+            for (int i = 0; i < 100; ++i)
+            {
+                Duck g = new Duck(this, Res.SprDuck, AIState.SwimLeftRight);
+                g.Animate = true;
+                g.BoxRelative = new Box2f(-4, -4, 8, 8);
+                g.Gravity = new vec2(0, 0);
+
+                if (Globals.Random(0, 1) >= 0.5f)
+                {
+                    g.Joystick.AIRight = true;
+                    g.Joystick.AILeft = false;
+                }
+                else
+                {
+                    g.Joystick.AIRight = false;
+                    g.Joystick.AILeft = true;
+                }
+
+                float ebase = 20;
+                float emax = 50;
+
+                g.Pos.x = Globals.Random(0, 1) * Res.Tiles.TileWidthPixels * (float)this.RoomWidthTiles;
+                g.Pos.y = (ebase * Res.Tiles.TileHeightPixels) + Globals.Random(0, 1) * Res.Tiles.TileHeightPixels * (float)(this.RoomHeightTiles - ebase - emax);
+
+                Level.GameObjects.Add(g);
+            }
+        }
+        private int RoomWidthTiles = 300;
+        private int RoomHeightTiles = 200;
+        private void GenerateLevel()
+        {
+
             td = new TileDefs(this);
             //Legend of Kevin Map
             //TileMap tm = new TileMap("World-0");
             //Our Map.
-            TileMap tm = new TileMap(140, 200);
+            TileMap tm = new TileMap(RoomWidthTiles, RoomHeightTiles);
 
             int playerX = 1;
             int playerY = tm.MapHeightTiles - 5;
@@ -834,13 +1032,9 @@ namespace Core
                 star.Pos.x = dx;
                 star.Pos.y = dy;
                 Level.GameObjects.Add(star);
-
-
             }
 
-
-
-            DoCheats();
+            CreateDucks();
         }
         private void Subdt(float dt, ref float value)
         {
@@ -873,16 +1067,32 @@ namespace Core
             if (GameState == GameState.PlayerDeath_ShowContinue)
             {
                 //Allow player to reset game
-                if (Keyboard.GetState().IsKeyDown(Keys.Space))
+                if (Keyboard.GetState().IsKeyDown(Keys.Space) || Rmb.PressOrDown() || Lmb.PressOrDown())
                 {
                     GameState = GameState.PlayerDeath_Resetting;
                     Res.Audio.PlaySound(Res.SfxContinue);
+
+                    float hs = 0;
+                    try
+                    {
+                        hs = (this.Screen.Game as MainGame).GetHighScore();
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+
+                    float d = GetDist(GetPlayer());
+
+                    if (d > hs)
+                    {
+                        (this.Screen.Game as MainGame).SetHighScore(d);
+                    }
                     (this.Screen as GameScreen).Reset = true;
                 }
             }
             //else if(GameState==GameState.Play)
             {//
-                //if((Screen.Game as MainGame).GraphicsDeviceManager.IsFullScreen)
+             //if((Screen.Game as MainGame).GraphicsDeviceManager.IsFullScreen)
                 {
                     if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                     {
@@ -907,7 +1117,6 @@ namespace Core
 
             UpdatePostPhysics(dt);
 
-            UpdateSave(dt);
 
             UpdateUI();
 
@@ -945,30 +1154,7 @@ namespace Core
                 }
             }
         }
-        private void UpdateSave(float dt)
-        {
-            //Testing... end save
-            if (Dialog.Halt == true)
-            {
-                bool b = Level.SaveGame("TestSave.txt");
 
-                if (b)
-                {
-                    Dialog.ShowDialog(new List<string>() { "Game Saved." });
-                }
-                else
-                {
-                    Dialog.ShowDialog(new List<string>() { "There was an error saving the game.." });
-
-                }
-                Dialog.Halt = false;
-            }
-            else if (SaveTime > 0 && Dialog.IsEnabled() == false)
-            {
-                SaveTime = -1;
-                GameState = GameState.Play;
-            }
-        }
         private void UpdateDebug(float dt)
         {
             CheatButton.Update(Keyboard.GetState().IsKeyDown(Keys.F4));
@@ -1077,6 +1263,11 @@ namespace Core
                 {
                     //Always update joystick even if paused
                     g.Joystick.Update(dt);
+
+                    if (StartRunning)
+                    {
+                        g.Joystick.Right.TouchState = TouchState.Down;
+                    }
                 }
 
                 if (GameState == GameState.Play)
@@ -1193,7 +1384,7 @@ namespace Core
                             {
                                 ob.Vel += ob.Acc * dt;// * waterdamp;
                                 ob.Vel += ob.Gravity * dt;// * waterdampgrav;
-                                //No physics.
+                                                          //No physics.
                             }
                         }
                     }
@@ -1218,12 +1409,12 @@ namespace Core
             {
                 if (Level.GameObjects[iObj].IsDeleted)
                 {
+                    //Check for player death.
                     if (Level.GameObjects[iObj] is Player)
                     {
                         if (GameState == GameState.Play)
                         {
                             GameState = GameState.PlayerDeath_Begin;
-
                         }
                     }
                     else
@@ -1406,7 +1597,6 @@ namespace Core
                 //Kill things
                 if (player.SwordEnabled && player.ItemHeld == null)
                 {
-                    UpdateSword(player, dt);
 
                     if (player.SwordSwingDelay < player.SwordSwingDelayMax && player.SwordSwingDelay > 0)
                     {
@@ -1424,8 +1614,6 @@ namespace Core
             else if (GameState == GameState.PlayerDeath_Begin)
             {
                 PlayPlayerDeathCutscene();
-
-
             }
 
             //Update light every 3 frames, OR when the player has moved too fast in the current frame
@@ -1442,13 +1630,12 @@ namespace Core
                 DoLight();
             }
 
-            UpdateAddMarbles(dt);
         }
         private void PlayPlayerDeathCutscene()
         {
             vec2 GuyPos = GetPlayer().Pos;
             float rot = 0;
-            float animDuration = 3.5f;
+            float animDuration = 2.5f;
             float rotSpdDelta = animDuration;
             float rotSpd = animDuration * 4;
 
@@ -1462,9 +1649,9 @@ namespace Core
             Cutscene = new Cutscene()
                 .Then(0, (s, dt) =>
                 {
-                    Res.Audio.PlaySound(Res.SfxDead);
+                    Res.Audio.PlaySound(Res.SfxPickupItem);
                     GameState = GameState.PlayerDeath_Animate;
-                    DrawState = DrawState.PlayerOnly;
+                    //  DrawState = DrawState.PlayerOnly;
                     return false;
                 })
                 .Then(animDuration, (s, dt) =>
@@ -1625,9 +1812,47 @@ namespace Core
         {
             g.UpdateHeldItem();
 
+            //make animation faster based on vel
+            ///fl
+
+            float vl = g.Vel.Len2() / (g.MaxVel * g.MaxVel);
+            g.AnimationSpeed = 1 + vl;
+
             UpdateGuyState(g, dt);
             DoPhysics(g, dt);
             CheckGuyInWater(g, dt);
+
+            if (g is Player)
+            {
+                foreach (GameObject ob in Level.GameObjects)
+                {
+                    if ((ob is Duck) && ob.IsDeleted == false)
+                    {
+                        if ((g.Pos - ob.Pos).Len2() <= (7 * 7))
+                        {
+                            Res.Audio.PlaySound(Res.SfxDuckQuack);
+                            FlagDeleteObject(ob);
+                            if (g.Vel.y > 0)
+                            {
+                                //Go back up if we are going down.
+                                g.Vel.y *= -3f;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (g.InWater)
+            {
+                EndGame();
+            }
+        }
+        public void EndGame()
+        {
+            //Fix this
+            GameState = GameState.PlayerDeath_Begin;
+            GetPlayer().Joystick.IsUser = false;
+            GetPlayer().VaporTrail = 0;
         }
         int LastMouseWheel = 0;
         bool F12Down = false;
@@ -2500,34 +2725,6 @@ namespace Core
                     }
 
                 }
-                else if (ViewportObjsFrame[i] as TreasureChest != null)
-                {
-                    TreasureChest tc = ViewportObjsFrame[i] as TreasureChest;
-                    //Make chest sparkle
-                    if (tc.SpecialItem != null && tc.SpecialItem.Sparkle == true)
-                    {
-                        tc.SparkleTime -= dt;
-                        if (tc.SparkleTime <= 0)
-                        {
-                            tc.SparkleTime = tc.MaxSparkleTime;
-                            for (int ipar = 0; ipar < 1; ++ipar)
-                            {
-                                CreateParticles(Res.SprSparkle, ParticleLife.Alpha_Zero, 1, tc.Pos + new vec2(Globals.Random(0, 16), Globals.Random(0, 16)), 0, 0,
-                                    new vec4(1, 1, 1, 1), 0.9f, -0.3f, 0, 0, new vec2(8, 8), 0, false, default(vec2), 0.01f);
-                            }
-                        }
-                    }
-
-                    if (ViewportObjsFrame[i].Box.ContainsPointInclusive(player.cposC))
-                    {
-                        if (MouseRelease(ViewportObjsFrame[i]))
-                        {
-                            player.HasInteractedThisFrame = true;
-                            OpenTreasureChest(ViewportObjsFrame[i] as TreasureChest, player, bActionButtonPressed);
-
-                        }
-                    }
-                }
                 else if (ViewportObjsFrame[i] as Sign != null)
                 {
                     if (ViewportObjsFrame[i].Box.ContainsPointInclusive(player.cposC))
@@ -2722,41 +2919,7 @@ namespace Core
                 Dialog.ShowDialog(new List<string>(ob.Text));
             }
         }
-        private void OpenTreasureChest(TreasureChest ob, Player guy, bool bActionButtonPressed)
-        {
-            if (ob.Open == false)
-            {
-                if (bActionButtonPressed && guy.OnGround)
-                {
-                    ob.Health = 0;
-                    ob.CanAttack = false;
 
-                    Res.Audio.PlaySound(Res.SfxChestOpen);
-                    ob.Open = true;
-                    Level.SerializeLevel();
-                    ob.UpdateSprite();
-
-                    if (ob.SpecialItem != null)
-                    {
-                        //Item Chest
-                        if (ob.SpecialItem.CutsceneType == CutsceneType.KeyItem)
-                        {
-                            PlayGotSpecialItemCutscene(guy, ob);
-                        }
-                        else if (ob.SpecialItem.CutsceneType == CutsceneType.Powerup)
-                        {
-                            PlayGotPowerupCutscene(guy, ob);
-                        }
-                    }
-                    else if (ob.Money > 0)
-                    {
-                        //Money Chest
-                        DropMarbles(ob.Pos, ob.Money);
-                    }
-
-                }
-            }
-        }
         private void PlayGotSpecialItemCutscene(Player guy, TreasureChest ob_chest)
         {
             float FadeIn = 1;
@@ -3285,9 +3448,6 @@ namespace Core
                         cnb.Water = 0;
                         c.Water = 0;
                     }
-
-
-
                 }
 
                 if (c.Water < WaterMin)//Fixes dumb bugs
@@ -3320,14 +3480,7 @@ namespace Core
                 {
                     c.WaterOnRight = true;
                 }
-                //if ((cnt != null && cnt.Water > 0))
-                //{
-                //    c.WaterAbove = true;
-                //}
-                //if ((cnb != null && cnb.Water >= 0.999))
-                //{
-                //    c.WaterBelow= true;
-                //}
+
             }
 
         }
@@ -3452,226 +3605,9 @@ namespace Core
             GameObject g = Level.GameObjects.Find(x => (x as Player) != null);
             return (g as Player);
         }
-        class AddMarble { public vec2 Addpos; public AddMarble(vec2 p) { Addpos = p; } }
-        private List<AddMarble> MarblesToAdd = new List<AddMarble>();
-        private float MarblesToAddMaxTime = 0.13f;
-        private float MarblesToAddCurTime = 0.13f;
-        private void UpdateAddMarbles(float dt)
-        {
-            if (MarblesToAdd.Count > 0)
-            {
-                MarblesToAddCurTime -= dt;
-                if (MarblesToAddCurTime <= 0)
-                {
-                    MarblesToAddCurTime = MarblesToAddMaxTime;
-                    AddMarble c = MarblesToAdd[MarblesToAdd.Count - 1];
 
-                    float marbleA = 0.75f;
-                    PickupItem item = DropItem(c.Addpos, new vec2(Globals.Random(-20, 20), -100), PickupItemType.Marble, 1, 1, Globals.Random(0.4f, 0.7f));
-                    item.Color = new vec4(Globals.Random(0, 1), Globals.Random(0, 1), Globals.Random(0, 1), 1);
-                    item.Color.SetMinLightValue(3.0f);
-                    item.Color = new vec4(item.Color.x, item.Color.y, item.Color.z, marbleA);
-
-                    Res.Audio.PlaySound(Res.SfxMarbleDrop);
-                    MarblesToAdd.RemoveAt(MarblesToAdd.Count - 1);
-
-                }
-            }
-        }
-        private void FlipPlayerToAimDirection(Player player)
-        {
-            bool bFlipPlayerIfNegative = true;// This can be a setting
-            if (player.Joystick.Action.PressOrDown() || Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                if (player.BowOut || player.ShieldOut || player.SwordOut || player.ItemHeld != null)
-                {
-                    vec2 aimNormal = new vec2(0, 0);
-                    if (player.BowOut)
-                    {
-                        aimNormal = GetAimNormal(player, GetBowOffset(player));
-                    }
-                    else if (player.ItemHeld != null)
-                    {
-                        aimNormal = GetThrowNormal(player, player.ItemHeld);
-                    }
-                    else if (player.SwordOut)
-                    {
-                        aimNormal = GetAimNormal(player, GetMovableItemOrigin(player)); ;
-                    }
-
-                    //if the guy isn't facing the direction he's trying to shoot then flipt he normal
-                    if (player.IsFacingRight() && aimNormal.Dot(new vec2(1, 0)) < 0)
-                    {
-                        if (bFlipPlayerIfNegative)
-                        {
-                            player.SpriteEffects = SpriteEffects.FlipHorizontally;
-                        }
-                    }
-                    else if (player.IsFacingLeft() && aimNormal.Dot(new vec2(-1, 0)) < 0)
-                    {
-                        if (bFlipPlayerIfNegative)
-                        {
-                            player.SpriteEffects = SpriteEffects.None;
-                        }
-                    }
-                }
-
-            }
-        }
-        //private void UpdateSubWeapon(Player player, float dt)
-        //{
-        //    //Face Weapon
-        //    //If we are bow - and the player is moving an the left/right then face that direction
-        //    if (player.BowOut)
-        //    {
-        //        //AutoFace
-        //        // if(angle)
-        //    }
-
-        //    player.BombTime -= dt;
-        //    if (player.BombTime <= 0)
-        //    {
-        //        player.BombTime = 0;
-        //    }
-
-        //    FlipPlayerToAimDirection(player);
-
-        //    if (player.Joystick.Action.Press())
-        //    {
-        //        //Removing from the LOK
-        //        //if (player.NoWeaponAction())
-        //        //{
-
-        //        //    if (player.SelectedSubweapon == Weapon.Bomb)
-        //        //    {
-        //        //        Res.Audio.PlaySound(Res.SfxTakeOutItem);
-
-        //        //        //If current object is bombs
-        //        //        if (player.BombsEnabled && player.NumBombs > 0)
-        //        //        {
-        //        //            player.NumBombs--;
-        //        //            player.BombTime = player.MaxBombTime;
-        //        //            MakeBomb(player, Res.SprBomb, 2.5f, Res.SfxSizzle, Res.SfxBombexplode, 5, false, false);
-        //        //        }
-        //        //    }
-        //        //    else if (player.SelectedSubweapon == Weapon.Bow)
-        //        //    {
-        //        //        player.BowOut = true;
-        //        //        player.BowDrawTime = player.BowDrawTimeMax;
-        //        //        drawBowSound = Res.Audio.PlaySound(Res.SfxDrawBow);
-        //        //    }
-        //        //}
-
-        //    }
-        //    else if (player.Joystick.Action.Down())
-        //    {
-        //        if (player.BowOut)
-        //        {
-        //            player.BowDrawTime -= dt;
-
-        //            if (player.BowDrawTime <= 0)
-        //            {
-        //                player.BowDrawTime = 0;
-        //                if (drawBowSound != null)
-        //                {
-        //                    drawBowSound.Stop();
-        //                    drawBowSound = null;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    else if (player.Joystick.Action.Release())
-        //    {
-        //        if (player.BowOut)
-        //        {
-        //            if (drawBowSound != null)
-        //            {
-        //                drawBowSound.Stop();
-        //                drawBowSound = null;
-        //            }
-        //            player.BowOut = false;
-
-        //            if (player.NumArrows > 0)
-        //            {
-        //                Res.Audio.PlaySound(Res.SfxArrowShoot);
-
-        //                MakeArrow(player);
-
-        //                player.NumArrows -= 1;
-        //            }
-        //            else
-        //            {
-        //                Res.Audio.PlaySound(Res.SfxNoArrowShoot);
-        //            }
-        //        }
-        //        //Update the held bomb.
-        //        //The held items hould be the bomb.
-        //        if (player.ItemHeld != null)
-        //        {
-        //            ThrowHeldItem(player, dt, GetThrowNormal(player, player.ItemHeld), 13600);
-        //        }
-
-        //    }
-
-        //}
-
-        //private Arrow MakeArrow(Player player)
-        //{
-        //    vec2 origin = GetBowOffset(player);
-        //    vec2 aimNormal = GetAimNormal(player, origin);
-
-        //    //vec2 aimNormal = GetAimNormalForSelectedWeapon(player);
-        //    vec2 arrowOff = GetArrowOffsetFromBow(player, aimNormal);
-
-        //    Arrow a = new Arrow(this);
-        //    a.SetSprite(Res.SprArrow);
-        //    a.Gravity = Gravity;
-        //    a.PhysicsShape = PhysicsShape.Ball;
-        //    a.PhysicsResponse = PhysicsResponse.StickIntoGround;
-        //    a.PhysicsBallRadiusPixels = 0.1f;
-        //    a.CanDeflectWithShield = true;
-        //    a.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, 2.5f);
-        //    a.Pos = origin + arrowOff - a.Origin;
-        //    a.Vel = aimNormal * 450;
-        //    //Velocity is part initial, part draw power - 
-        //    a.Vel = (a.Vel * 0.4f) + (a.Vel * (1 - player.BowDrawTime / player.BowDrawTimeMax) * 0.6f);
-        //    a.RotateToTrajectory = true;
-
-        //    Level.GameObjects.Add(a);
-
-        //    return a;
-        //}
-        //private Bomb MakeBomb(Guy guy, string strsprite, float fBlastRadiusTILES, string throwsoundeffect, string explodesoundeffect, float fMaxBlowTime, bool bIsEnemyBomb, bool bExplodeOnImpact)
-        //{
-        //    Bomb m = new Bomb(this);
-        //    m.Power = 1000;
-        //    m.PhysicsBallRadiusPixels = 4;
-        //    m.SetSprite(strsprite);
-        //    m.Friction = 0.87f;
-        //    m.Gravity = Gravity;
-        //    m.Bounciness = 0.6f;
-        //    m.VaporTrail = 3;
-        //    m.Origin = new vec2(Res.Tiles.TileWidthPixels * 0.5f, Res.Tiles.TileHeightPixels * 0.5f);//center
-        //    m.Scale = Bomb.BaseScale;
-        //    m.PhysicsShape = PhysicsShape.Ball;
-        //    Res.Audio.PlaySound(throwsoundeffect);
-        //    guy.HoldItem(m);
-        //    m.CanDeflectWithShield = true;
-
-
-        //    m.ExplodeOnImpact = bExplodeOnImpact;
-        //    m.BlastRadiusPixels = Res.Tiles.TileWidthPixels * fBlastRadiusTILES;
-        //    m.ExplodeSound = explodesoundeffect;
-        //    m.MaxBlowtime = fMaxBlowTime;
-        //    m.Blowtime = m.MaxBlowtime;
-        //    m.NextBlink = m.MaxBlowtime * Bomb.BlinkRate;
-        //    m.IsEnemyBomb = bIsEnemyBomb;
-
-        //    Level.GameObjects.Add(m);
-
-        //    return m;
-        //}
-
+        bool IntroTutorial = false;
+        float jumpStartPos = -1;
         int JumpState = 0;//For Rocket Jump
         private void UpdateGuyState(Guy guy, float dt)
         {
@@ -3830,20 +3766,28 @@ namespace Core
                                     }
                                     statef = 2.6f;
                                     guy.VaporTrail = 4;
-                                    this.JumpState = 0;
+                                    this.JumpState++;
+                                    jumpStartPos = guy.Pos.x;
                                     guy.CalcRotationDelta();
                                     CreateBlastParticles(guy.Box.Center() + new vec2(0, guy.Box.Height() * 0.5f),
-                                        new vec4(1, 1, .8914f, 1), 30, Res.SprParticleSmall, new vec2(0, 1), MathHelper.ToRadians(180));
+                                        new vec4(1, 1, .8914f, 1), 30, Res.SprParticleBig, new vec2(0, 1), MathHelper.ToRadians(180));
 
                                     if (guy.IsFacingLeft())
                                     {
                                         guy.RotationDelta *= -1.0f;
                                     }
-                                    Dialog.ShowDialog(new List<string>() { "Bomb's Away." });
-                                    Dialog.Halt = true;
 
                                 }
                             }
+
+                            if (IntroTutorial)
+                            {
+                                //Reset jump statei f intro trutorial.
+                                JumpState = 0;
+                            }
+
+                            //Don't show it
+                            ScreenOverlayText = "";
 
                             //Do a spring boot jump
                             guy.CurJumpSpeed = guy.SpringJumpSpeed * precision_mul * statef;
@@ -4061,7 +4005,7 @@ namespace Core
                     guy.SetFrame(0);
                 }
             }
-            else if (guy.OnGround || guy.Crouching)
+            else if ((guy.OnGround || guy.Crouching) && !guy.Waving)
             {
                 if (guy.Joystick.Right.PressOrDown() || guy.Joystick.Left.PressOrDown())
                 {
@@ -4104,7 +4048,7 @@ namespace Core
         private void LimitVelocity(Guy guy)
         {
             float maxLenx = 90;
-            float maxLeny = 200;//We nedd to separate cuz of jump
+            float maxLeny = 120;//We nedd to separate cuz of jump
             if (guy.Vel.x > maxLenx)
             {
                 guy.Vel.x = maxLenx;
@@ -4170,8 +4114,6 @@ namespace Core
 
             if (player != null)
             {
-
-
                 List<Cell> GuyTiles = Level.Grid.GetCellManifoldForBox(speedbox);
                 //Sort by nearest.  THIS IS CRITICAL to prevent us from colliding with further tiles.
                 GuyTiles.Sort((x, y) => (x.Box().Center() - guy.cposC).Len2().CompareTo((y.Box().Center() - guy.cposC).Len2()));
@@ -5409,20 +5351,6 @@ namespace Core
                         if (guy.Pos.y > newy)
                         {
                             guy.Pos.y = newy;
-                            //These are pretty much just v tests and neither work very well.
-                            //SlideSlope bounces, and the se
-                            //guy.Vel = SlideSlope(guy.Pos, guy.Vel, new vec2(-1, -1).Normalized());
-                            //Method2 - the guy's velocity is too high.
-                            //vec2 n;
-                            //if (guy.Vel.x >0)
-                            //{
-                            //    n = new vec2(1, -1).Normalized() ;
-                            //}
-                            //else
-                            //{
-                            //    n = new vec2(-1, 1).Normalized() ;
-                            //}
-                            //guy.Vel = n * guy.Vel.Len();
                             collided = true;
                             guy.OnSlope = true;
                         }
@@ -5441,17 +5369,6 @@ namespace Core
                         if (guy.Pos.y > newy)
                         {
                             guy.Pos.y = newy;
-                            //vec2 n;
-                            //if (guy.Vel.x > 0)
-                            //{
-                            //    n = new vec2(1, 1).Normalized();
-                            //}
-                            //else
-                            //{
-                            //    n = new vec2(-1, -1).Normalized();
-                            //}
-                            //guy.Vel = n * guy.Vel.Len();
-                            //guy.Vel = SlideSlope(guy.Pos, guy.Vel, new vec2(1, -1).Normalized());
                             collided = true;
                             guy.OnSlope = true;
                         }
@@ -5466,6 +5383,12 @@ namespace Core
                     guy.Rotation = guy.RotationDelta = 0;
                     guy.VaporTrail = 0;
                     guy.Vel.y = 0;
+
+                    if (this.JumpState >= 4)
+                    {
+                        //End of game.
+                        EndGame();
+                    }
 
                     if (guy.LastOnGround == false)
                     {
@@ -5536,427 +5459,7 @@ namespace Core
                 }
             }
         }
-        private void UpdateSword(Player guy, float dt)
-        {
-            if (guy.SwordSwingDelay > 0)
-            {
-                guy.SwordSwingDelay -= dt;
-                if (guy.SwordSwingDelay < 0)
-                {
-                    guy.SwordSwingDelay = 0;
 
-
-                    //Finished swinging sword - set guy's sprite back
-                    if (Screen.Game.Input.Global.PressOrDown() == false)
-                    {
-                        if (guy.Crouching)
-                        {
-                            guy.SetSprite(guy.CrouchAttackSprite);
-                        }
-                        else if (guy.Climbing)
-                        {
-                            guy.SetSprite(guy.ClimbSprite);
-                        }
-                        else if (guy.ShieldOut)
-                        {
-                            if (guy.Crouching)
-                            {
-                                guy.SetSprite(guy.CrouchAttackSprite);
-                            }
-                            else
-                            {
-                                guy.SetSprite(guy.WalkAttackSprite);
-                            }
-                        }
-                        else if (guy.OnGround)
-                        {
-                            guy.SetSprite(guy.WalkSprite);
-                        }
-                        else if (guy.SwordSwingDelay <= 0)//Only if we're done swinging set to falling
-                        {
-                            guy.SetSprite(guy.FallSprite);
-                        }
-                    }
-                    else
-                    {
-                        if (guy.Crouching)
-                        {
-                            guy.SetSprite(guy.CrouchAttackSprite);
-                        }
-                        else
-                        {
-                            guy.SetSprite(guy.WalkAttackSprite);
-                        }
-                    }
-
-                }
-            }
-
-
-
-            //tHIS BLOCK prevents us from swinging sword when we open a chest, or talk to an NPC
-            if (guy.HasInteractedThisFrame == false)
-            {
-                if (Screen.Game.Input.Global.Press())
-                {
-                    if (guy.NoWeaponAction())
-                    {
-                        SwingSword(guy);
-                    }
-                }
-                else if (Screen.Game.Input.Global.Down())
-                {
-                    if (guy.SwordOut)
-                    {
-
-                        //Guy has held button, give him control over sword.
-                        if (guy.SwordSwingDelay <= 0)
-                        {
-                            guy.ControlSwordDelay -= dt;
-                            if (guy.ControlSwordDelay <= 0)
-                            {
-                                guy.ControlSwordDelay = 0;
-
-                                //Update the click ormal
-                                guy.SwordClickNormal = GetAimNormal(guy, GetMovableItemOrigin(guy));
-                            }
-                        }
-                    }
-
-                }
-
-
-                //Update the movable item click normal
-                //Don't update the movable click normal if we're mid-swipe
-                guy.ShieldClickNormal = GetAimNormal(guy, GetMovableItemOrigin(guy));
-
-                //Check for  the guy using sheild
-                // UpdateShield(guy);
-
-                //Charge cPower Sword
-                //UpdatePowerSword(guy, dt);
-
-                if (Screen.Game.Input.Global.Release())
-                {
-                    //mUST COME ELAST
-                    guy.ControlSwordDelay = guy.ControlSwordDelayMax;
-                    guy.SwordOut = false;
-                }
-            }
-
-        }
-        //private void UpdatePowerSword(Player guy, float dt)
-        //{
-        //    //Charge cPower Sword
-        //    if (Screen.Game.Input.Global.Down() && guy.SwordOut == true)
-        //    {
-        //        if (guy.PowerSwordEnabled)
-        //        {
-        //            if (guy.SwordModifier == SwordModifier.None)
-        //            {
-        //                guy.PowerSwordChargeWait -= dt;
-        //                if (guy.PowerSwordChargeWait <= 0)
-        //                {
-        //                    guy.PowerSwordChargeWait = 0;
-
-        //                    if (guy.PowerSwordChargeBase == guy.PowerSwordChargeBaseMax)
-        //                    {
-        //                        if (chargeSound != null)
-        //                        {
-        //                            chargeSound.Stop();
-        //                            chargeSound = null;
-        //                        }
-        //                        chargeSound = Res.Audio.PlaySound(Res.SfxPowerSwordChargeBase);
-        //                        chargeSound.IsLooped = true;
-
-        //                        //Set the sword angle
-        //                        //     guy.SwordSwingMaxAngleRadians = (float)Math.PI * 0.3f;
-        //                        guy.SwordSwingDelayMax = guy.SwordSwingDelayMax = guy.SwordSwingDelayMaxSwing1;
-
-        //                        //show pulse speed
-        //                        guy.PowerSwordChargePulseSpeed = 0.6f;
-
-        //                        //guy.EmitLight = true;
-        //                        guy.EmitColor = Player.PowerSwordEmitColor();
-        //                        guy.EmitRadiusInPixels = Player.PowerSwordEmitRadius() * guy.PowerSwordChargePulse;
-
-        //                        //guy.EmitRadiusInPixels = Res.Tiles.TileWidthPixels ;
-
-        //                    }
-
-        //                    guy.PowerSwordChargeBase -= dt;
-        //                    if (guy.PowerSwordChargeBase <= 0)
-        //                    {
-        //                        guy.PowerSwordChargeBase = 0;
-        //                        if (guy.PowerSwordChargeRise == guy.PowerSwordChargeRiseMax)
-        //                        {
-        //                            if (chargeSound != null)
-        //                            {
-        //                                chargeSound.Stop();
-        //                                chargeSound = null;
-        //                            }
-        //                            chargeSound = Res.Audio.PlaySound(Res.SfxPowerSwordChargeRise);
-        //                            chargeSound.IsLooped = false;
-        //                            //Show the sword glowing constantly
-        //                            guy.PowerSwordChargePulseSpeed = 0.0f;
-        //                            guy.PowerSwordChargePulse = 1.0f;
-
-        //                        }
-
-        //                        guy.PowerSwordChargeRise -= dt;
-        //                        if (guy.PowerSwordChargeRise <= 0)
-        //                        {
-        //                            guy.PowerSwordChargeRise = 0;
-
-        //                            if (guy.PowerSwordCharged == false)
-        //                            {
-        //                                guy.PowerSwordCharged = true;
-        //                                if (chargeSound != null)
-        //                                {
-        //                                    chargeSound.Stop();
-        //                                    chargeSound = null;
-        //                                }
-        //                                chargeSound = Res.Audio.PlaySound(Res.SfxPowerSwordChargeFinal);
-        //                                chargeSound.IsLooped = true;
-        //                                guy.PowerSwordChargePulseSpeed = 2.0f;
-        //                            }
-        //                        }
-        //                    }
-
-        //                }
-
-        //                //Update Pulse
-        //                guy.PowerSwordChargePulse += dt * guy.PowerSwordChargePulseDirection * guy.PowerSwordChargePulseSpeed;
-        //                guy.EmitRadiusInPixels = Player.PowerSwordEmitRadius() * 0.7f + Player.PowerSwordEmitRadius() * 0.3f * guy.PowerSwordChargePulse;
-
-        //                if (guy.PowerSwordChargePulse >= 1.0f)
-        //                {
-        //                    guy.PowerSwordChargePulseDirection = -1.0f;
-        //                    guy.PowerSwordChargePulse = 1.0f;
-        //                }
-        //                else if (guy.PowerSwordChargePulse <= 0.0f)
-        //                {
-        //                    guy.PowerSwordChargePulseDirection = 1.0f;
-        //                    guy.PowerSwordChargePulse = 0.0f;
-        //                }
-
-
-        //            }//guy.owerswordenableed
-        //        }
-        //    }
-
-        //    //Shoot the Power Sword Ball
-        //    if (Screen.Game.Input.Global.Release())
-        //    {
-        //        ReleasePowerSwordProjectile(guy);
-        //    }
-
-        //    //Reset the power sword charge
-        //    if (Screen.Game.Input.Global.Up())
-        //    {
-        //        EndPowerSwordCharge(guy);
-        //    }
-        //}
-        //private void ReleasePowerSwordProjectile(Player guy)
-        //{
-        //    if (guy.SwordOut == true)
-        //    {
-        //        if (guy.PowerSwordEnabled)
-        //        {
-        //            if (guy.PowerSwordChargeBase < guy.PowerSwordChargeBaseMax)
-        //            {
-        //                //Base = 0-0.5, Rise = 0.5-1
-        //                float shootPower = 0.4f * (1 - (guy.PowerSwordChargeBase / guy.PowerSwordChargeBaseMax)) + 0.1f;
-        //                if (guy.PowerSwordChargeRise < guy.PowerSwordChargeRiseMax)
-        //                {
-        //                    shootPower = 0.5f + (1 - (guy.PowerSwordChargeRise / guy.PowerSwordChargeRiseMax));
-        //                }
-
-        //                Res.Audio.PlaySound(Res.SfxPowerSwordShoot);
-
-        //                Projectile bullet = new Projectile(this);
-        //                bullet.Origin = Res.Tiles.GetWHVec() * 0.5f;
-        //                bullet.Pos = GetSwordHitPoint(guy) - bullet.Origin;
-        //                float bs = 7;
-        //                bullet.BoxRelative = new Box2f(-bs * shootPower, -bs * shootPower, bs * 2 * shootPower, bs * 2 * shootPower);
-        //                bullet.SetSprite(Res.SprPowerSwordProjectile, true, 0);
-
-        //                bullet.Power = 1 + shootPower * 9;//Power = [1,10]
-
-        //                bullet.Scale = shootPower;
-        //                bullet.ScaleDelta.y = 0.8f + shootPower;
-        //                bullet.ScalePingpongY = true;
-        //                bullet.ScalePingpongYRange = new vec2(shootPower * 0.3f + 0.1f, shootPower + 0.1f);
-        //                bullet.ScalePingpongX = true;
-        //                bullet.ScaleDelta.x = 0.6f + shootPower;
-        //                bullet.ScalePingpongXRange = new vec2(shootPower * 0.3f + 0.1f, shootPower + 0.1f);
-
-        //                bullet.EmitLight = true;
-        //                bullet.EmitColor = new vec4(1, 1, 1, 1);
-        //                bullet.EmitRadiusInPixels = Res.Tiles.TileWidthPixels * 3;
-
-        //                bullet.Vel = GetThrowNormal(guy, bullet) * 300.0f;
-        //                bullet.Friction = 0.0f;
-
-        //                Level.GameObjects.Add(bullet);
-        //            }
-        //            SwingSword(guy);
-        //        }
-        //    }
-
-        //}
-        //private void EndPowerSwordCharge(Player guy)
-        //{
-        //    if (guy.PowerSwordEnabled)
-        //    {
-
-        //        if (guy.PowerSwordChargeWait < guy.PowerSwordChargeWaitMax)
-        //        {
-        //            if (chargeSound != null)
-        //            {
-        //                chargeSound.Stop();
-        //                chargeSound = null;
-        //            }
-        //            guy.PowerSwordChargeRise = guy.PowerSwordChargeRiseMax;
-        //            guy.PowerSwordChargeWait = guy.PowerSwordChargeWaitMax;
-        //            guy.PowerSwordChargePulse = 0;
-        //            guy.PowerSwordChargePulseDirection = 1;
-        //            guy.PowerSwordChargeBase = guy.PowerSwordChargeBaseMax;
-        //            guy.PowerSwordCharged = false;
-        //            guy.PowerSwordChargePulseSpeed = 0.0f;
-
-        //            guy.EmitColor = Player.PlayerBaseEmitColor();
-        //            guy.EmitRadiusInPixels = Player.PlayerBaseEmitRadius();
-
-        //        }
-        //    }
-        //}
-        //private void UpdateShield(Player guy)
-        //{
-        //    if (guy.ShieldEnabled)
-        //    {
-        //        if (Rmb.Press())
-        //        {
-        //            if (ShieldObject == null)
-        //            {
-        //                //Create the shield object
-        //                ShieldObject = new GameObject(this, Res.SprShield);
-        //                ShieldObject.Origin = Res.Tiles.GetWHVec() * 0.5f;
-        //                ShieldObject.BoxRelative = new Box2f(-3, -3, 6, 6);
-        //                ShieldObject.PhysicsBallRadiusPixels = 4;
-        //                ShieldObject.PhysicsShape = PhysicsShape.Ball;
-        //            }
-        //            Res.Audio.PlaySound(Res.SfxShieldOut);
-        //        }
-
-        //        guy.ShieldOut = false;
-        //        if (Rmb.PressOrDown() && (guy.ItemHeld == null))
-        //        {
-        //            //TODO: make shield rotate
-        //            // vec2 r = guy.DecomposeRotation();
-        //            guy.ShieldOut = true;
-        //            if (guy.Crouching)
-        //            {
-        //                guy.SetSprite(guy.CrouchAttackSprite);
-        //            }
-        //            else
-        //            {
-        //                guy.SetSprite(guy.WalkAttackSprite);
-        //            }
-
-        //            float ShieldDistFromPlayer = 8.0f;
-
-        //            if (guy.IsFacingLeft())
-        //            {
-        //                ShieldObject.Pos = guy.WorldPos() + (guy.ShieldClickNormal) * ShieldDistFromPlayer - ShieldObject.Origin;
-        //                ShieldObject.SpriteEffects = SpriteEffects.FlipHorizontally;
-        //            }
-        //            else
-        //            {
-        //                ShieldObject.Pos = guy.WorldPos() + (guy.ShieldClickNormal) * ShieldDistFromPlayer - ShieldObject.Origin;
-        //            }
-        //        }
-
-        //    }
-        //}
-        private void SwingSword(Player player)
-        {
-            //Remove sword modifier, reset emit
-            player.SwordModifier = SwordModifier.None;
-            player.SwordOnFire = false;
-            player.EmitColor = Player.PlayerBaseEmitColor();
-            player.EmitRadiusInPixels = Player.PlayerBaseEmitRadius();
-
-            AttackBadGuys(player);
-
-            if (player.SwordSwingDelay <= 0)
-            {
-                //Swing the axe
-                Res.Audio.PlaySound(Res.SfxSwordSwing);
-
-                player.SwordOut = true;
-                //Don't set the sprite to "attack" if we are moving (looks weird)
-                if (player.OnGround && (player.Joystick.Left.PressOrDown() || player.Joystick.Right.PressOrDown()))
-                {
-                }
-                else
-                {
-                    //guy.SetSprite(guy.AttackSprite);
-                    //guy.Loop = false;
-                }
-
-                //Do not allow jumping to continue while attacking.
-                player.Jumping = false;
-
-
-                int swingType = 0;
-                if (Time - player.SwordLastSwipeTime < 0.3f)
-                {
-                    //Chain attack - multiple swype types
-                    //3 swing types
-                    swingType = Globals.RandomInt(0, 6);
-                }
-                else
-                {
-                    swingType = 1;
-                }
-
-                if (swingType == 0)
-                {
-                    //Full 360 swing
-                    player.SwordSwingDir = 1;
-                    player.SwordSwingMaxAngleRadians = (float)Math.PI * 2;
-                    player.SwordSwingDelayMax = player.SwordSwingDelayMaxSwing0;
-                }
-                else if (swingType == 1 || swingType == 2 || swingType == 3)
-                {
-                    //move ldownward swipe
-                    //front/b swing down
-                    player.SwordSwingDir = 0;
-                    player.SwordSwingMaxAngleRadians = (float)Math.PI * 0.8f;
-                    player.SwordSwingDelayMax = player.SwordSwingDelayMaxSwing1;
-                }
-                else if (swingType == 4 || swingType == 5 || swingType == 6)
-                {
-                    //f/b swing up
-                    player.SwordSwingDir = 1;
-                    player.SwordSwingMaxAngleRadians = (float)Math.PI * 0.8f;
-                    player.SwordSwingDelayMax = player.SwordSwingDelayMaxSwing2;
-                }
-                else
-                {
-                    System.Diagnostics.Debugger.Break();
-                }
-
-                //Set the intilazl swordl clickn oraml
-                player.SwordClickNormal = GetAimNormal(player, GetMovableItemOrigin(player));
-
-
-                player.SwordSwingDelay = player.SwordSwingDelayMax;
-
-                player.SwordLastSwipeTime = Time;
-            }
-        }
         private bool DamageTiles(float power, Box2f box)
         {
             //Cell[] cells = Level.Grid.GetSurroundingCells(Level.Grid.GetCellForPoint(ob.Box.Center()), true);
@@ -6256,17 +5759,7 @@ namespace Core
 
             DropItem(atPos, new vec2(Globals.Random(-20, 20), -100), pickupItems[n]);
         }
-        private void DropMarbles(vec2 atPos, int count)
-        {
-            if (MarblesToAdd.Count == 0)
-            {
-                MarblesToAddCurTime = MarblesToAddMaxTime + 0.2f;//add a little extra time to wait for the chest to finish opening
-            }
-            for (int i = 0; i < count; ++i)
-            {
-                MarblesToAdd.Add(new AddMarble(atPos));
-            }
-        }
+
         private PickupItem DropItem(vec2 atPos, vec2 vel, PickupItemType type, float PickupTime = 0, float radius_pixels = 4, float scale = 0.5f)
         {
             string sprite = "";
@@ -6898,35 +6391,35 @@ namespace Core
 
                             //Draw sword/shield behind guy if they are put away (reverwe order sto look like sword is in front)
 
-                            if (obPlayer != null && obPlayer.ShieldEnabled && obPlayer.ShieldOut == false)
-                            {
-                                DrawShield(obPlayer, sb, color);
-                            }
-                            if (obPlayer != null && obPlayer.SwordEnabled && obPlayer.SwordOut == false)
-                            {
-                                DrawSword(obPlayer, sb, color);
-                            }
+                            //if (obPlayer != null && obPlayer.ShieldEnabled && obPlayer.ShieldOut == false)
+                            //{
+                            //    DrawShield(obPlayer, sb, color);
+                            //}
+                            //if (obPlayer != null && obPlayer.SwordEnabled && obPlayer.SwordOut == false)
+                            //{
+                            //    DrawSword(obPlayer, sb, color);
+                            //}
 
                             DrawObject(sb, ob, color);
 
-                            if (obPlayer != null && obPlayer.BowOut == true)
-                            {
-                                if (obPlayer != null && obPlayer.BowEnabled && obPlayer.BowOut == true)
-                                {
-                                    DrawBow(obPlayer, sb, color);
-                                }
-                            }
-                            else
-                            {
-                                if (obPlayer != null && obPlayer.SwordEnabled && obPlayer.SwordOut == true)
-                                {
-                                    DrawSword(obPlayer, sb, color);
-                                }
-                                if (obPlayer != null && obPlayer.ShieldEnabled && obPlayer.ShieldOut == true)
-                                {
-                                    DrawShield(obPlayer, sb, color);
-                                }
-                            }
+                            //if (obPlayer != null && obPlayer.BowOut == true)
+                            //{
+                            //    if (obPlayer != null && obPlayer.BowEnabled && obPlayer.BowOut == true)
+                            //    {
+                            //        DrawBow(obPlayer, sb, color);
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (obPlayer != null && obPlayer.SwordEnabled && obPlayer.SwordOut == true)
+                            //    {
+                            //        DrawSword(obPlayer, sb, color);
+                            //    }
+                            //    if (obPlayer != null && obPlayer.ShieldEnabled && obPlayer.ShieldOut == true)
+                            //    {
+                            //        DrawShield(obPlayer, sb, color);
+                            //    }
+                            //}
 
 
                             DrawObjDebug(ob, sb);
@@ -7180,214 +6673,214 @@ namespace Core
             origin = guy.Box.Center() + origin;
             return origin;
         }
-        private Frame GetBowArrowFrame(Player player)
-        {
-            int iFrame = 0;
-            if (player.SwordModifier == SwordModifier.Tar)
-            {
-                iFrame = 1;
-            }
+        //private Frame GetBowArrowFrame(Player player)
+        //{
+        //    int iFrame = 0;
+        //    if (player.SwordModifier == SwordModifier.Tar)
+        //    {
+        //        iFrame = 1;
+        //    }
 
-            return Res.Tiles.GetSpriteFrame(Res.SprArrow, iFrame);
-        }
-        private Frame GetSwordFrame(Player player)
-        {
-            int iFrame = 0;
-            if (player.SwordModifier == SwordModifier.Tar)
-            {
-                iFrame = 1;
-            }
-            if (player.SwordModifier == SwordModifier.Water)
-            {
-                iFrame = 2;
-            }
-            if (player.SwordModifier == SwordModifier.Lava)
-            {
-                iFrame = 3;
-            }
-            if (player.SwordModifier == SwordModifier.Obsidian)
-            {
-                iFrame = 4;
-            }
+        //    return Res.Tiles.GetSpriteFrame(Res.SprArrow, iFrame);
+        //}
+        //private Frame GetSwordFrame(Player player)
+        //{
+        //    int iFrame = 0;
+        //    if (player.SwordModifier == SwordModifier.Tar)
+        //    {
+        //        iFrame = 1;
+        //    }
+        //    if (player.SwordModifier == SwordModifier.Water)
+        //    {
+        //        iFrame = 2;
+        //    }
+        //    if (player.SwordModifier == SwordModifier.Lava)
+        //    {
+        //        iFrame = 3;
+        //    }
+        //    if (player.SwordModifier == SwordModifier.Obsidian)
+        //    {
+        //        iFrame = 4;
+        //    }
 
-            return Res.Tiles.GetSpriteFrame(Res.SprSword, iFrame);
-        }
-        private void DrawSword(Player player, SpriteBatch sb, vec4 color)
-        {
-            if (player.SwordEnabled)
-            {
-                Frame SFrame = GetSwordFrame(player);
-                if (player.SwordOut)
-                {
-                    Frame PSFrame = Res.Tiles.GetSpriteFrame(Res.SprPowerSword, 0);
-                    Frame HandFrame = Res.Tiles.GetSpriteFrame(Res.SprGuyHand, 0);
+        //    return Res.Tiles.GetSpriteFrame(Res.SprSword, iFrame);
+        //}
+        //private void DrawSword(Player player, SpriteBatch sb, vec4 color)
+        //{
+        //    if (player.SwordEnabled)
+        //    {
+        //        Frame SFrame = GetSwordFrame(player);
+        //        if (player.SwordOut)
+        //        {
+        //            Frame PSFrame = Res.Tiles.GetSpriteFrame(Res.SprPowerSword, 0);
+        //            Frame HandFrame = Res.Tiles.GetSpriteFrame(Res.SprGuyHand, 0);
 
-                    float angle = GetWeaponAngle(player);
-                    vec2 origin = GetMovableItemOrigin(player);
+        //            float angle = GetWeaponAngle(player);
+        //            vec2 origin = GetMovableItemOrigin(player);
 
-                    float blend = 0;
-                    if (player.PowerSwordEnabled)
-                    {
-                        blend = player.PowerSwordChargePulse;
-                        Screen.DrawFrame(sb, PSFrame, origin, Res.Tiles.GetWHVec(), Color.White * (blend), new vec2(1, 1), angle, new vec2(16 / 2, 15), player.SpriteEffects);
-                    }
+        //            float blend = 0;
+        //            if (player.PowerSwordEnabled)
+        //            {
+        //                blend = player.PowerSwordChargePulse;
+        //                Screen.DrawFrame(sb, PSFrame, origin, Res.Tiles.GetWHVec(), Color.White * (blend), new vec2(1, 1), angle, new vec2(16 / 2, 15), player.SpriteEffects);
+        //            }
 
-                    Screen.DrawFrame(sb, SFrame, origin, Res.Tiles.GetWHVec(), (color * (1 - blend)).toXNAColor(), new vec2(1, 1), angle, new vec2(16 / 2, 15), player.SpriteEffects);
+        //            Screen.DrawFrame(sb, SFrame, origin, Res.Tiles.GetWHVec(), (color * (1 - blend)).toXNAColor(), new vec2(1, 1), angle, new vec2(16 / 2, 15), player.SpriteEffects);
 
-                    //Draw hand in front of sword
-                    Screen.DrawFrame(sb, HandFrame, origin, Res.Tiles.GetWHVec(), Color.White, new vec2(1, 1), angle, Res.Tiles.GetWHVec() * 0.5f, player.SpriteEffects);
+        //            //Draw hand in front of sword
+        //            Screen.DrawFrame(sb, HandFrame, origin, Res.Tiles.GetWHVec(), Color.White, new vec2(1, 1), angle, Res.Tiles.GetWHVec() * 0.5f, player.SpriteEffects);
 
-                    if (player.ShieldOut == false)
-                    {
-                        DrawOtherHand(sb, player, HandFrame);
-                    }
-                }
-                else
-                {
-                    DrawPutAwaySwordOrShield(sb, color, player, SFrame, false);
-                }
-            }
-        }
-        private void DrawBow(Player player, SpriteBatch sb, vec4 color)
-        {
-            if (player.BowEnabled)
-            {
-                Frame BowFrame = Res.Tiles.GetSpriteFrame(Res.SprBow, 0);
-                Frame ArrowFrame = GetBowArrowFrame(player);
-                if (player.BowOut)
-                {
-                    Frame HandFrame = Res.Tiles.GetSpriteFrame(Res.SprGuyHand, 0);
+        //            if (player.ShieldOut == false)
+        //            {
+        //                DrawOtherHand(sb, player, HandFrame);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            DrawPutAwaySwordOrShield(sb, color, player, SFrame, false);
+        //        }
+        //    }
+        //}
+        //private void DrawBow(Player player, SpriteBatch sb, vec4 color)
+        //{
+        //    if (player.BowEnabled)
+        //    {
+        //        Frame BowFrame = Res.Tiles.GetSpriteFrame(Res.SprBow, 0);
+        //        Frame ArrowFrame = GetBowArrowFrame(player);
+        //        if (player.BowOut)
+        //        {
+        //            Frame HandFrame = Res.Tiles.GetSpriteFrame(Res.SprGuyHand, 0);
 
-                    float angle = GetWeaponAngle(player, true);
+        //            float angle = GetWeaponAngle(player, true);
 
-                    vec2 origin = GetBowOffset(player);
-                    vec2 aimNormal = GetAimNormal(player, origin);
-                    vec2 arrowOff = GetArrowOffsetFromBow(player, aimNormal);
+        //            vec2 origin = GetBowOffset(player);
+        //            vec2 aimNormal = GetAimNormal(player, origin);
+        //            vec2 arrowOff = GetArrowOffsetFromBow(player, aimNormal);
 
-                    Screen.DrawFrame(sb, BowFrame, origin, Res.Tiles.GetWHVec(), (color).toXNAColor(), new vec2(1, 1), angle, new vec2(16 / 2, 15), player.SpriteEffects);
+        //            Screen.DrawFrame(sb, BowFrame, origin, Res.Tiles.GetWHVec(), (color).toXNAColor(), new vec2(1, 1), angle, new vec2(16 / 2, 15), player.SpriteEffects);
 
-                    //Draw Arrow + Arrow Hand
-                    if (player.NumArrows > 0)
-                    {
-                        Screen.DrawFrame(sb, ArrowFrame, origin + arrowOff, Res.Tiles.GetWHVec(), (color).toXNAColor(), new vec2(1, 1), angle, new vec2(16 / 2, 15), player.SpriteEffects);
-                    }
+        //            //Draw Arrow + Arrow Hand
+        //            if (player.NumArrows > 0)
+        //            {
+        //                Screen.DrawFrame(sb, ArrowFrame, origin + arrowOff, Res.Tiles.GetWHVec(), (color).toXNAColor(), new vec2(1, 1), angle, new vec2(16 / 2, 15), player.SpriteEffects);
+        //            }
 
-                    //Bow Hand
-                    vec2 vHoldHandOrigin = aimNormal * 7;
-                    Screen.DrawFrame(sb, HandFrame, origin + vHoldHandOrigin, Res.Tiles.GetWHVec(), Color.White, new vec2(1, 1), angle, Res.Tiles.GetWHVec() * 0.5f, player.SpriteEffects);
+        //            //Bow Hand
+        //            vec2 vHoldHandOrigin = aimNormal * 7;
+        //            Screen.DrawFrame(sb, HandFrame, origin + vHoldHandOrigin, Res.Tiles.GetWHVec(), Color.White, new vec2(1, 1), angle, Res.Tiles.GetWHVec() * 0.5f, player.SpriteEffects);
 
-                    //Draw Bow String
-                    vec2 p = aimNormal.Perp();
-                    Screen.DrawLineWorld(sb, origin + arrowOff, origin + (p * 5), 3, new vec4(1, 1, 0.79f, 1).toXNAColor());
-                    Screen.DrawLineWorld(sb, origin + arrowOff, origin - (p * 5), 3, new vec4(1, 1, 0.79f, 1).toXNAColor());
+        //            //Draw Bow String
+        //            vec2 p = aimNormal.Perp();
+        //            Screen.DrawLineWorld(sb, origin + arrowOff, origin + (p * 5), 3, new vec4(1, 1, 0.79f, 1).toXNAColor());
+        //            Screen.DrawLineWorld(sb, origin + arrowOff, origin - (p * 5), 3, new vec4(1, 1, 0.79f, 1).toXNAColor());
 
-                    //String Hand
-                    Screen.DrawFrame(sb, HandFrame, origin + arrowOff, Res.Tiles.GetWHVec(), Color.White, new vec2(1, 1), angle, Res.Tiles.GetWHVec() * 0.5f, player.SpriteEffects);
-                }
-            }
-        }
-        public vec2 GetBowOffset(Player player)
-        {
-            vec2 originBase = GetMovableItemOrigin(player);
-            vec2 origin = new vec2(0, 0);
-            if (player.IsFacingRight())
-            {
-                origin = originBase - new vec2(5, 0);//makeit look more like the player is h oldin bot
-            }
-            else
-            {
-                origin = originBase + new vec2(5, 0);//makeit look more like the player is h oldin bot
-            }
-            return origin;
-        }
-        private vec2 GetArrowOffsetFromBow(Player player, vec2 aimNormal)
-        {
-            vec2 arrowOff = (aimNormal * -2) + (aimNormal * 8 * player.BowDrawTime / player.BowDrawTimeMax);
-            return arrowOff;
-        }
-        private void DrawPutAwaySwordOrShield(SpriteBatch sb, vec4 color, Guy guy, Frame SFrame, bool shield)
-        {
-            float r = 0;
-            SpriteEffects se = SpriteEffects.None;
-            vec2 o = guy.Box.Center();
-            vec2 od = new vec2(0, 0);
-            //Draw the sword behind the guy.
-            if (guy.IsFacingRight())
-            {
-                if (shield)
-                {
-                    r = 0;
-                }
-                else
-                {
-                    r = (float)Math.PI * 0.75f;
-                }
-                r += guy.Rotation;
-                se = SpriteEffects.FlipHorizontally;
-                od += new vec2(-2, 0);
-            }
-            else
-            {
-                if (shield)
-                {
-                    r = 0;
-                }
-                else
-                {
-                    r = (float)Math.PI * 1.25f;
-                }
-                r += guy.Rotation;
-                od += new vec2(2, 0);
-            }
+        //            //String Hand
+        //            Screen.DrawFrame(sb, HandFrame, origin + arrowOff, Res.Tiles.GetWHVec(), Color.White, new vec2(1, 1), angle, Res.Tiles.GetWHVec() * 0.5f, player.SpriteEffects);
+        //        }
+        //    }
+        //}
+        //public vec2 GetBowOffset(Player player)
+        //{
+        //    vec2 originBase = GetMovableItemOrigin(player);
+        //    vec2 origin = new vec2(0, 0);
+        //    if (player.IsFacingRight())
+        //    {
+        //        origin = originBase - new vec2(5, 0);//makeit look more like the player is h oldin bot
+        //    }
+        //    else
+        //    {
+        //        origin = originBase + new vec2(5, 0);//makeit look more like the player is h oldin bot
+        //    }
+        //    return origin;
+        //}
+        //private vec2 GetArrowOffsetFromBow(Player player, vec2 aimNormal)
+        //{
+        //    vec2 arrowOff = (aimNormal * -2) + (aimNormal * 8 * player.BowDrawTime / player.BowDrawTimeMax);
+        //    return arrowOff;
+        //}
+        //private void DrawPutAwaySwordOrShield(SpriteBatch sb, vec4 color, Guy guy, Frame SFrame, bool shield)
+        //{
+        //    float r = 0;
+        //    SpriteEffects se = SpriteEffects.None;
+        //    vec2 o = guy.Box.Center();
+        //    vec2 od = new vec2(0, 0);
+        //    //Draw the sword behind the guy.
+        //    if (guy.IsFacingRight())
+        //    {
+        //        if (shield)
+        //        {
+        //            r = 0;
+        //        }
+        //        else
+        //        {
+        //            r = (float)Math.PI * 0.75f;
+        //        }
+        //        r += guy.Rotation;
+        //        se = SpriteEffects.FlipHorizontally;
+        //        od += new vec2(-2, 0);
+        //    }
+        //    else
+        //    {
+        //        if (shield)
+        //        {
+        //            r = 0;
+        //        }
+        //        else
+        //        {
+        //            r = (float)Math.PI * 1.25f;
+        //        }
+        //        r += guy.Rotation;
+        //        od += new vec2(2, 0);
+        //    }
 
-            Screen.DrawFrame(sb, SFrame, o + od, Res.Tiles.GetWHVec(), color.toXNAColor(), new vec2(1, 1), r, new vec2(16 / 2, 16 / 2), guy.SpriteEffects);
-        }
-        private void DrawOtherHand(SpriteBatch sb, Guy guy, Frame HandFrame)
-        {
-            vec2 mo = GetMovableItemOrigin(guy, true);
-            Screen.DrawFrame(sb, HandFrame, mo, Res.Tiles.GetWHVec(), Color.White, new vec2(1, 1), 0, Res.Tiles.GetWHVec() * 0.5f, guy.SpriteEffects);
-        }
-        private void DrawShield(Player player, SpriteBatch sb, vec4 color)
-        {
-            if (player.ShieldEnabled)
-            {
+        //    Screen.DrawFrame(sb, SFrame, o + od, Res.Tiles.GetWHVec(), color.toXNAColor(), new vec2(1, 1), r, new vec2(16 / 2, 16 / 2), guy.SpriteEffects);
+        //}
+        //private void DrawOtherHand(SpriteBatch sb, Guy guy, Frame HandFrame)
+        //{
+        //    vec2 mo = GetMovableItemOrigin(guy, true);
+        //    Screen.DrawFrame(sb, HandFrame, mo, Res.Tiles.GetWHVec(), Color.White, new vec2(1, 1), 0, Res.Tiles.GetWHVec() * 0.5f, guy.SpriteEffects);
+        //}
+        //private void DrawShield(Player player, SpriteBatch sb, vec4 color)
+        //{
+        //    if (player.ShieldEnabled)
+        //    {
 
-                GameObject ob = ShieldObject;
-                if (ob != null)
-                {
-                    if (player.ShieldOut)
-                    {
+        //        GameObject ob = ShieldObject;
+        //        if (ob != null)
+        //        {
+        //            if (player.ShieldOut)
+        //            {
 
-                        //Draw hand behind shield
-                        Frame HandFrame = Res.Tiles.GetSpriteFrame(Res.SprGuyHand, 0);
-                        Screen.DrawFrame(sb, HandFrame,
-                            player.Box.Center() + player.ShieldClickNormal * 3.6f,
-                            Res.Tiles.GetWHVec(), Color.White, new vec2(1, 1), 0, Res.Tiles.GetWHVec() * 0.5f, player.SpriteEffects);
+        //                //Draw hand behind shield
+        //                Frame HandFrame = Res.Tiles.GetSpriteFrame(Res.SprGuyHand, 0);
+        //                Screen.DrawFrame(sb, HandFrame,
+        //                    player.Box.Center() + player.ShieldClickNormal * 3.6f,
+        //                    Res.Tiles.GetWHVec(), Color.White, new vec2(1, 1), 0, Res.Tiles.GetWHVec() * 0.5f, player.SpriteEffects);
 
 
-                        Screen.DrawFrame(sb, ob.Frame,
-                            ob.WorldPos(),
-                            Res.Tiles.GetWHVec(),
-                            (ob.Color * color * ob.Alpha).toXNAColor(),
-                            ob.Scale,
-                            ob.Rotation,
-                            ob.Origin + ob.ShakeOffset,
-                            ob.SpriteEffects
-                            );
+        //                Screen.DrawFrame(sb, ob.Frame,
+        //                    ob.WorldPos(),
+        //                    Res.Tiles.GetWHVec(),
+        //                    (ob.Color * color * ob.Alpha).toXNAColor(),
+        //                    ob.Scale,
+        //                    ob.Rotation,
+        //                    ob.Origin + ob.ShakeOffset,
+        //                    ob.SpriteEffects
+        //                    );
 
-                        if (player.SwordOut == false)
-                        {
-                            DrawOtherHand(sb, player, HandFrame);
-                        }
-                    }
-                    else
-                    {
-                        DrawPutAwaySwordOrShield(sb, color, player, ob.Frame, true);
-                    }
+        //                if (player.SwordOut == false)
+        //                {
+        //                    DrawOtherHand(sb, player, HandFrame);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                DrawPutAwaySwordOrShield(sb, color, player, ob.Frame, true);
+        //            }
 
-                }
-            }
-        }
+        //        }
+        //    }
+        //}
         private void DrawForeground(SpriteBatch sb)
         {
             //  float BaseLandY = GetBaseLandYPixels();
@@ -7402,7 +6895,15 @@ namespace Core
 
             }
         }
-
+        public float GetDist(Guy p)
+        {
+            float dist = 0;
+            if (jumpStartPos >= 0)
+            {
+                dist = (float)(p.Pos.x - jumpStartPos) / (float)Res.Tiles.TileWidthPixels;
+            }
+            return dist;
+        }
         public void DrawUI(SpriteBatch sb)
         {
 
@@ -7414,43 +6915,19 @@ namespace Core
 
             Player player = GetPlayer();
 
+            if (StartRunning == false)
+            {
+                Screen.DrawText_Fit_H(sb, Res.Font, "Rocket Jump", Screen.Viewport.WidthPixels * 0.75f,
+    Screen.Viewport.Pos + new vec2(Screen.Viewport.WidthPixels * 0.25f * 0.5f, Screen.Viewport.HeightPixels * 0.2f),
+    new vec4(1, 0.2f, 0.2f, 1), 1, new vec4(0.00f, 0.4f, 1.00f, 1.00f));
+            }
+
             //Draw Mine Count + Mines
             if (GameState == GameState.Play)
             {
 
                 if (bShowMenu)
                 {
-                    float ic = 0.5f;
-                    float mc = 0.5f;
-                    float oc = 0.5f;
-                    if (menutab == MenuTab.Inventory)
-                    {
-                        DrawOptionTab(sb, player, false);
-                        DrawMapTab(sb, player, false);
-                        DrawInventoryTab(sb, player, true);
-                        ic = 1.0f;
-                    }
-                    else if (menutab == MenuTab.Map)
-                    {
-                        DrawOptionTab(sb, player, false);
-                        DrawInventoryTab(sb, player, false);
-                        DrawMapTab(sb, player, true);
-                        mc = 1.0f;
-                    }
-                    else if (menutab == MenuTab.Options)
-                    {
-                        DrawInventoryTab(sb, player, false);
-                        DrawMapTab(sb, player, false);
-                        DrawOptionTab(sb, player, true);
-                        oc = 1.0f;
-                    }
-
-                    Screen.DrawText_Fit(sb, Res.Font, "Inventory", MenuTab0Box.Width(), MenuTab0Box.Height(),
-                        Screen.Viewport.Pos + MenuTab0Box.Min, new vec4(0, 0, 0, 1) * ic, (ic > 0.6f ? 1 : 0), new vec4(1, 1, 1, 1) * ic, true);
-                    Screen.DrawText_Fit(sb, Res.Font, "Map", MenuTab1Box.Width(), MenuTab1Box.Height(),
-                        Screen.Viewport.Pos + MenuTab1Box.Min, new vec4(0, 0, 0, 1) * mc, (mc > 0.6f ? 1 : 0), new vec4(1, 1, 1, 1) * mc, true);
-                    Screen.DrawText_Fit(sb, Res.Font, "System", MenuTab2Box.Width(), MenuTab2Box.Height(),
-                        Screen.Viewport.Pos + MenuTab2Box.Min, new vec4(0, 0, 0, 1) * oc, (oc > 0.6f ? 1 : 0), new vec4(1, 1, 1, 1) * oc, true);
                 }
                 else if (bShowUI)
                 {
@@ -7458,29 +6935,11 @@ namespace Core
 
                     float uibottom = Screen.Viewport.HeightPixels - 16;
 
-                    //HUD, draw hud
-                    if (player.BombsEnabled)
-                    {
-                        DrawUIInventory(sb, Res.SprBombUI, Screen.Viewport.WidthPixels - 24, uibottom, player.NumBombs, player.MaxBombs, alpha, new vec2(12, 12), player.SelectedSubweapon == Weapon.Bomb, true, 0);
-                    }
-                    if (player.BowEnabled)
-                    {
-                        DrawUIInventory(sb, Res.SprBowUI, Screen.Viewport.WidthPixels - 48, uibottom, player.NumArrows, player.MaxArrows, alpha, new vec2(12, 12), player.SelectedSubweapon == Weapon.Bow, true, 0);
-                    }
-                    DrawUIInventory(sb, Res.SprSword, Screen.Viewport.WidthPixels - 72, uibottom, 1, 1, alpha, new vec2(12, 12), player.SelectedSubweapon == Weapon.Sword, false, 6);
-                    //KEYS
-                    if (player.SmallKeys > 0)
-                    {
-                        DrawUIInventory(sb, Res.SprSmallKeyUI, 1, Screen.Viewport.HeightPixels - 16, player.SmallKeys, player.MaxSmallKeys, alpha, new vec2(12, 12), false, true, 0);
-                    }
+                    Player p = GetPlayer();
 
-                    //Hearts
-                    for (int i = 0; i < 3; ++i)
-                    {
-                        float pad = -1.8f;
-                        int wh = 8;
-                        Screen.DrawUIFrame(sb, Res.SprHeartUI, 0, new vec2(1 + (wh + pad) * i, 2), new vec2(wh, wh), new vec4(1, 1, 1, alpha));
-                    }
+                    Screen.DrawText_Fit_H(sb, Res.Font, "Distance", 17, Screen.Viewport.Pos + new vec2(3, 3), new vec4(0, 0, 0, 1), 1, new vec4(1, 1, 1, 1));
+                    Screen.DrawText_Fit_H(sb, Res.Font, " " + GetDist(GetPlayer()).ToString("F1") + "m", 12, Screen.Viewport.Pos + new vec2(3, 10), new vec4(0, 0, 0, 1), 1, new vec4(1, 1, 1, 1));
+
 
                     DrawUIInventory(sb, Res.SprMarbleUI, Screen.Viewport.WidthPixels - 24, 1, player.Money, player.MaxMoney, alpha, new vec2(6, 6), false, true, 0);
 
@@ -7488,12 +6947,29 @@ namespace Core
             }
             else if (GameState == GameState.PlayerDeath_ShowContinue)
             {
-                Screen.DrawText_Fit_H(sb, Res.Font, "Kevin is dead.", Screen.Viewport.WidthPixels * 0.75f,
+                Screen.DrawText_Fit_H(sb, Res.Font, "Distance:" + " " + GetDist(GetPlayer()).ToString("F1") + "m", Screen.Viewport.WidthPixels * 0.75f,
                     Screen.Viewport.Pos + new vec2(Screen.Viewport.WidthPixels * 0.25f * 0.5f, Screen.Viewport.HeightPixels * 0.2f),
-                    new vec4(1, 0.99f, 0, 1), 1, new vec4(0.50f, 0.00f, 1.00f, 1.00f));
+                    new vec4(0, 0.00f, 0, 1), 1, new vec4(1.00f, 1.00f, 1.00f, 1.00f));
+
+                float hs = 0;
+                try
+                {
+                    hs = (this.Screen.Game as MainGame).GetHighScore();
+                }
+                catch (Exception ex)
+                {
+                }
+                if (hs > 0)
+                {
+                    Screen.DrawText_Fit_H(sb, Res.Font, "High Score:" + hs.ToString("F1"), Screen.Viewport.WidthPixels * 0.32f,
+                        Screen.Viewport.Pos + new vec2(Screen.Viewport.WidthPixels * 0.68f * 0.5f, Screen.Viewport.HeightPixels * 0.5f),
+                        new vec4(0, 0.00f, 0, 1), 1, new vec4(1.00f, 1.00f, 1.00f, 1.00f));
+                }
+
+
                 Screen.DrawText_Fit_H(sb, Res.Font, "Press Spacebar To Continue...", Screen.Viewport.WidthPixels * 0.32f,
                     Screen.Viewport.Pos + new vec2(Screen.Viewport.WidthPixels * 0.68f * 0.5f, Screen.Viewport.HeightPixels * 0.7f),
-                    new vec4(1, 0.99f, 0, 1), 1, new vec4(0.50f, 0.00f, 1.00f, 1.00f));
+                    new vec4(1, 0.99f, 0, 1), 1, new vec4(0.50f, 0.50f, 0.50f, 1.00f));
             }
 
             DrawScreenOverlayText(sb);
@@ -7643,56 +7119,6 @@ namespace Core
                 new vec2(bor_px_x, bor_px_y), new vec2(Screen.Viewport.WidthPixels - bor_px_x * 2, Screen.Viewport.HeightPixels - bor_px_y * 2),
                 new vec4(1 * c, 1 * c, 1 * c, 1));
 
-        }
-        private void DrawInventoryTab(SpriteBatch sb, Player player, bool selected)
-        {
-            DrawMenuBackground(sb, Res.SprMenuUIInventory, selected ? 1 : 0.5f);
-
-            if (selected == true)
-            {
-                float bor_px_x = 10;
-                float bor_px_y = 10;
-
-                float guy_w = 25;
-                float guy_h = 25;
-                float m_w = (Screen.Viewport.WidthPixels - bor_px_x * 2);
-                float m_h = (Screen.Viewport.HeightPixels - bor_px_y * 2);
-                vec2 guy_pos = new vec2(bor_px_x + m_w / 2 - guy_w / 2, bor_px_y + m_h / 2 - guy_h / 2 - 10);
-                Screen.DrawUIFrame(sb, Res.SprGuyWalk, 1,
-                    guy_pos, new vec2(guy_w, guy_h), new vec4(1, 1, 1, 0.6f));
-
-                if (player.JumpBootsEnabled)
-                {
-                    Screen.DrawUIFrame(sb, Res.SprBoots, 0,
-                        new vec2(21, 22), new vec2(19, 19), JumpBootsMenuColor);
-                }
-
-                if (player.PowerSwordEnabled)
-                {
-                    Screen.DrawUIFrame(sb, Res.SprPowerSwordItem, 0,
-                        new vec2(121, 22), new vec2(19, 19), PowerSwordMenuColor);
-                }
-                else if (player.SwordEnabled)
-                {
-                    Screen.DrawUIFrame(sb, Res.SprSwordItem, 0,
-                        new vec2(121, 22), new vec2(19, 19), PickaxeMenuColor);
-                }
-                if (player.ShieldEnabled)
-                {
-                    Screen.DrawUIFrame(sb, Res.SprShield, 0,
-                        new vec2(121, 45), new vec2(19, 19), ShieldMenuColor);
-                }
-                if (player.BombsEnabled)
-                {
-                    Screen.DrawUIFrame(sb, Res.SprBomb, 0,
-                        new vec2(21, 45), new vec2(19, 19), BombMenuColor);
-                }
-                if (player.BowEnabled)
-                {
-                    Screen.DrawUIFrame(sb, Res.SprBow, 0, new vec2(21, 60), new vec2(19, 19), BowMenuColor);
-
-                }
-            }
         }
 
         private string ScreenOverlayText = "";

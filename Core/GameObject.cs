@@ -114,8 +114,8 @@ namespace Core
 
 
         public Cell CellFrame { get; set; } = null;//updated manually
-
-        public float Speed { get; set; } = 1;
+        
+        public float Speed { get; set; } = 1.5f;
         public float Power { get; set; } = 0;
         public float Health { get; set; } = 5;
         public float MaxHealth { get; set; } = 5;
@@ -284,6 +284,11 @@ namespace Core
         //}
         public void SetSprite(string name, bool loop = true, int iFrame = -1)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                //Happens if we set guysprite on a duck
+                return;
+            }
             Sprite spr = Res.Tiles.GetSprite(name);
             SetSprite(spr, loop);
             if (iFrame >= 0)

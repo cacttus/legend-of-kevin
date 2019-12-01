@@ -14,7 +14,7 @@ namespace Core
         public bool Down() { return TouchState == TouchState.Down; }
         public bool Release() { return TouchState == TouchState.Release; }
         public bool ReleaseOrUp() { return TouchState == TouchState.Release || TouchState==TouchState.Up; }
-        public TouchState TouchState { get; private set; } = TouchState.Up;
+        public TouchState TouchState { get; set; } = TouchState.Up;//To control joystick via code, use IsUser and AIJump..
         public void Update(bool touched)
         {
             if (touched)
@@ -64,20 +64,20 @@ namespace Core
         public ButtonBase Up { get; private set; } = new ButtonBase();
         public ButtonBase Down { get; private set; } = new ButtonBase();
         public ButtonBase Left { get; private set; } = new ButtonBase();
-        public ButtonBase Right { get; private set; } = new ButtonBase();
+        public ButtonBase Right { get;  set; } = new ButtonBase();
         //2 Auxillary buttons, Jump / Ok
         public ButtonBase Jump { get; private set; } = new ButtonBase();
         public ButtonBase Ok { get; private set; } = new ButtonBase();
         public ButtonBase Menu { get; private set; } = new ButtonBase();
         public ButtonBase Action { get; private set; } = new ButtonBase();
 
-        public bool AIUp = false;
-        public bool AIDown = false;
-        public bool AILeft = false;
-        public bool AIRight = false;
-        public bool AIJump = false;
-        public bool AIOk = false;
-        public bool AIAction = false;
+        public bool AIUp { get; set; } = false;
+        public bool AIDown { get; set; } = false;
+        public bool AILeft { get; set; } = false;
+        public bool AIRight { get; set; } = false;
+        public bool AIJump { get; set; } = false;
+        public bool AIOk { get; set; } = false;
+        public bool AIAction { get; set; } = false;
 
         bool AButtonPressOrDown = false;
         Screen Screen;
@@ -90,7 +90,7 @@ namespace Core
         public MenuButton AButton;
 
         //Action AIAction = null;//If false this is a "virtual" joystick used to control the AI
-        bool IsUser = false;
+        public bool IsUser { get; set; } = false;
 
         vec2 startTouch;
         vec2 joystickBasePos;

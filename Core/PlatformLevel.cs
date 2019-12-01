@@ -446,8 +446,8 @@ namespace Core
 
         public Box2f BoxRelativeCrouch = new Box2f(0, 0, 16, 16);//Hack
 
-        public float Friction = 20.0f;
-        public float MaxVel = 100.0f;
+        public float Friction = 18.0f;
+        public float MaxVel = 170.0f;
         public bool OnGround = true;
         public bool LastOnGround = true;
         public float TimeOnGround = 0;
@@ -459,6 +459,7 @@ namespace Core
         public SpriteEffects ClimbFace = SpriteEffects.None;//This tells us left/right
                                                             // public vec2 ClimbPos = new vec2(0, 0);
                                                             // public vec2 ClimbPosStart = new vec2(0, 0);
+        public bool Waving = false;
         public int ClimbType = 0;//0=mount, 1=climb(up)
         public float ClimbSpeed = 2000.0f;
         // public float ClimbLen = 0.0f;
@@ -658,6 +659,13 @@ namespace Core
 
 
 
+    }
+    public class Duck : Guy
+    {
+        public Duck(WorldBase w, string spr, AIState ai) : base(w,spr,ai)
+        {
+
+        }
     }
     public enum SwordModifier { None, Tar, Water, Lava, Obsidian }
     public enum Weapon { None, Bomb, Bow, Sword }
@@ -1246,7 +1254,7 @@ namespace Core
                 //Don't know whyt his would happen.
                 System.Diagnostics.Debugger.Break();
             }
-            if (Found.Count > 40000)//For the first area we're at 5670 so still, pretty big
+            if (Found.Count > 90000)//For the first area we're at 5670 so still, pretty big
             {
                 //Level is Too Big
                 //You probably forgot a portal or delimiter wall somewhere.

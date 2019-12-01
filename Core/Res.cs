@@ -13,7 +13,9 @@ namespace Core
         public static SpriteFont Font { get; private set; }
         public static SpriteFont Font2 { get; private set; }
         public static ContentManager Content;
+        public static bool ShownTutorial = false;
 
+        public static string SfxDuckQuack = "duck-quack";
         public static string SfxMine = "mine";
         public static string SfxWhack = "whack";
         public static string SfxJump = "jump";
@@ -190,6 +192,7 @@ namespace Core
         public static string SprGrass2 = "SprGrass2";
         public static string SprGrass3 = "SprGrass3";
         public static string SprLever = "SprLever";
+        public static string SprDuck = "SprDuck";
         public static string SprParticleCloud = "SprParticleCloud";
         public static string SprParticleRock = "SprParticleRock";
         public static string SprItemPotion = "SprItemBomb";
@@ -226,6 +229,7 @@ namespace Core
         public static string SprTree_Doodad = "Tree_Doodad";
         public static string SprGrass_Doodad1 = "Grass_Doodad1";
         public static string SprGrass_Doodad2 = "Grass_Doodad2";
+        public static string SprGuyWave = "SprGuyWave";
 
         
 
@@ -670,9 +674,12 @@ namespace Core
             Tiles.AddSprite(SprFlower2, new List<Rectangle>() { new Rectangle(9, 10, 1, 1) }, 0f, Tiling.Single, FlowerTileId);
             Tiles.AddSprite(SprFlower3, new List<Rectangle>() { new Rectangle(9, 11, 1, 1) }, 0f, Tiling.Single, FlowerTileId);
 
+            Tiles.AddSprite(SprGuyWave, new List<Rectangle>() { new Rectangle(7, 1, 1, 1), new Rectangle(8, 1, 1, 1) }, 0.9f, Tiling.Single);
 
 
             Tiles.AddSprite(SprLever, new List<Rectangle>() { new Rectangle(9, 12, 1, 1), new Rectangle(10, 12, 1, 1) }, 0f, Tiling.Single);
+
+            Tiles.AddSprite(SprDuck, new List<Rectangle>() { new Rectangle(1, 5, 1, 1), new Rectangle(0, 5, 1, 1), new Rectangle(1, 5, 1, 1), new Rectangle(2, 5, 1, 1), }, 1f, Tiling.Single);
 
             Tiles.AddSprite(SprParticleCloud, new List<Rectangle>() { new Rectangle(12, 9, 1, 1) }, 0f, Tiling.Single);
             Tiles.AddSprite(SprItemPotion, new List<Rectangle>() { new Rectangle(7, 4, 1, 1) }, 0f, Tiling.Single);
@@ -775,7 +782,7 @@ namespace Core
             , 0.82f);//Attack Hand
 
             Tiles.AddSprite(SprGuyDead, new List<Rectangle>() {
-                new Rectangle(2, 3, 1, 1),
+                new Rectangle(3, 0, 1, 1),
             }
             , 0.82f);//Attack Hand
 
@@ -850,6 +857,7 @@ namespace Core
             Audio.Sounds.Add(Content.Load<SoundEffect>(SfxNoArrowShoot));
             Audio.Sounds.Add(Content.Load<SoundEffect>(SfxDead));
             Audio.Sounds.Add(Content.Load<SoundEffect>(SfxContinue));
+            Audio.Sounds.Add(Content.Load<SoundEffect>(SfxDuckQuack));
 
 
 
