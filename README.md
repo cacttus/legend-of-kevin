@@ -14,12 +14,13 @@ Wrote this in 2 days from a branch of another game of mine.  The game is written
 
 I am also submitting this game for my game design class  final in two weeks, so, it will definitely get a ton of updates after the game-off including:
 
-more collidables, 
-better jump physics, 
-additional platforms, 
-bigger world, 
-speed optimizations.  
-fun with water
-lava
-enemies?
+* more collidables, 
+* better jump physics, 
+* additional platforms, 
+* bigger world, 
+* speed optimizations.  
+* fun with water
+* lava
+* enemies?
+
 If you find this game interesting, check back in 2 weeks!
