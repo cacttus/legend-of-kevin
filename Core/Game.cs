@@ -1810,43 +1810,21 @@ namespace Core
         }
         private void UpdateOb_Guy(Guy g, float dt)
         {
+            g.Acc = 0.0f; //Recet accel
+
             g.UpdateHeldItem();
-
-            //make animation faster based on vel
-            ///fl
-
-            float vl = g.Vel.Len2() / (g.MaxVel * g.MaxVel);
-            g.AnimationSpeed = 1 + vl;
 
             UpdateGuyState(g, dt);
             DoPhysics(g, dt);
             CheckGuyInWater(g, dt);
 
-            if (g is Player)
-            {
-                foreach (GameObject ob in Level.GameObjects)
-                {
-                    if ((ob is Duck) && ob.IsDeleted == false)
-                    {
-                        if ((g.Pos - ob.Pos).Len2() <= (7 * 7))
-                        {
-                            Res.Audio.PlaySound(Res.SfxDuckQuack);
-                            FlagDeleteObject(ob);
-                            if (g.Vel.y > 0)
-                            {
-                                //Go back up if we are going down.
-                                g.Vel.y *= -3f;
-                            }
-                        }
-                    }
-                }
-            }
 
             if (g.InWater)
             {
                 EndGame();
             }
         }
+
         public void EndGame()
         {
             //Fix this
@@ -3606,22 +3584,62 @@ namespace Core
             return (g as Player);
         }
 
+        //Effectively we compute a "jump multiplier" value that multiplies the player's bounce velocity based on how accurate the player pressed the jump button.
+        bool isInJumpWindow = false; // Whether the player didn't lose the jump window
+        float jumpWindowRange = 0.3f;   //seconds that the player can press the jump button.
+        float jumpWindowElapsed = 0.0f;
+        float jumpMinMultiplierAir = 0.3f; // This is either A) the low end of inaccurate
+        float jumpMaxMultiplierAir = 1.2f;
+
+        float jumpAccuracyMultiplierAir = 0;
+        private void ComputeJump(Guy guy, float dt)
+        {
+            //Jump with an accuracy to how close the player pressed jump.
+            isInJumpWindow = false;
+            if (guy.Joystick.Jump.Press())
+            {
+                isInJumpWindow = true;
+                jumpWindowElapsed = 0;
+            }
+            else if (guy.Joystick.Jump.Down())
+            {
+                guy.ContinueJump(dt);
+
+                jumpWindowElapsed += dt;
+                if (jumpWindowElapsed > jumpWindowRange)
+                {
+                    isInJumpWindow = false;
+                }
+
+                //This effectively multiplies the jump by u + n(a-u)
+                float dxy = (1 - jumpWindowElapsed / jumpWindowRange);
+                jumpAccuracyMultiplierAir = jumpMinMultiplierAir + (jumpMaxMultiplierAir - jumpMinMultiplierAir) * dxy;
+            }
+            else
+            {
+                guy.Jumping = false;
+                isInJumpWindow = false;
+                jumpAccuracyMultiplierAir = 0;
+
+                if (guy.Jumping && guy.IsPlayer())
+                {
+                    if (jumpSound != null)
+                    {
+                        jumpSound.Stop();
+                        jumpSound = null;
+                    }
+
+                }
+            }
+
+
+        }
+
         bool IntroTutorial = false;
         float jumpStartPos = -1;
         int JumpState = 0;//For Rocket Jump
         private void UpdateGuyState(Guy guy, float dt)
         {
-            guy.Acc = 0.0f;
-
-            if (guy.Joystick == null)
-            {
-                //Must have a joystick
-                System.Diagnostics.Debugger.Break();
-                return;
-            }
-
-            Player player = guy as Player;
-
             //Hurt Time
             if (guy.HurtTime > 0)
             {
@@ -3638,327 +3656,25 @@ namespace Core
                 landSound = null;
             }
 
-            if (guy.Joystick.Jump.PressOrDown())
-            {
-                bool bCanSwim = (guy.InWater && guy.SwimStrokeTime <= 0) &&
-                    (!guy.InWater || (guy.InWater && guy.Joystick.Jump.Press()));
+            //Core state update
+            //Checks to see if the player pressed jump and whether it is a valid jump
+            ComputeJump(guy, dt);
 
-                if (guy.OnGround /*|| guy.Hanging */ || guy.Climbing || bCanSwim)//press only for swims
-                {
-                    //guy.Hanging = false;
-                    guy.Climbing = false;
-                    guy.Jumping = true;
-                    guy.Crouching = false;
-                    if (guy.ItemHeld == null)
-                    {
-                        guy.SetSpriteIfNot(guy.JumpSprite);
-                    }
+            //Set the bounce state of any collided objs
+            CheckBounceObjects(guy);
 
-                    if (bCanSwim)
-                    {
-                        //player is in water and pressed spacebar to swim
-                        guy.Vel = new vec2(0, -guy.JumpSpeed) * dt;
-                        guy.Vel *= 0.5f;
-                        guy.SwimStrokeTime = guy.SwimStrokeTimeMax;
-                        if (guy.OnGround == false)
-                        {
-                            int n = 0; n++;
-                        }
-                    }
-                    else
-                    {
-                        if (player != null /*&& guy.ItemHeld == null*/ && guy.OnGround /*&& guy.TimeOnGround < Player.SpringBootsMinTime*/)
-                        {
-                            // use TimeOnGround and JumpState tocheck the next jump's velocity
-
-                            Func<int, float> ms = (x) =>
-                            {
-                                float ret = (float)((float)x / (float)1000);
-                                return ret;
-                            };
-
-                            int precision = 0; // 0=Failure
-                            float precision_mul = 0; // 0=Failure
-                            guy.VaporTrail = 0;
-                            float statef = 0.0f;
-                            if (this.JumpState == 0)
-                            {
-                                //We have begun the jump
-                                precision = 1;
-                                if (jumpSound == null && guy.IsPlayer())
-                                {
-                                    jumpSound = Res.Audio.PlaySound(Res.SfxJump);
-                                }
-                                statef = 0.5f;
-                                precision_mul = 1.0f;
-                                this.JumpState++;
-                            }
-                            else
-                            {
-                                //Jump state is greater, Match with time on ground.
-                                if (guy.TimeOnGround < ms(30))
-                                {
-                                    precision = 5;// PERFECT
-                                    precision_mul = 1.06f;
-                                    ScreenOverlayText = "PERFECT";
-                                }
-                                else if (guy.TimeOnGround < ms(60))
-                                {
-                                    precision = 4; // Awesome!
-                                    precision_mul = 1.05f;
-                                    ScreenOverlayText = "Awesome!";
-                                }
-                                else if (guy.TimeOnGround < ms(90))
-                                {
-                                    precision = 3; // Great!
-                                    precision_mul = 1.04f;
-
-                                    ScreenOverlayText = "Great!";
-                                }
-                                else if (guy.TimeOnGround < ms(120))
-                                {
-                                    precision = 2; //Good!
-                                    precision_mul = 1.03f;
-
-                                    ScreenOverlayText = "Good!";
-                                }
-                                else if (guy.TimeOnGround < ms(200))
-                                {
-                                    precision = 1;
-                                    precision_mul = 1.0f;
-                                    ScreenOverlayText = "Ok!";
-                                }
-                                else
-                                {
-                                    //Failure 
-                                    this.JumpState = 0;
-                                    ScreenOverlayText = "Failure";
-                                    //Play Fail Animation here.
-                                }
-
-                                if (this.JumpState == 1)
-                                {
-                                    if (jumpSound == null && guy.IsPlayer())
-                                    {
-                                        jumpSound = Res.Audio.PlaySound(Res.SfxJump);
-                                    }
-                                    statef = 0.5f;
-                                    this.JumpState++;
-                                }
-                                else if (this.JumpState == 2)
-                                {
-                                    if (jumpSound == null && guy.IsPlayer())
-                                    {
-                                        Res.Audio.PlaySound(Res.SfxBootsJump);
-                                    }
-                                    statef = 0.7f;
-                                    guy.VaporTrail = 1;
-                                    this.JumpState++;
-
-                                }
-                                else if (this.JumpState == 3)
-                                {
-                                    if (guy.IsPlayer())
-                                    {
-                                        Screen.ScreenShake.Shake(0.99f, 0.40f);
-                                        Res.Audio.PlaySound(Res.SfxBombexplode);
-
-                                    }
-                                    statef = 2.6f;
-                                    guy.VaporTrail = 4;
-                                    this.JumpState++;
-                                    jumpStartPos = guy.Pos.x;
-                                    guy.CalcRotationDelta();
-                                    CreateBlastParticles(guy.Box.Center() + new vec2(0, guy.Box.Height() * 0.5f),
-                                        new vec4(1, 1, .8914f, 1), 30, Res.SprParticleBig, new vec2(0, 1), MathHelper.ToRadians(180));
-
-                                    if (guy.IsFacingLeft())
-                                    {
-                                        guy.RotationDelta *= -1.0f;
-                                    }
-
-                                }
-                            }
-
-                            if (IntroTutorial)
-                            {
-                                //Reset jump statei f intro trutorial.
-                                JumpState = 0;
-                            }
-
-                            //Don't show it
-                            ScreenOverlayText = "";
-
-                            //Do a spring boot jump
-                            guy.CurJumpSpeed = guy.SpringJumpSpeed * precision_mul * statef;
-
-                            guy.Vel += new vec2(0, -(guy.CurJumpSpeed)) * dt;
-
-                            if (Math.Abs(guy.Vel.y) < Gravity.y * dt)
-                            {
-                                //The guy's velocity isn't enough to get him off the ground when gravity is applied.
-                                int n = 0;
-                                n++;
-                            }
-
-                            //guy.RotationDelta = 3.14159f * 2.0f;
-
-                            if (guy.IsPlayer())
-                            {
-                                guy.SetSpriteIfNot(guy.SpringJumpSprite);
-                            }
-                        }
-
-
-                    }
-                }
-                else if (guy.Airtime > 0.0f)
-                {
-                    guy.Vel += new vec2(0, -guy.CurJumpSpeed) * dt;
-                    guy.Airtime -= dt;
-                }
-            }
-            else if (guy.OnGround == false)
-            {
-                if (guy.Jumping && guy.IsPlayer())
-                {
-                    if (jumpSound != null)
-                    {
-                        jumpSound.Stop();
-                        jumpSound = null;
-                    }
-
-                }
-                guy.Airtime = 0;
-            }
+            CheckJumpOrBounce(guy, dt);
 
             if (guy.Climbing == true)
             {
-                float dir = -1.0f;
-                bool continueClimb = false;
-                if (guy.Joystick.Left.PressOrDown())
-                {
-                    //If we are hanging left, then move left, else, stop hanging
-                    if (guy.IsFacingRight() == false)
-                    {
-                        continueClimb = true;
-                    }
-                }
-                if (guy.Joystick.Right.PressOrDown())
-                {
-                    //If we are hanging left, then move left, else, stop hanging
-                    if (guy.IsFacingRight() == true)
-                    {
-                        continueClimb = true;
-                    }
-                }
-                if (guy.Joystick.Up.PressOrDown())
-                {
-                    continueClimb = true;
-                }
-                if (guy.Joystick.Down.PressOrDown())
-                {
-                    continueClimb = true;
-                    dir = 1.0f;
-                }
-
-                if (climbSound != null && climbSound.State == SoundState.Stopped)
-                {
-                    climbSound = null;
-                }
-
-                if (continueClimb)
-                {
-                    if (climbSound == null && guy.IsPlayer())
-                    {
-                        climbSound = Res.Audio.PlaySound(Res.SfxClimb);
-                    }
-                    guy.Vel = new vec2(0, guy.ClimbSpeed * dt * dir);// (Guy.ClimbPos - Guy.ClimbPosStart).Normalized() * ;
-                }
-                else
-                {
-                    if (climbSound != null)
-                    {
-                        climbSound.Stop();
-                        climbSound = null;
-                    }
-                    guy.Vel = new vec2(0, 0);//Don't climb, no button pressed
-                }
+                CheckClimb(guy, dt);
             }
-
-            //Left + right left/right move left/right 
-            //Move Left & Right (No climb or hang)
-            //If guy is on ground then the player has more control over his movement
-
             if (guy.OnGround)
             {
-
-                float SwitchMultiplier = 0.9f;
-                if (guy.Joystick.Left.Press() == true)
-                {
-                    if (guy.Vel.x > 0)
-                    {
-                        guy.Vel += -guy.Vel * SwitchMultiplier;
-                    }
-                }
-                if (guy.Joystick.Right.Press() == true)
-                {
-                    if (guy.Vel.x < 0)
-                    {
-                        guy.Vel += -guy.Vel * SwitchMultiplier;
-                    }
-                }
-
-                if (guy.Joystick.Down.PressOrDown())
-                {
-                    if (player != null && (player.ShieldOut || player.SwordOut || player.BowOut))
-                    {
-                        guy.SetSpriteIfNot(guy.CrouchAttackSprite);
-                    }
-                    else
-                    {
-                        guy.SetSpriteIfNot(guy.CrouchAttackSprite);
-                    }
-                    guy.Crouching = true;
-                }
-                else if (guy.Joystick.Down.Release())
-                {
-                    if (guy.ItemHeld == null)
-                    {
-                        if (player != null && (player.ShieldOut || player.SwordOut || player.BowOut))
-                        {
-                            guy.SetSpriteIfNot(guy.WalkAttackSprite);
-                        }
-                        else
-                        {
-                            guy.SetSpriteIfNot(guy.WalkSprite);
-                        }
-                    }
-
-                    guy.Crouching = false;
-                }
-
+                CheckGroundMovement(guy, dt);
             }
 
-            //If crouching, lower speed
-            float walkorcrouchspeed = guy.Speed;
-            if (guy.Crouching == true)
-            {
-                walkorcrouchspeed *= 0.2f;
-            }
-
-            //Basic left/right  movement
-            if (guy.Joystick.Left.PressOrDown())
-            {
-                guy.Acc += new vec2(-walkorcrouchspeed, 0);
-                guy.SpriteEffects = SpriteEffects.FlipHorizontally;
-            }
-            else if (guy.Joystick.Right.PressOrDown())
-            {
-                guy.Acc += new vec2(walkorcrouchspeed, 0);
-                guy.SpriteEffects = SpriteEffects.None;
-            }
-
+            MoveLeftRight(guy);
 
             //If we were climbing but we flipped direction
             if (guy.Climbing && guy.ClimbFace != guy.SpriteEffects)
@@ -3975,6 +3691,16 @@ namespace Core
                 //If sliding, then add friction
                 guy.Vel -= (guy.Vel * guy.Friction * dt);
             }
+
+            UpdateAnimationState(guy);
+        }
+        public void UpdateAnimationState(Guy guy)
+        {
+            Player player = guy as Player;
+
+            //make animation faster based on vel
+            float vl = guy.Vel.Len2() / (guy.MaxVel * guy.MaxVel);
+            guy.AnimationSpeed = 1 + vl;
 
             //Handle Stasis, and idle animation states.
             if (player != null && IsChargingSword(player))
@@ -4034,8 +3760,359 @@ namespace Core
                 guy.Animate = true;
                 guy.Loop = true;
             }
+        }
+        public void MoveLeftRight(Guy guy)
+        {
+            //If crouching, lower speed
+            float walkorcrouchspeed = guy.Speed;
+            if (guy.Crouching == true)
+            {
+                walkorcrouchspeed *= 0.2f;
+            }
+
+            //Add speed if we are on ground.
+            float ground_mul = 0.8f;
+            if (guy.OnGround == true)
+            {
+                ground_mul = 1.8f;
+            }
+            walkorcrouchspeed *= ground_mul;
+
+            //Basic left/right  movement
+            if (guy.Joystick.Left.PressOrDown())
+            {
+                guy.Acc += new vec2(-walkorcrouchspeed, 0);
+                guy.SpriteEffects = SpriteEffects.FlipHorizontally;
+            }
+            else if (guy.Joystick.Right.PressOrDown())
+            {
+                guy.Acc += new vec2(walkorcrouchspeed, 0);
+                guy.SpriteEffects = SpriteEffects.None;
+            }
+        }
+        public void MissBounce(Guy g)
+        {
+            Res.Audio.PlaySound(Res.SfxMissedBounce);
+        }
+        public void SetBounceObject(Guy g, GameObject ob)
+        {
+            g.BouncedObject = ob;
+            g.Bouncing = true;
+        }
+        public void CheckBounceObjects(Guy g)
+        {
+            //Check to see if we are colliding with objects
+            float bounceRadiusPx = 7;
+
+            if (g is Player)
+            {
+                foreach (GameObject ob in Level.GameObjects)
+                {
+                    if ((ob is Duck) && ob.IsDeleted == false)
+                    {
+                        if ((g.Pos - ob.Pos).Len2() <= (bounceRadiusPx * bounceRadiusPx))
+                        {
+                            //We are colliding with it
+                            if (g.Vel.y > 0)
+                            {
+                                // We are traveling downward.
+                                if (g.Bouncing && g.BouncedObject == ob)
+                                {
+                                    //We have not responded to a valid bounce last frame, destroy the guy.
+                                    MissBounce(g);
+                                    break;
+                                }
+                                else
+                                {
+                                    SetBounceObject(g, ob);
+                                    break;
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        private void CheckClimb(Guy guy, float dt)
+        {
+
+            float dir = -1.0f;
+            bool continueClimb = false;
+            if (guy.Joystick.Left.PressOrDown())
+            {
+                //If we are hanging left, then move left, else, stop hanging
+                if (guy.IsFacingRight() == false)
+                {
+                    continueClimb = true;
+                }
+            }
+            if (guy.Joystick.Right.PressOrDown())
+            {
+                //If we are hanging left, then move left, else, stop hanging
+                if (guy.IsFacingRight() == true)
+                {
+                    continueClimb = true;
+                }
+            }
+            if (guy.Joystick.Up.PressOrDown())
+            {
+                continueClimb = true;
+            }
+            if (guy.Joystick.Down.PressOrDown())
+            {
+                continueClimb = true;
+                dir = 1.0f;
+            }
+
+            if (climbSound != null && climbSound.State == SoundState.Stopped)
+            {
+                climbSound = null;
+            }
+
+            if (continueClimb)
+            {
+                if (climbSound == null && guy.IsPlayer())
+                {
+                    climbSound = Res.Audio.PlaySound(Res.SfxClimb);
+                }
+                guy.Vel = new vec2(0, guy.ClimbSpeed * dt * dir);// (Guy.ClimbPos - Guy.ClimbPosStart).Normalized() * ;
+            }
+            else
+            {
+                if (climbSound != null)
+                {
+                    climbSound.Stop();
+                    climbSound = null;
+                }
+                guy.Vel = new vec2(0, 0);//Don't climb, no button pressed
+            }
 
 
+        }
+        private void BounceOffObject(Guy guy)
+        {
+            //Kill the object and play sound, depending on what object it is
+            if (guy.Bouncing)
+            {
+                if (guy.BouncedObject != null)
+                {
+                    if (guy.BouncedObject is Duck)
+                    {
+
+                        Res.Audio.PlaySound(Res.SfxDuckQuack);
+                        FlagDeleteObject(guy.BouncedObject);
+                    }
+                }
+            }
+            guy.Bouncing = false;
+            guy.BouncedObject = null;
+        }
+        private void CheckJumpOrBounce(Guy guy, float dt)
+        {
+            //Jumping - 
+            //You can jump on an object as well as the ground to OnGround isn't applicable here.
+            //The jump code can happen before teh actual jump. 
+            //The player presses the jump button, then 100ms later, the jump happens.
+
+            bool bCanSwim = (guy.InWater && guy.SwimStrokeTime <= 0) && (!guy.InWater || (guy.InWater && guy.Joystick.Jump.Press()));
+
+            bool canJumpOrBounce = guy.OnGround || guy.Climbing || bCanSwim || guy.Bouncing;
+            if (isInJumpWindow)
+            {
+                if (canJumpOrBounce && guy.Jumping == false) /*Player pressed jump button and the jump was before we hit something*/
+                {
+                    //guy.Hanging = false;
+                    guy.Climbing = false;
+                    guy.Jumping = true;
+                    guy.Crouching = false;
+
+                    if (guy.ItemHeld == null)
+                    {
+                        guy.SetSpriteIfNot(guy.JumpSprite);
+                    }
+
+                    if (bCanSwim)
+                    {
+                        //player is in water and pressed spacebar to swim
+                        guy.Vel = new vec2(0, -guy.JumpSpeed) * dt;
+                        guy.Vel *= 0.5f;
+                        guy.SwimStrokeTime = guy.SwimStrokeTimeMax;
+                    }
+                    else
+                    {
+                        //Update our jump state.
+                        float state_multiplier = 0;
+                        UpdateRocketJumpState(guy, ref state_multiplier, dt);
+
+                        //Don't show overlay
+                        ScreenOverlayText = "";
+
+                        //Multiply the jump by some accuracy amount.
+                        float multiplier = 1;
+                        if (!guy.OnGround)
+                        {
+                            multiplier = jumpAccuracyMultiplierAir;
+                        }
+
+                        //set the initial jump state to be gravity.  The jump will then be what we add to the gravity.
+                        float waterdamp = 0, grav = 0;
+                        ComputeGravity(guy, out waterdamp, out grav);
+                        guy.Vel += -guy.Gravity * grav * dt;
+
+                        //Do a jump
+                        guy.CurJumpSpeed = guy.SpringJumpSpeed * state_multiplier * multiplier;
+                        guy.StartJump(dt);
+
+                        //Destroy object and play sound
+                        BounceOffObject(guy);
+
+                        //guy.RotationDelta = 3.14159f * 2.0f;
+
+                        if (guy.IsPlayer())
+                        {
+                            guy.SetSpriteIfNot(guy.SpringJumpSprite);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if(guy.OnGround == false)
+                {
+
+                }
+            }
+        }
+
+        private void UpdateRocketJumpState(Guy guy, ref float statef, float dt)
+        {
+            float state0 = 0.4f;
+            float state1 = 0.5f;
+            float state2 = 0.55f;
+            float state3 = 2.6f;
+
+            //returns the float milliseconds of an integer ms
+            Func<int, float> ms = (x) =>
+            {
+                float ret = (float)((float)x / (float)1000);
+                return ret;
+            };
+
+            guy.VaporTrail = 0;
+            if (JumpState == 0)
+            {
+                //We have begun the jump
+                if (jumpSound == null && guy.IsPlayer())
+                {
+                    jumpSound = Res.Audio.PlaySound(Res.SfxJump);
+                }
+                statef = state0;
+                //   precision_mulx = 1.0f;
+                JumpState++;
+            }
+            else if (JumpState == 1)
+            {
+                if (jumpSound == null && guy.IsPlayer())
+                {
+                    jumpSound = Res.Audio.PlaySound(Res.SfxJump);
+                }
+                statef = state1;
+                JumpState++;
+            }
+            else if (JumpState == 2)
+            {
+                if (jumpSound == null && guy.IsPlayer())
+                {
+                    Res.Audio.PlaySound(Res.SfxBootsJump);
+                }
+                statef = state2;
+                guy.VaporTrail = 1;
+                JumpState++;
+
+            }
+            else if (JumpState == 3)
+            {
+                if (guy.IsPlayer())
+                {
+                    Screen.ScreenShake.Shake(0.99f, 0.40f);
+                    Res.Audio.PlaySound(Res.SfxBombexplode);
+                }
+                statef = state3;
+                guy.VaporTrail = 4;
+                JumpState++;
+                jumpStartPos = guy.Pos.x;
+                guy.CalcRotationDelta();
+                CreateBlastParticles(guy.Box.Center() + new vec2(0, guy.Box.Height() * 0.5f),
+                    new vec4(1, 1, .8914f, 1), 30, Res.SprParticleBig, new vec2(0, 1), MathHelper.ToRadians(180));
+
+                if (guy.IsFacingLeft())
+                {
+                    guy.RotationDelta *= -1.0f;
+                }
+            }
+
+
+
+            if (IntroTutorial)
+            {
+                //Reset jump statei f intro trutorial.
+                JumpState = 0;
+            }
+        }
+        private void CheckGroundMovement(Guy guy, float dt)
+        {
+            //Left + right left/right move left/right 
+            //Move Left & Right (No climb or hang)
+            //If guy is on ground then the player has more control over his movement
+
+            float SwitchMultiplier = 0.9f;
+            if (guy.Joystick.Left.Press() == true)
+            {
+                if (guy.Vel.x > 0)
+                {
+                    guy.Vel += -guy.Vel * SwitchMultiplier;
+                }
+            }
+            if (guy.Joystick.Right.Press() == true)
+            {
+                if (guy.Vel.x < 0)
+                {
+                    guy.Vel += -guy.Vel * SwitchMultiplier;
+                }
+            }
+
+            Player player = guy as Player;
+
+            if (guy.Joystick.Down.PressOrDown())
+            {
+                if (player != null && (player.ShieldOut || player.SwordOut || player.BowOut))
+                {
+                    guy.SetSpriteIfNot(guy.CrouchAttackSprite);
+                }
+                else
+                {
+                    guy.SetSpriteIfNot(guy.CrouchAttackSprite);
+                }
+                guy.Crouching = true;
+            }
+            else if (guy.Joystick.Down.Release())
+            {
+                if (guy.ItemHeld == null)
+                {
+                    if (player != null && (player.ShieldOut || player.SwordOut || player.BowOut))
+                    {
+                        guy.SetSpriteIfNot(guy.WalkAttackSprite);
+                    }
+                    else
+                    {
+                        guy.SetSpriteIfNot(guy.WalkSprite);
+                    }
+                }
+
+                guy.Crouching = false;
+            }
         }
         private bool IsChargingSword(Player guy)
         {
@@ -4059,29 +4136,33 @@ namespace Core
             }
 
         }
+        private void ComputeGravity(Guy guy, out float waterDamper, out float gravity)
+        {
+            //Dampen movement in liquid
+            //gravity is too harsh we need to dampen  more
+            if (guy.InWater)
+            {
+                waterDamper = guy.WaterDamp;
+                gravity = guy.WaterDampGrav;
+            }
+            else
+            {
+                waterDamper = guy.NormalDamp;
+                gravity = guy.NormalDampGrav;
+            }
+        }
         private void DoPhysics(Guy guy, float dt)
         {
             //Debug = 60fps
-            dt = 0.016935f;
+            //   dt = 0.016935f;
 
             guy.CalcRelPos();
             bool LeftButtonDown = guy.Joystick.Left.PressOrDown();
             bool RightButtonDown = guy.Joystick.Right.PressOrDown();
             bool UpButtonDown = guy.Joystick.Up.PressOrDown();
 
-            //Dampen movement in liquid
-            //gravity is too harsh we need to dampen  more
-            float waterdamp, waterdampgrav;
-            if (guy.InWater)
-            {
-                waterdamp = guy.WaterDamp;
-                waterdampgrav = guy.WaterDampGrav;
-            }
-            else
-            {
-                waterdamp = guy.NormalDamp;
-                waterdampgrav = guy.NormalDampGrav;
-            }
+            float waterdamp = 0, waterdampgrav = 0;
+            ComputeGravity(guy, out waterdamp, out waterdampgrav);
 
             //physics forces
             if (/*guy.Hanging == false &&*/ guy.Climbing == false/* && guy.OnGround==false*/)
@@ -5383,6 +5464,7 @@ namespace Core
                     guy.Rotation = guy.RotationDelta = 0;
                     guy.VaporTrail = 0;
                     guy.Vel.y = 0;
+                    guy.Airtime = 0;
 
                     if (this.JumpState >= 4)
                     {
@@ -5411,7 +5493,7 @@ namespace Core
                         }
 
                     }
-                    guy.Airtime = guy.MaxAirtime;
+                    // guy.Airtime = guy.MaxAirtime;
                     guy.CalcRelPos();
                     guy.CalcBoundBox();
                 }

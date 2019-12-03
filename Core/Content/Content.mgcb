@@ -471,3 +471,9 @@
 /processorParam:Quality=Best
 /build:duck-quack.ogg
 
+#begin missed_bounce.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:missed_bounce.ogg
+

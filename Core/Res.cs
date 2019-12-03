@@ -14,7 +14,8 @@ namespace Core
         public static SpriteFont Font2 { get; private set; }
         public static ContentManager Content;
         public static bool ShownTutorial = false;
-
+        
+        public static string SfxMissedBounce = "missed_bounce";
         public static string SfxDuckQuack = "duck-quack";
         public static string SfxMine = "mine";
         public static string SfxWhack = "whack";

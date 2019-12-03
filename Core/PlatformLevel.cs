@@ -446,7 +446,7 @@ namespace Core
 
         public Box2f BoxRelativeCrouch = new Box2f(0, 0, 16, 16);//Hack
 
-        public float Friction = 18.0f;
+        public new float Friction = 18.0f;
         public float MaxVel = 170.0f;
         public bool OnGround = true;
         public bool LastOnGround = true;
@@ -456,6 +456,8 @@ namespace Core
                                     // public bool Hanging = false;
         public bool Climbing = false;
         public bool Crouching = false;
+        public bool Bouncing = false;
+        public GameObject BouncedObject = null;
         public SpriteEffects ClimbFace = SpriteEffects.None;//This tells us left/right
                                                             // public vec2 ClimbPos = new vec2(0, 0);
                                                             // public vec2 ClimbPosStart = new vec2(0, 0);
@@ -469,6 +471,28 @@ namespace Core
         public float JumpSpeed = 780.0f;
         public float SpringJumpSpeed = 1280.0f;//Jump speed with spring boots
         public float CurJumpSpeed = 0;
+
+        public void StartJump(float dt)
+        {
+            ContinueJump(dt);
+            Airtime = 0;
+        }
+        public void ContinueJump(float dt)
+        {
+            if (Jumping)
+            {
+                Airtime += dt;
+                if (Airtime < this.MaxAirtime)
+                {
+                    //Simply add jump ve.
+                    Vel += new vec2(0, -CurJumpSpeed) * dt;
+                }
+                else
+                {
+                    Jumping = false;
+                }
+            }
+        }
 
         public AIState AIState = AIState.None;
         public float AIActionTime = 0; //amount of time to perform this action
@@ -662,7 +686,7 @@ namespace Core
     }
     public class Duck : Guy
     {
-        public Duck(WorldBase w, string spr, AIState ai) : base(w,spr,ai)
+        public Duck(WorldBase w, string spr, AIState ai) : base(w, spr, ai)
         {
 
         }
