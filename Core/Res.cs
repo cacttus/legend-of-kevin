@@ -14,8 +14,9 @@ namespace Core
         public static SpriteFont Font2 { get; private set; }
         public static ContentManager Content;
         public static bool ShownTutorial = false;
-        
-        public static string SfxMissedBounce = "missed_bounce";
+
+        public static string SfxSlide = "slide";
+        public static string IttyBitty8 = "Itty_Bitty_8_Bit";
         public static string SfxDuckQuack = "duck-quack";
         public static string SfxMine = "mine";
         public static string SfxWhack = "whack";
@@ -860,8 +861,9 @@ namespace Core
             Audio.Sounds.Add(Content.Load<SoundEffect>(SfxContinue));
             Audio.Sounds.Add(Content.Load<SoundEffect>(SfxDuckQuack));
 
+            Audio.Sounds.Add(Content.Load<SoundEffect>(SfxSlide));
 
-
+            Audio.Songs.Add(Content.Load<Microsoft.Xna.Framework.Media.Song>(IttyBitty8));
         }
 
 

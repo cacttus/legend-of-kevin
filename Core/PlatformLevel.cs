@@ -19,7 +19,7 @@ namespace Core
 
     public class Spike : GameObject
     {
-        //Dir Dir = Dir.L;
+        Dir Dir = Dir.L;
         Cutscene cs;
         public Spike(WorldBase w) : base(w) { }
         public override void Update(Input inp, float dt, bool bDoPhysics = false)
@@ -194,7 +194,7 @@ namespace Core
             Door d = this;
             int door_wh = 6;
 
-            int iOpen = 0, iClose = 1, iLock = 2,
+            int iOpen = 0, iClose = 1, iLock = 2, iGoldLock = 3,
                 iElectronicLock = 4,
                 iMetalClose = 5, iMetalOpen = 6;
 
@@ -446,7 +446,7 @@ namespace Core
 
         public Box2f BoxRelativeCrouch = new Box2f(0, 0, 16, 16);//Hack
 
-        public new float Friction = 18.0f;
+        public float Friction = 18.0f;
         public float MaxVel = 170.0f;
         public bool OnGround = true;
         public bool LastOnGround = true;
@@ -456,8 +456,6 @@ namespace Core
                                     // public bool Hanging = false;
         public bool Climbing = false;
         public bool Crouching = false;
-        //public bool Bouncing = false;
-        //public GameObject BouncedObject = null;
         public SpriteEffects ClimbFace = SpriteEffects.None;//This tells us left/right
                                                             // public vec2 ClimbPos = new vec2(0, 0);
                                                             // public vec2 ClimbPosStart = new vec2(0, 0);
@@ -471,28 +469,6 @@ namespace Core
         public float JumpSpeed = 780.0f;
         public float SpringJumpSpeed = 1280.0f;//Jump speed with spring boots
         public float CurJumpSpeed = 0;
-
-        public void StartJump(float dt)
-        {
-            ContinueJump(dt);
-            Airtime = 0;
-        }
-        public void ContinueJump(float dt)
-        {
-            if (Jumping)
-            {
-                Airtime += dt;
-                if (Airtime < this.MaxAirtime)
-                {
-                    //Simply add jump ve.
-                    Vel += new vec2(0, -CurJumpSpeed) * dt;
-                }
-                else
-                {
-                    Jumping = false;
-                }
-            }
-        }
 
         public AIState AIState = AIState.None;
         public float AIActionTime = 0; //amount of time to perform this action
@@ -686,7 +662,7 @@ namespace Core
     }
     public class Duck : Guy
     {
-        public Duck(WorldBase w, string spr, AIState ai) : base(w, spr, ai)
+        public Duck(WorldBase w, string spr, AIState ai) : base(w,spr,ai)
         {
 
         }
@@ -876,6 +852,8 @@ namespace Core
     }
     public class Tile : GameObject
     {
+        public Box2f Box;
+        public bool Blocking = true;
         public bool CanMine = false;
         public bool FallThrough = false;
         public bool CanClimb = false;
@@ -919,8 +897,6 @@ namespace Core
     public enum WaterType { Water, Lava, Tar }
     public class Cell
     {
-        public int LastUpdatedCellFrame = -1;
-        public List<GameObject> ObjectsFrame = new List<GameObject>();
         public List<TileBlock> Layers;
 
         //public vec4 WaterColor = new vec4(0.1f, 0.1f, 1.0f, 0.6f); 
@@ -2409,7 +2385,6 @@ new List<string> { Res.SprParticleSmall });
             }
             catch (Exception ex)
             {
-                Globals.IgnoreException(ex);
                 return false;
             }
             return true;
@@ -2822,6 +2797,7 @@ new List<string> { Res.SprParticleSmall });
                                 Tile tile = null;
                                 Func<Cell, int, GameObject> obCreate = null;
                                 SpecialItem si = null;
+                                Dictionary<string, List<string>> obSigns = null;
 
                                 if (iTileId == Res.SwitchConduitTileId)
                                 {

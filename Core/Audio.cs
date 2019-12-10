@@ -55,6 +55,7 @@ namespace Core
             {
                 MediaPlayer.Play(_playing);
                 MediaPlayer.IsRepeating = true;
+                
                 if (MusicState == MusicStateE.Pause)
                 {
                     PauseMusic();
@@ -64,6 +65,7 @@ namespace Core
             {
                 MediaPlayer.Stop();
             }
+            MediaPlayer.Volume = 2f;
         }
         public SoundEffectInstance PlaySound(string name)
         {
@@ -82,7 +84,6 @@ namespace Core
                 catch(Exception ex)
                 {
                     //this.
-                    Globals.IgnoreException(ex);
                 }
                 return inst;
             }
@@ -99,6 +100,7 @@ namespace Core
             {
                 PlaySound(randomList[s]);
             }
+            MediaPlayer.Volume = 2f;
         }
         //Sound PlayMusic(string name)
         //{

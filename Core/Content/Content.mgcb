@@ -471,9 +471,15 @@
 /processorParam:Quality=Best
 /build:duck-quack.ogg
 
-#begin missed_bounce.ogg
+#begin slide.ogg
 /importer:OggImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:missed_bounce.ogg
+/build:slide.ogg
+
+#begin Itty_Bitty_8_Bit.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Itty_Bitty_8_Bit.ogg
 

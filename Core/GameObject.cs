@@ -114,7 +114,7 @@ namespace Core
 
 
         public Cell CellFrame { get; set; } = null;//updated manually
-
+        
         public float Speed { get; set; } = 1.5f;
         public float Power { get; set; } = 0;
         public float Health { get; set; } = 5;
@@ -138,30 +138,7 @@ namespace Core
         public vec2 Acc;
         public Sprite Sprite { get; set; }
         public Frame Frame { get; set; }
-        private vec2 _pos = new vec2(0, 0);
-
-        //These are needed because you can't set a value type in a proepty
-        public void setPos(vec2 p) { _pos = p; }
-        public void setPosX(float v)
-        {
-            _pos.x = v;
-        }
-        public void setPosY(float v)
-        {
-            _pos.y = v;
-        }
-
-        public vec2 Pos
-        {
-            get
-            {
-                return this._pos;
-            }
-            set
-            {
-                _pos = value;
-            }
-        }
+        public vec2 Pos;
         public vec2 Size = new vec2(1, 1);
         public float frame = 0;
         public bool Animate
@@ -169,7 +146,9 @@ namespace Core
             get;
             set;
         } = false;
+        public bool Visible { get; set; } = true;
         public bool Loop { get; set; } = true;//loop aniamtino
+        public TouchState TouchState { get; set; } = TouchState.Up;
         public bool Blocking = false;
 
         public bool RotateToTrajectory = false;//for arrows

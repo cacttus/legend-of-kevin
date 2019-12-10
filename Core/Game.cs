@@ -638,13 +638,14 @@ namespace Core
 
         public bool bLoadingRoom = false;
 
+
         public PlatformLevel Level { get; private set; }
 
         SoundEffectInstance jumpSound = null;
         SoundEffectInstance climbSound = null;
         SoundEffectInstance landSound = null;
-        // SoundEffectInstance chargeSound = null;
-        // SoundEffectInstance drawBowSound = null;
+        SoundEffectInstance chargeSound = null;
+        SoundEffectInstance drawBowSound = null;
 
         Cutscene Cutscene = null;
         public Dialog Dialog { get; private set; } = null;
@@ -666,7 +667,7 @@ namespace Core
 
         ButtonBase DebugButton = new ButtonBase();
         ButtonBase CheatButton = new ButtonBase();
-        private bool ShowDebug = true;
+        private bool ShowDebug = false;
         private float Fps;
         bool bShowMenu = false;
         bool bShowUI = true;
@@ -684,6 +685,7 @@ namespace Core
         Door LastSwordCollideDoor = null;
 
         float SaveTime;
+        bool bSaving = false;
 
         public ButtonBase Rmb = new ButtonBase();
         public ButtonBase Lmb = new ButtonBase();
@@ -709,7 +711,6 @@ namespace Core
 
             GenerateLevel();
             DoCheats();
-            SettleLiquid();
             if (Res.ShownTutorial == false)
             {
                 PlayIntroCutscene();
@@ -718,17 +719,6 @@ namespace Core
             else
             {
                 StartRunning = true;
-            }
-        }
-        private void SettleLiquid()
-        {
-            for (int i = 0; i < 1000; ++i)
-            {
-                float change = UpdateLiquidPhysics(0.06f); // 1 frame
-                if (change < 0.001)
-                {
-                    return;
-                }
             }
         }
         private void PlayIntroCutscene()
@@ -853,7 +843,6 @@ namespace Core
                     Dialog.ShowDialog(new List<string>
                     {
                     "Try to jump the furthest you can!"
-                        ,"And don't hit the water!"
                     }, null);
                     return false;
                 })
@@ -876,34 +865,101 @@ namespace Core
             ;
 
         }
+        int nDucks = 0;
+        private void MakeDuck(float x, float y, bool right)
+        {
+            Duck g = new Duck(this, Res.SprDuck, AIState.SwimLeftRight);
+            g.Animate = true;
+            g.BoxRelative = new Box2f(-2, -4, 8, 8);
+            g.Gravity = new vec2(0, 0);
+
+            if (right)
+            {
+                g.Joystick.AIRight = true;
+                g.Joystick.AILeft = false;
+            }
+            else
+            {
+                g.Joystick.AIRight = false;
+                g.Joystick.AILeft = true;
+            }
+
+
+            g.Pos.x = x;
+            g.Pos.y = y;
+
+            Level.GameObjects.Add(g);
+            nDucks++;
+        }
         private void CreateDucks()
         {
-            for (int i = 0; i < 600; ++i)
+            float ebase = 20;
+
+            for (int i = 0; i < (RoomWidthTiles / 8); ++i)
             {
-                Duck g = new Duck(this, Res.SprDuck, AIState.SwimLeftRight);
-                g.Animate = true;
-                g.BoxRelative = new Box2f(-4, -4, 8, 8);
-                g.Gravity = new vec2(0, 0);
+                MakeDuck(
+                    i * Res.Tiles.TileWidthPixels * 8,
+                (RoomHeightTiles - 20) * Res.Tiles.TileHeightPixels
+                , true);
+            }
 
-                if (Globals.Random(0, 1) >= 0.5f)
-                {
-                    g.Joystick.AIRight = true;
-                    g.Joystick.AILeft = false;
-                }
-                else
-                {
-                    g.Joystick.AIRight = false;
-                    g.Joystick.AILeft = true;
-                }
+            for (int i = 0; i < (RoomWidthTiles / 4); ++i)
+            {
+                MakeDuck(
+                    i * Res.Tiles.TileWidthPixels * 4,
+                (RoomHeightTiles - 40) * Res.Tiles.TileHeightPixels
+                , true);
+            }
 
-                float ebase = 10;
+            for (int i = 0; i < (RoomWidthTiles / 8); ++i)
+            {
+                MakeDuck(
+                    i * Res.Tiles.TileWidthPixels * 8,
+                (RoomHeightTiles - 60) * Res.Tiles.TileHeightPixels
+                , true);
+            }
 
-                g.Pos = new vec2(
-                    (Globals.Random(0, 1) * Res.Tiles.TileWidthPixels * RoomWidthTiles),
-                    ((RoomHeightTiles-ebase) * Res.Tiles.TileHeightPixels) - Globals.Random(0, 1) * Res.Tiles.TileHeightPixels * (RoomHeightTiles - ebase)
-                    );
+            for (int i = 0; i < (RoomWidthTiles / 8); ++i)
+            {
+                MakeDuck(
+                    i * Res.Tiles.TileWidthPixels * 8,
+                (RoomHeightTiles - 80) * Res.Tiles.TileHeightPixels
+                , true);
+            }
 
-                Level.GameObjects.Add(g);
+            for (int i = 0; i < (RoomWidthTiles / 16); ++i)
+            {
+                MakeDuck(
+                    i * Res.Tiles.TileWidthPixels * 16,
+                (RoomHeightTiles - 100) * Res.Tiles.TileHeightPixels
+                , true);
+            }
+
+
+            for (int i = 0; i < (RoomWidthTiles / 4); ++i)
+            {
+                MakeDuck(
+                    i * Res.Tiles.TileWidthPixels * 8,
+                (RoomHeightTiles - 120) * Res.Tiles.TileHeightPixels
+                , true);
+            }
+
+            for (int i = 0; i < (RoomWidthTiles / 4); ++i)
+            {
+                MakeDuck(
+                    i * Res.Tiles.TileWidthPixels * 4,
+                (RoomHeightTiles - 140) * Res.Tiles.TileHeightPixels
+                , true);
+            }
+
+
+            //Random Ducks
+            for (int i = 0; i < 40; ++i)
+            {
+                MakeDuck(Globals.Random(0, 1) * Res.Tiles.TileWidthPixels * (float)this.RoomWidthTiles,
+                    ((RoomHeightTiles - ebase) * Res.Tiles.TileHeightPixels) -
+                Globals.Random(0, 1) * Res.Tiles.TileHeightPixels * (RoomHeightTiles - ebase)
+                , Globals.Random(0, 1) >= 0.5f);
             }
         }
         private int RoomWidthTiles = 300;
@@ -954,7 +1010,7 @@ namespace Core
             }
 
             int water_start = 40;
-            int water_end = 70;
+            int water_end = RoomWidthTiles - 5;
             //Decals above ground
             for (int gy = playerY; gy < playerY + 1; ++gy)
             {
@@ -984,6 +1040,7 @@ namespace Core
                 }
             }
 
+            bool water = Globals.Random(0, 1) > 0.5;
             //Ground
             for (int gy = playerY + 1; gy < tm.MapHeightTiles; ++gy)
             {
@@ -1000,12 +1057,12 @@ namespace Core
                             }
                             else
                             {
-                                tm.TrySetGenTile(gx, gy, PlatformLevel.Midground, Res.Water100TileId);
+                                tm.TrySetGenTile(gx, gy, PlatformLevel.Midground, water ? Res.Water100TileId : Res.Lava100TileId);
                             }
                         }
                         else
                         {
-                            tm.TrySetGenTile(gx, gy, PlatformLevel.Midground, Res.Water50TileId);
+                            tm.TrySetGenTile(gx, gy, PlatformLevel.Midground, water ? Res.Water50TileId : Res.Lava50TileId);
                         }
                     }
                     else
@@ -1040,11 +1097,8 @@ namespace Core
                     star.Color = new vec4(1, 1, .6f + rc, 1);
                 }
 
-                star.setPosX(dx);
-                star.setPosY(dy);
-                star.EmitColor = new vec4(1, 1, 1, 1);
-                star.EmitLight = true;
-                star.EmitRadiusInPixels = 10;
+                star.Pos.x = dx;
+                star.Pos.y = dy;
                 Level.GameObjects.Add(star);
             }
 
@@ -1058,11 +1112,6 @@ namespace Core
         public override void Update(float dt, bool bFocusViewport = true)
         {
             base.Update(dt);//Particles
-
-            if (iFrameStamp % 5 == 0)
-            {
-                UpdateLiquidPhysics(dt);
-            }
 
             //Debug
             UpdateDebug(dt);
@@ -1098,7 +1147,6 @@ namespace Core
                     }
                     catch (Exception ex)
                     {
-                        Globals.IgnoreException(ex);
                     }
 
                     float d = GetDist(GetPlayer());
@@ -1110,10 +1158,16 @@ namespace Core
                     (this.Screen as GameScreen).Reset = true;
                 }
             }
+            //else if(GameState==GameState.Play)
+            {//
+             //if((Screen.Game as MainGame).GraphicsDeviceManager.IsFullScreen)
+                {
+                    if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                    {
+                        Screen.Game.Exit();
+                    }
+                }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-            {
-                Screen.Game.Exit();
             }
 
             //Update Game
@@ -1125,10 +1179,12 @@ namespace Core
                 UpdateViewport(dt);
             }
 
+
             //put this first to prevent player from interacting with stuff when dialog is showing
             Dialog.Update(dt);
 
             UpdatePostPhysics(dt);
+
 
             UpdateUI();
 
@@ -1260,7 +1316,6 @@ namespace Core
             }
 
             DebugContactPointsToDraw = new List<vec2>();
-
             //Update objects
             for (int iObj = Level.GameObjects.Count - 1; iObj >= 0; iObj--)
             {
@@ -1277,10 +1332,10 @@ namespace Core
                     //Always update joystick even if paused
                     g.Joystick.Update(dt);
 
-                    if (StartRunning)
-                    {
-                        g.Joystick.Right.TouchState = TouchState.Down;
-                    }
+                    //if (StartRunning)
+                    //{
+                    //    g.Joystick.Right.TouchState = TouchState.Down;
+                    //}
                 }
 
                 if (GameState == GameState.Play)
@@ -1288,7 +1343,7 @@ namespace Core
                     ob.Update(Screen.Game.Input, dt, false);
 
                     //Update guy physics
-                    if (g != null)
+                    if (ob is Guy)
                     {
                         UpdateOb_Guy(g, dt);
 
@@ -1304,19 +1359,19 @@ namespace Core
                         {
                             UpdateOb_Bomb(ob as Bomb, player, dt);
                         }
-                        else if (ob as Arrow != null)
+                        if (ob as Arrow != null)
                         {
                             UpdateOb_Arrow(ob as Arrow, dt);
                         }
-                        else if (ob as PickupItem != null)
+                        if (ob as PickupItem != null)
                         {
                             UpdateOb_PickupItem(ob as PickupItem, player, dt);
                         }
-                        else if (ob as Projectile != null)
+                        if (ob as Projectile != null)
                         {
                             UpdateOb_Projectile(ob as Projectile, dt);
                         }
-                        else if (ob.TileId == Res.BrazierTileId)
+                        if (ob.TileId == Res.BrazierTileId)
                         {
                             Player p = GetPlayer();
                             if (p.SwordModifier == SwordModifier.Tar && p.SwordOnFire == false)
@@ -1414,39 +1469,14 @@ namespace Core
 
                 ob.CalcBoundBox();
 
-                //New - set the cell.
-                ob.CellFrame = Level.Grid.GetCellForPoint(ob.Box.Center());
-                if (ob.CellFrame != null)
+                //outside world
+                if (ob.Pos.x <= Level.Grid.RootNode.Box.Min.x)
                 {
-                    if (ob.CellFrame.LastUpdatedCellFrame != iFrameStamp)
-                    {
-                        ob.CellFrame.ObjectsFrame.Clear();
-                        ob.CellFrame.LastUpdatedCellFrame = iFrameStamp;
-                    }
-                    ob.CellFrame.ObjectsFrame.Add(ob);
+                    ob.Pos.x = (Level.Grid.RootNode.Box.Max.x);
                 }
-                else
+                if (ob.Pos.x >= Level.Grid.RootNode.Box.Max.x)
                 {
-                    //We are outside the world.
-                    //if (ob is Duck)
-                  //  {
-                        //warp to other side.
-                        if (ob.Pos.x <= Level.Grid.RootNode.Box.Min.x)
-                        {
-                            ob.setPosX(Level.Grid.RootNode.Box.Max.x);
-                        }
-                        if (ob.Pos.x >= Level.Grid.RootNode.Box.Max.x)
-                        {
-                            ob.setPosX(Level.Grid.RootNode.Box.Min.x);
-                        }
-                        //FlagDeleteObject(ob);
-                    //}
-                    //else
-                    //{
-                    //    int n = 0;
-                    //    n++;
-                    //}
-
+                    ob.Pos.x = (Level.Grid.RootNode.Box.Min.x);
                 }
 
             }
@@ -1618,7 +1648,9 @@ namespace Core
                     }
 
 
+
                     MouseObjectsFrame.Add(ob);
+
                 }
             }
         }
@@ -1636,6 +1668,7 @@ namespace Core
             //Mine the world, Attack
             if (GameState == GameState.Play)
             {
+
                 //Must come before swingsword in order to not swing sword when we're doing other thngs
                 CollidePortalsAndTriggers(player, dt);
 
@@ -1650,34 +1683,31 @@ namespace Core
                 }
 
 
-                if (iFrameStamp % 2 == 0)
+                if (iFrameStamp % 2 == 0 || bLoadingRoom)
                 {
-                    UpdateLiquidVisibility(dt);
+                    UpdateLiquid(dt);
                 }
+
             }
             else if (GameState == GameState.PlayerDeath_Begin)
             {
                 PlayPlayerDeathCutscene();
             }
 
-            //**Removing light.  It's not necessary for this game..and causing a slow... = Rocket Jump
-            //ComputeAllLight();
-        }
-        private void ComputeAllLight()
-        {
             //Update light every 3 frames, OR when the player has moved too fast in the current frame
             //Prevents the border-screen "flicker" that we get from the player moving too fast.
-            if ((iFrameStamp % 3 == 0) ||
-                (Math.Abs(LastLightVPPos.x - Screen.Viewport.Pos.x) >= Res.Tiles.TileWidthPixels * 0.5f) ||
-                (Math.Abs(LastLightVPPos.y - Screen.Viewport.Pos.y) >= Res.Tiles.TileHeightPixels * 0.5f)
-                || bLoadingRoom)
-            {
-                LastLightVPPos = Screen.Viewport.Pos;
-                //Gather lava cells, or cells with water that emits light
-                //Add particles as emitters, if they emit
-                CollectAdditionalEmitters();
-                DoLight();
-            }
+            //if ((iFrameStamp % 3 == 0) ||
+            //    (Math.Abs(LastLightVPPos.x - Screen.Viewport.Pos.x) >= Res.Tiles.TileWidthPixels * 0.5f) ||
+            //    (Math.Abs(LastLightVPPos.y - Screen.Viewport.Pos.y) >= Res.Tiles.TileHeightPixels * 0.5f)
+            //    || bLoadingRoom)
+            //{
+            //    LastLightVPPos = Screen.Viewport.Pos;
+            //    //Gather lava cells, or cells with water that emits light
+            //    //Add particles as emitters, if they emit
+            //    CollectAdditionalEmitters();
+            //    DoLight();
+            //}
+
         }
         private void PlayPlayerDeathCutscene()
         {
@@ -1686,6 +1716,13 @@ namespace Core
             float animDuration = 2.5f;
             float rotSpdDelta = animDuration;
             float rotSpd = animDuration * 4;
+
+            //Action<CutsceneSequence, SpriteBatch> playerdead_draw = (s, sb) =>
+            //{
+            //    Frame fr = Res.Tiles.GetSpriteFrame(Res.SprGuyDead, 0);
+            //    DrawObject(sb, p, new vec4(1, 1, 1, 1));
+
+            //};
 
             Cutscene = new Cutscene()
                 .Then(0, (s, dt) =>
@@ -1851,24 +1888,44 @@ namespace Core
         }
         private void UpdateOb_Guy(Guy g, float dt)
         {
-            g.Acc = 0.0f; //Recet accel
-
             g.UpdateHeldItem();
+
+            //make animation faster based on vel
+            ///fl
+
+            float vl = g.Vel.Len2() / (g.MaxVel * g.MaxVel);
+            g.AnimationSpeed = 1 + vl;
 
             UpdateGuyState(g, dt);
             DoPhysics(g, dt);
-            if (!(g.GetType() == typeof(Duck)))
-            {
-                CheckGuyInWater(g, dt);
-            }
+            CheckGuyInWater(g, dt);
 
+            //Collide ducks
+            if (g is Player)
+            {
+                foreach (GameObject ob in Level.GameObjects)
+                {
+                    if ((ob is Duck) && ob.IsDeleted == false)
+                    {
+                        if ((g.Pos - ob.Pos).Len2() <= (7 * 7))
+                        {
+                            Res.Audio.PlaySound(Res.SfxDuckQuack);
+                            FlagDeleteObject(ob);
+                            if (g.Vel.y > 0)
+                            {
+                                //Go back up if we are going down.
+                                g.Vel.y *= -3f;
+                            }
+                        }
+                    }
+                }
+            }
 
             if (g.InWater)
             {
                 EndGame();
             }
         }
-
         public void EndGame()
         {
             //Fix this
@@ -2793,6 +2850,7 @@ namespace Core
                             GameState = GameState.Pause;
                             Res.Audio.PlaySound(Res.SfxSavePoint1);
                             ViewportObjsFrame[i].SetFrame(0);
+                            bSaving = true;
                             Dialog.ShowDialog(new List<string>() { "Saving Game..." });
                             Dialog.Halt = true;
                             SaveTime = Time;
@@ -3290,37 +3348,9 @@ namespace Core
 
 
         }
-        private void UpdateLiquidVisibility(float dt)
+        private void UpdateLiquid(float dt)
         {
-            //This comes AFTER the physics step.
-            //Just do again or sometin
-            foreach (Cell c in ViewportCellsFrame)
-            {
-                Cell cnl = Level.Grid.GetNeighborCell(c, -1, 0);
-                Cell cnr = Level.Grid.GetNeighborCell(c, 1, 0);
-                // Cell cnt = Level.Grid.GetNeighborCell(c, 0, -1);
-                // Cell cnb = Level.Grid.GetNeighborCell(c, 0, 1);
-                c.WaterOnLeft = false;
-                c.WaterOnRight = false;
-                //c.WaterAbove = false;
-                //c.WaterBelow = false;
-                if ((cnl != null && cnl.Layers[PlatformLevel.Midground] != null) || cnl == null || (cnl != null && cnl.Water > 0))
-                {
-                    c.WaterOnLeft = true;
-                }
-                if ((cnr != null && cnr.Layers[PlatformLevel.Midground] != null) || cnr == null || (cnr != null && cnr.Water > 0))
-                {
-                    c.WaterOnRight = true;
-                }
-
-            }
-
-        }
-        private float UpdateLiquidPhysics(float dt)
-        {
-            float change_amt = 0;
-            //this comes BEFORE the physics step.
-            //
+            //return;
 
             //Spread Liquid
             //Preprocess the water travel frame
@@ -3429,13 +3459,9 @@ namespace Core
 
                         cnl.Water += add;
                         move -= add;
-                        if (move < 0)
-                        {
-                            move = 0;
-                        }
+                        if (move < 0) move = 0;
                         c.Water -= add;
 
-                        change_amt += Math.Abs(add);
                     }
                     if (distributeRight)
                     {
@@ -3450,7 +3476,7 @@ namespace Core
                         move -= add;
                         if (move < 0) move = 0;
                         c.Water -= add;
-                        change_amt += Math.Abs(add);
+
                     }
                     if (c.Water < WaterMin)//Fixes dumb bugs
                     {
@@ -3513,7 +3539,29 @@ namespace Core
                 }
             }
 
-            return change_amt;
+
+            //Just do again or sometin
+            foreach (Cell c in ViewportCellsFrame)
+            {
+                Cell cnl = Level.Grid.GetNeighborCell(c, -1, 0);
+                Cell cnr = Level.Grid.GetNeighborCell(c, 1, 0);
+                // Cell cnt = Level.Grid.GetNeighborCell(c, 0, -1);
+                // Cell cnb = Level.Grid.GetNeighborCell(c, 0, 1);
+                c.WaterOnLeft = false;
+                c.WaterOnRight = false;
+                //c.WaterAbove = false;
+                //c.WaterBelow = false;
+                if ((cnl != null && cnl.Layers[PlatformLevel.Midground] != null) || cnl == null || (cnl != null && cnl.Water > 0))
+                {
+                    c.WaterOnLeft = true;
+                }
+                if ((cnr != null && cnr.Layers[PlatformLevel.Midground] != null) || cnr == null || (cnr != null && cnr.Water > 0))
+                {
+                    c.WaterOnRight = true;
+                }
+
+            }
+
         }
         private void DoLight()
         {
@@ -3636,12 +3684,27 @@ namespace Core
             GameObject g = Level.GameObjects.Find(x => (x as Player) != null);
             return (g as Player);
         }
-
+        float lastDashPress = 0;
+        float lastDashSuccess = 0;
+        bool performdash = false;
+        float maxLenx = 90;
+        float maxLeny = 120;//We nedd to separate cuz of jump
         bool IntroTutorial = false;
         float jumpStartPos = -1;
         int JumpState = 0;//For Rocket Jump
         private void UpdateGuyState(Guy guy, float dt)
         {
+            guy.Acc = 0.0f;
+
+            if (guy.Joystick == null)
+            {
+                //Must have a joystick
+                System.Diagnostics.Debugger.Break();
+                return;
+            }
+
+            Player player = guy as Player;
+
             //Hurt Time
             if (guy.HurtTime > 0)
             {
@@ -3660,19 +3723,389 @@ namespace Core
 
             if (guy.Joystick.Jump.PressOrDown())
             {
-                CheckJumpOrBounce(guy, dt);
+                bool bCanSwim = (guy.InWater && guy.SwimStrokeTime <= 0) &&
+                    (!guy.InWater || (guy.InWater && guy.Joystick.Jump.Press()));
+
+                if (guy.OnGround /*|| guy.Hanging */ || guy.Climbing || bCanSwim)//press only for swims
+                {
+                    //guy.Hanging = false;
+                    guy.Climbing = false;
+                    guy.Jumping = true;
+                    guy.Crouching = false;
+                    if (guy.ItemHeld == null)
+                    {
+                        guy.SetSpriteIfNot(guy.JumpSprite);
+                    }
+
+                    if (bCanSwim)
+                    {
+                        //player is in water and pressed spacebar to swim
+                        guy.Vel = new vec2(0, -guy.JumpSpeed) * dt;
+                        guy.Vel *= 0.5f;
+                        guy.SwimStrokeTime = guy.SwimStrokeTimeMax;
+                        if (guy.OnGround == false)
+                        {
+                            int n = 0; n++;
+                        }
+                    }
+                    else
+                    {
+                        if (player != null /*&& guy.ItemHeld == null*/ && guy.OnGround /*&& guy.TimeOnGround < Player.SpringBootsMinTime*/)
+                        {
+                            // use TimeOnGround and JumpState tocheck the next jump's velocity
+
+                            Func<int, float> ms = (x) =>
+                            {
+                                float ret = (float)((float)x / (float)1000);
+                                return ret;
+                            };
+
+                            int precision = 0; // 0=Failure
+                            float precision_mul = 0; // 0=Failure
+                            guy.VaporTrail = 0;
+                            float statef = 0.0f;
+                            if (this.JumpState == 0)
+                            {
+                                //We have begun the jump
+                                precision = 1;
+                                if (jumpSound == null && guy.IsPlayer())
+                                {
+                                    jumpSound = Res.Audio.PlaySound(Res.SfxJump);
+                                }
+                                statef = 0.5f;
+                                precision_mul = 1.0f;
+                                this.JumpState++;
+                            }
+                            else
+                            {
+                                //Jump state is greater, Match with time on ground.
+                                if (guy.TimeOnGround < ms(30))
+                                {
+                                    precision = 5;// PERFECT
+                                    precision_mul = 1.06f;
+                                    ScreenOverlayText = "PERFECT";
+                                }
+                                else if (guy.TimeOnGround < ms(60))
+                                {
+                                    precision = 4; // Awesome!
+                                    precision_mul = 1.05f;
+                                    ScreenOverlayText = "Awesome!";
+                                }
+                                else if (guy.TimeOnGround < ms(90))
+                                {
+                                    precision = 3; // Great!
+                                    precision_mul = 1.04f;
+
+                                    ScreenOverlayText = "Great!";
+                                }
+                                else if (guy.TimeOnGround < ms(120))
+                                {
+                                    precision = 2; //Good!
+                                    precision_mul = 1.03f;
+
+                                    ScreenOverlayText = "Good!";
+                                }
+                                else if (guy.TimeOnGround < ms(200))
+                                {
+                                    precision = 1;
+                                    precision_mul = 1.0f;
+                                    ScreenOverlayText = "Ok!";
+                                }
+                                else
+                                {
+                                    //Failure 
+                                    this.JumpState = 0;
+                                    ScreenOverlayText = "Failure";
+                                    //Play Fail Animation here.
+                                }
+
+                                if (this.JumpState == 1)
+                                {
+                                    if (jumpSound == null && guy.IsPlayer())
+                                    {
+                                        jumpSound = Res.Audio.PlaySound(Res.SfxJump);
+                                    }
+                                    statef = 0.5f;
+                                    this.JumpState++;
+                                }
+                                else if (this.JumpState == 2)
+                                {
+                                    if (jumpSound == null && guy.IsPlayer())
+                                    {
+                                        Res.Audio.PlaySound(Res.SfxBootsJump);
+                                    }
+                                    statef = 0.7f;
+                                    guy.VaporTrail = 1;
+                                    this.JumpState++;
+
+                                }
+                                else if (this.JumpState == 3)
+                                {
+                                    if (guy.IsPlayer())
+                                    {
+                                        Screen.ScreenShake.Shake(0.99f, 0.40f);
+                                        Res.Audio.PlaySound(Res.SfxBombexplode);
+
+                                    }
+                                    statef = 2.6f;
+                                    guy.VaporTrail = 4;
+                                    this.JumpState++;
+                                    jumpStartPos = guy.Pos.x;
+                                    guy.CalcRotationDelta();
+                                    CreateBlastParticles(guy.Box.Center() + new vec2(0, guy.Box.Height() * 0.5f),
+                                        new vec4(1, 1, .8914f, 1), 30, Res.SprParticleBig, new vec2(0, 1), MathHelper.ToRadians(180));
+
+                                    if (guy.IsFacingLeft())
+                                    {
+                                        guy.RotationDelta *= -1.0f;
+                                    }
+
+                                }
+                            }
+
+                            if (IntroTutorial)
+                            {
+                                //Reset jump statei f intro trutorial.
+                                JumpState = 0;
+                            }
+
+                            //Don't show it
+                            ScreenOverlayText = "";
+
+                            //Do a spring boot jump
+                            guy.CurJumpSpeed = guy.SpringJumpSpeed * precision_mul * statef;
+
+                            guy.Vel += new vec2(0, -(guy.CurJumpSpeed)) * dt;
+
+                            if (Math.Abs(guy.Vel.y) < Gravity.y * dt)
+                            {
+                                //The guy's velocity isn't enough to get him off the ground when gravity is applied.
+                                int n = 0;
+                                n++;
+                            }
+
+                            //guy.RotationDelta = 3.14159f * 2.0f;
+
+                            if (guy.IsPlayer())
+                            {
+                                guy.SetSpriteIfNot(guy.SpringJumpSprite);
+                            }
+                        }
+
+
+                    }
+                }
+                else if (guy.Airtime > 0.0f)
+                {
+                    guy.Vel += new vec2(0, -guy.CurJumpSpeed) * dt;
+                    guy.Airtime -= dt;
+                }
+            }
+            else if (guy.OnGround == false)
+            {
+                if (guy.Jumping && guy.IsPlayer())
+                {
+                    if (jumpSound != null)
+                    {
+                        jumpSound.Stop();
+                        jumpSound = null;
+                    }
+
+                }
+                guy.Airtime = 0;
             }
 
             if (guy.Climbing == true)
             {
-                CheckClimb(guy, dt);
-            }
-            if (guy.OnGround)
-            {
-                CheckGroundMovement(guy, dt);
+                float dir = -1.0f;
+                bool continueClimb = false;
+                if (guy.Joystick.Left.PressOrDown())
+                {
+                    //If we are hanging left, then move left, else, stop hanging
+                    if (guy.IsFacingRight() == false)
+                    {
+                        continueClimb = true;
+                    }
+                }
+                if (guy.Joystick.Right.PressOrDown())
+                {
+                    //If we are hanging left, then move left, else, stop hanging
+                    if (guy.IsFacingRight() == true)
+                    {
+                        continueClimb = true;
+                    }
+                }
+                if (guy.Joystick.Up.PressOrDown())
+                {
+                    continueClimb = true;
+                }
+                if (guy.Joystick.Down.PressOrDown())
+                {
+                    continueClimb = true;
+                    dir = 1.0f;
+                }
+
+                if (climbSound != null && climbSound.State == SoundState.Stopped)
+                {
+                    climbSound = null;
+                }
+
+                if (continueClimb)
+                {
+                    if (climbSound == null && guy.IsPlayer())
+                    {
+                        climbSound = Res.Audio.PlaySound(Res.SfxClimb);
+                    }
+                    guy.Vel = new vec2(0, guy.ClimbSpeed * dt * dir);// (Guy.ClimbPos - Guy.ClimbPosStart).Normalized() * ;
+                }
+                else
+                {
+                    if (climbSound != null)
+                    {
+                        climbSound.Stop();
+                        climbSound = null;
+                    }
+                    guy.Vel = new vec2(0, 0);//Don't climb, no button pressed
+                }
             }
 
-            MoveLeftRight(guy);
+            //Left + right left/right move left/right 
+            //Move Left & Right (No climb or hang)
+            //If guy is on ground then the player has more control over his movement
+
+            if (guy.OnGround)
+            {
+
+                float SwitchMultiplier = 0.9f;
+                if (guy.Joystick.Left.Press() == true)
+                {
+                    if (guy.Vel.x > 0)
+                    {
+                        guy.Vel += -guy.Vel * SwitchMultiplier;
+                    }
+                }
+                if (guy.Joystick.Right.Press() == true)
+                {
+                    if (guy.Vel.x < 0)
+                    {
+                        guy.Vel += -guy.Vel * SwitchMultiplier;
+                    }
+                }
+
+                if (guy.Joystick.Down.PressOrDown())
+                {
+                    if (player != null && (player.ShieldOut || player.SwordOut || player.BowOut))
+                    {
+                        guy.SetSpriteIfNot(guy.CrouchAttackSprite);
+                    }
+                    else
+                    {
+                        guy.SetSpriteIfNot(guy.CrouchAttackSprite);
+                    }
+                    guy.Crouching = true;
+                }
+                else if (guy.Joystick.Down.Release())
+                {
+                    if (guy.ItemHeld == null)
+                    {
+                        if (player != null && (player.ShieldOut || player.SwordOut || player.BowOut))
+                        {
+                            guy.SetSpriteIfNot(guy.WalkAttackSprite);
+                        }
+                        else
+                        {
+                            guy.SetSpriteIfNot(guy.WalkSprite);
+                        }
+                    }
+
+                    guy.Crouching = false;
+                }
+
+            }
+
+            //If crouching, lower speed
+            float walkorcrouchspeed = guy.Speed;
+            if (guy.Crouching == true)
+            {
+                walkorcrouchspeed *= 0.2f;
+            }
+
+            //immediate vel
+            if (!guy.OnGround && !guy.InWater && (guy is Player))
+            {
+                maxLenx = 400;
+                //Move faster in air.
+                walkorcrouchspeed = guy.Speed * 3;
+
+                float immspeed = 100;
+                if (Math.Abs(guy.Vel.x) < immspeed)
+                {
+                    if (guy.Joystick.Left.PressOrDown())
+                    {
+                        guy.Vel.x = -immspeed;
+                    }
+                    else if (guy.Joystick.Right.PressOrDown())
+                    {
+                        guy.Vel.x = immspeed;
+                    }
+                }
+
+
+                float elapsed = (this.Screen.Game as MainGame).ElapsedTime;
+                if (guy.Joystick.Right.Press())
+                {
+                    if ((elapsed - lastDashSuccess) > 1)//may perform every 2 s
+                    {
+                        if ((elapsed - lastDashPress) < 0.2f) // must press twice within .2 of a second
+                        {
+                            lastDashSuccess = elapsed;
+                            performdash = true;
+                            Res.Audio.PlaySound(Res.SfxSlide);
+                        }
+                        lastDashPress = elapsed;
+                    }
+                }
+
+                if ((elapsed - lastDashSuccess) < 0.2 && performdash)
+                {
+                    //perform dash
+                    walkorcrouchspeed = guy.Speed * 4;
+                    maxLenx = 400;
+                    guy.Vel.x *= 3;
+                    if (JumpState >= 4)
+                    {
+                        guy.VaporTrail = 10;
+                    }
+
+                }
+                else
+                {
+                    performdash = false;
+                    maxLenx = 90;
+                    if (JumpState >= 4)
+                    {
+                        guy.VaporTrail = 4;
+                    }
+                }
+
+            }
+            else
+            {
+                maxLenx = 90;
+            }
+
+            //Basic left/right  movement
+            if (guy.Joystick.Left.PressOrDown())
+            {
+                guy.Acc += new vec2(-walkorcrouchspeed, 0);
+                guy.SpriteEffects = SpriteEffects.FlipHorizontally;
+            }
+            else if (guy.Joystick.Right.PressOrDown())
+            {
+                guy.Acc += new vec2(walkorcrouchspeed, 0);
+                guy.SpriteEffects = SpriteEffects.None;
+            }
+
 
             //If we were climbing but we flipped direction
             if (guy.Climbing && guy.ClimbFace != guy.SpriteEffects)
@@ -3689,16 +4122,6 @@ namespace Core
                 //If sliding, then add friction
                 guy.Vel -= (guy.Vel * guy.Friction * dt);
             }
-
-            UpdateAnimationState(guy);
-        }
-        public void UpdateAnimationState(Guy guy)
-        {
-            Player player = guy as Player;
-
-            //make animation faster based on vel
-            float vl = guy.Vel.Len2() / (guy.MaxVel * guy.MaxVel);
-            guy.AnimationSpeed = 1 + vl;
 
             //Handle Stasis, and idle animation states.
             if (player != null && IsChargingSword(player))
@@ -3758,364 +4181,8 @@ namespace Core
                 guy.Animate = true;
                 guy.Loop = true;
             }
-        }
-        public void MoveLeftRight(Guy guy)
-        {
-            //If crouching, lower speed
-            float walkorcrouchspeed = guy.Speed;
-            if (guy.Crouching == true)
-            {
-                walkorcrouchspeed *= 0.2f;
-            }
-
-            //Add speed if we are on ground.
-            float ground_mul = 0.8f;
-            if (guy.OnGround == true)
-            {
-                ground_mul = 1.8f;
-            }
-            walkorcrouchspeed *= ground_mul;
-
-            //Basic left/right  movement
-            if (guy.Joystick.Left.PressOrDown())
-            {
-                guy.Acc += new vec2(-walkorcrouchspeed, 0);
-                guy.SpriteEffects = SpriteEffects.FlipHorizontally;
-            }
-            else if (guy.Joystick.Right.PressOrDown())
-            {
-                guy.Acc += new vec2(walkorcrouchspeed, 0);
-                guy.SpriteEffects = SpriteEffects.None;
-            }
-        }
-        public void MissBounce(Guy g)
-        {
-            Res.Audio.PlaySound(Res.SfxMissedBounce);
-        }
-        private void CheckClimb(Guy guy, float dt)
-        {
-
-            float dir = -1.0f;
-            bool continueClimb = false;
-            if (guy.Joystick.Left.PressOrDown())
-            {
-                //If we are hanging left, then move left, else, stop hanging
-                if (guy.IsFacingRight() == false)
-                {
-                    continueClimb = true;
-                }
-            }
-            if (guy.Joystick.Right.PressOrDown())
-            {
-                //If we are hanging left, then move left, else, stop hanging
-                if (guy.IsFacingRight() == true)
-                {
-                    continueClimb = true;
-                }
-            }
-            if (guy.Joystick.Up.PressOrDown())
-            {
-                continueClimb = true;
-            }
-            if (guy.Joystick.Down.PressOrDown())
-            {
-                continueClimb = true;
-                dir = 1.0f;
-            }
-
-            if (climbSound != null && climbSound.State == SoundState.Stopped)
-            {
-                climbSound = null;
-            }
-
-            if (continueClimb)
-            {
-                if (climbSound == null && guy.IsPlayer())
-                {
-                    climbSound = Res.Audio.PlaySound(Res.SfxClimb);
-                }
-                guy.Vel = new vec2(0, guy.ClimbSpeed * dt * dir);// (Guy.ClimbPos - Guy.ClimbPosStart).Normalized() * ;
-            }
-            else
-            {
-                if (climbSound != null)
-                {
-                    climbSound.Stop();
-                    climbSound = null;
-                }
-                guy.Vel = new vec2(0, 0);//Don't climb, no button pressed
-            }
-        }
-        private float CanBounce(Guy guy, Box2f obj, float radiusPx)
-        {
-            //Returns -1 for failure, or a valid jump distance from a box.
-            float dist = -1;
-            //We collided on the interval
-            if ((obj.Min.x <= guy.Box.Min.x && obj.Max.x >= guy.Box.Min.x) ||
-            (obj.Min.x <= guy.Box.Max.x && obj.Max.x >= guy.Box.Max.x) ||
-            (guy.Box.Min.x <= obj.Min.x && guy.Box.Max.x >= obj.Min.x) ||
-            (guy.Box.Min.x <= obj.Max.x && guy.Box.Max.x >= obj.Max.x))
-            {
-                float d = obj.Min.y - guy.Box.Max.y;
-                if (d <= radiusPx)
-                {
-                    dist = d;
-                }
-            }
-            return dist;
-        }
-        private bool CheckSpatialJumpWindow(Guy guy)
-        {
-            //Valid Jump Conditions
-            //1 - Player's bottom position is less than a "jump radius" from the top of a box.
-            //2 - Player's min/max x values coincide with the box's min/max x (at the time the player pressed jump).
-
-            Cell gc = guy.CellFrame;
-            if (gc != null)
-            {
-                //Iterate the possible cells below the player.
-                Cell[] cb = Level.Grid.GetSurroundingCells(gc, true);
-                List<Cell> bots = new List<Cell> { cb[3], cb[4], cb[5], cb[6], cb[7], cb[8] };
-
-                float radiusPx = 64;
-
-                foreach (Cell ci in bots)
-                {
-                    if (ci != null)
-                    {
-                        TileBlock block = ci.Layers[PlatformLevel.Midground];
-
-                        if (block != null)
-                        {
-                            if (block.Tile != null)
-                            {
-                                if (block.Tile.Blocking)
-                                {
-                                    if (CanBounce(guy, block.Box, radiusPx) >= 0)
-                                    {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-
-                        foreach (GameObject ob in ci.ObjectsFrame)
-                        {
-                            if (ob != guy)
-                            {
-                                if (CanBounce(guy, ob.Box, radiusPx) >= 0)
-                                {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-        private void CheckJumpOrBounce(Guy guy, float dt)
-        {
-            //Jumping - 
-            //You can jump on an object as well as the ground to OnGround isn't applicable here.
-            //The jump code can happen before teh actual jump. 
-            //The player presses the jump button, then 100ms later, the jump happens.
-            //instead of number range we'll do a distance.
-
-            bool jumpWindow = CheckSpatialJumpWindow(guy);
-
-            bool bCanSwim = (guy.InWater && guy.SwimStrokeTime <= 0) && (!guy.InWater || (guy.InWater && guy.Joystick.Jump.Press()));
-            bool hasJumpPlatform = jumpWindow ||/* guy.OnGround ||*/ guy.Climbing || bCanSwim;
-            float jumpAccuracyMultiplier = 1;//TODO
-
-            //List<Cell> cells = getcellmanifo
-            //guy.c.GetTilePosGlobal();
-            if (guy.Joystick.Jump.Press() /*&& guy.Vel.y >= 0*/)
-            {
-                if (hasJumpPlatform /*&& guy.Jumping == false*/) /*Player pressed jump button and the jump was before we hit something*/
-                {
-                    //guy.Hanging = false;
-                    guy.Climbing = false;
-                    guy.Jumping = true;
-                    guy.Crouching = false;
-
-                    if (guy.ItemHeld == null)
-                    {
-                        guy.SetSpriteIfNot(guy.JumpSprite);
-                    }
-
-                    if (bCanSwim)
-                    {
-                        //player is in water and pressed spacebar to swim
-                        guy.Vel = new vec2(0, -guy.JumpSpeed) * dt;
-                        guy.Vel *= 0.5f;
-                        guy.SwimStrokeTime = guy.SwimStrokeTimeMax;
-                    }
-                    else
-                    {
-                        //Update our jump state.
-                        float state_multiplier = 0;
-                        UpdateRocketJumpState(guy, ref state_multiplier, dt);
-
-                        //Don't show overlay
-                        ScreenOverlayText = "";
-
-                        //Multiply the jump by some accuracy amount.
-
-                        //set the initial jump state to be gravity.  The jump will then be what we add to the gravity.
-                        float waterdamp = 0, grav = 0;
-                        ComputeGravity(guy, out waterdamp, out grav);
-                        guy.Vel += -guy.Gravity * grav * dt;
-
-                        //Do a jump
-                        guy.CurJumpSpeed = guy.SpringJumpSpeed * state_multiplier * jumpAccuracyMultiplier;
-                        guy.StartJump(dt);
-
-                        //Destroy object and play sound
-                        // BounceOffObject(guy);
-
-                        //guy.RotationDelta = 3.14159f * 2.0f;
-
-                        if (guy.IsPlayer())
-                        {
-                            guy.SetSpriteIfNot(guy.SpringJumpSprite);
-                        }
-                    }
-                }
-            }
-            else if (guy.Joystick.Jump.Down())
-            {
-                guy.ContinueJump(dt);
-            }
-        }
-
-        private void UpdateRocketJumpState(Guy guy, ref float statef, float dt)
-        {
-            float state0 = 0.4f;
-            float state1 = 0.5f;
-            float state2 = 0.55f;
-            float state3 = 2.6f;
-
-            //returns the float milliseconds of an integer ms
-            Func<int, float> ms = (x) =>
-            {
-                float ret = (float)((float)x / (float)1000);
-                return ret;
-            };
-
-            guy.VaporTrail = 0;
-            if (JumpState == 0)
-            {
-                //We have begun the jump
-                if (jumpSound == null && guy.IsPlayer())
-                {
-                    jumpSound = Res.Audio.PlaySound(Res.SfxJump);
-                }
-                statef = state0;
-                //   precision_mulx = 1.0f;
-                JumpState++;
-            }
-            else if (JumpState == 1)
-            {
-                if (jumpSound == null && guy.IsPlayer())
-                {
-                    jumpSound = Res.Audio.PlaySound(Res.SfxJump);
-                }
-                statef = state1;
-                JumpState++;
-            }
-            else if (JumpState == 2)
-            {
-                if (jumpSound == null && guy.IsPlayer())
-                {
-                    Res.Audio.PlaySound(Res.SfxBootsJump);
-                }
-                statef = state2;
-                guy.VaporTrail = 1;
-                JumpState++;
-
-            }
-            else if (JumpState == 3)
-            {
-                if (guy.IsPlayer())
-                {
-                    Screen.ScreenShake.Shake(0.99f, 0.40f);
-                    Res.Audio.PlaySound(Res.SfxBombexplode);
-                }
-                statef = state3;
-                guy.VaporTrail = 4;
-                JumpState++;
-                jumpStartPos = guy.Pos.x;
-                guy.CalcRotationDelta();
-                CreateBlastParticles(guy.Box.Center() + new vec2(0, guy.Box.Height() * 0.5f),
-                    new vec4(1, 1, .8914f, 1), 30, Res.SprParticleBig, new vec2(0, 1), MathHelper.ToRadians(180));
-
-                if (guy.IsFacingLeft())
-                {
-                    guy.RotationDelta *= -1.0f;
-                }
-            }
 
 
-
-            if (IntroTutorial)
-            {
-                //Reset jump statei f intro trutorial.
-                JumpState = 0;
-            }
-        }
-        private void CheckGroundMovement(Guy guy, float dt)
-        {
-            //Left + right left/right move left/right 
-            //Move Left & Right (No climb or hang)
-            //If guy is on ground then the player has more control over his movement
-
-            float SwitchMultiplier = 0.9f;
-            if (guy.Joystick.Left.Press() == true)
-            {
-                if (guy.Vel.x > 0)
-                {
-                    guy.Vel += -guy.Vel * SwitchMultiplier;
-                }
-            }
-            if (guy.Joystick.Right.Press() == true)
-            {
-                if (guy.Vel.x < 0)
-                {
-                    guy.Vel += -guy.Vel * SwitchMultiplier;
-                }
-            }
-
-            Player player = guy as Player;
-
-            if (guy.Joystick.Down.PressOrDown())
-            {
-                if (player != null && (player.ShieldOut || player.SwordOut || player.BowOut))
-                {
-                    guy.SetSpriteIfNot(guy.CrouchAttackSprite);
-                }
-                else
-                {
-                    guy.SetSpriteIfNot(guy.CrouchAttackSprite);
-                }
-                guy.Crouching = true;
-            }
-            else if (guy.Joystick.Down.Release())
-            {
-                if (guy.ItemHeld == null)
-                {
-                    if (player != null && (player.ShieldOut || player.SwordOut || player.BowOut))
-                    {
-                        guy.SetSpriteIfNot(guy.WalkAttackSprite);
-                    }
-                    else
-                    {
-                        guy.SetSpriteIfNot(guy.WalkSprite);
-                    }
-                }
-
-                guy.Crouching = false;
-            }
         }
         private bool IsChargingSword(Player guy)
         {
@@ -4127,8 +4194,6 @@ namespace Core
         }
         private void LimitVelocity(Guy guy)
         {
-            float maxLenx = 90;
-            float maxLeny = 120;//We nedd to separate cuz of jump
             if (guy.Vel.x > maxLenx)
             {
                 guy.Vel.x = maxLenx;
@@ -4137,38 +4202,35 @@ namespace Core
             {
                 guy.Vel.y = maxLeny;
             }
-
-        }
-        private void ComputeGravity(Guy guy, out float waterDamper, out float gravity)
-        {
-            //Dampen movement in liquid
-            //gravity is too harsh we need to dampen  more
-            if (guy.InWater)
-            {
-                waterDamper = guy.WaterDamp;
-                gravity = guy.WaterDampGrav;
-            }
-            else
-            {
-                waterDamper = guy.NormalDamp;
-                gravity = guy.NormalDampGrav;
-            }
         }
         private void DoPhysics(Guy guy, float dt)
         {
             //Debug = 60fps
-//            dt = 0.016935f;
+            dt = 0.016935f;
 
             guy.CalcRelPos();
             bool LeftButtonDown = guy.Joystick.Left.PressOrDown();
             bool RightButtonDown = guy.Joystick.Right.PressOrDown();
             bool UpButtonDown = guy.Joystick.Up.PressOrDown();
 
-            float waterdamp = 0, waterdampgrav = 0;
-            ComputeGravity(guy, out waterdamp, out waterdampgrav);
+            //Dampen movement in liquid
+            //gravity is too harsh we need to dampen  more
+            float waterdamp, waterdampgrav;
+            if (guy.InWater)
+            {
+                waterdamp = guy.WaterDamp;
+                waterdampgrav = guy.WaterDampGrav;
+            }
+            else
+            {
+                waterdamp = guy.NormalDamp;
+                waterdampgrav = guy.NormalDampGrav;
+            }
+
+
 
             //physics forces
-            if (guy.Climbing == false)
+            if (/*guy.Hanging == false &&*/ guy.Climbing == false/* && guy.OnGround==false*/)
             {
                 guy.LimitAcc();
                 guy.Vel += guy.Acc * dt * waterdamp;
@@ -4176,7 +4238,6 @@ namespace Core
             }
 
             LimitVelocity(guy);
-            //Obviously incorrect. Vel comes after the iterative step. Wonder why I did it this way?
             guy.Pos += guy.Vel * dt * waterdamp;
 
             Box2f speedbox = new Box2f();
@@ -4216,15 +4277,23 @@ namespace Core
             {
                 if (guy.AIPhysics == AIPhysics.Character)
                 {
-                    List<Cell> GuyTiles = Level.Grid.GetCellManifoldForBox(speedbox);
-                    //Sort by nearest.  THIS IS CRITICAL to prevent us from colliding with further tiles.
-                    GuyTiles.Sort((x, y) => (x.Box().Center() - guy.cposC).Len2().CompareTo((y.Box().Center() - guy.cposC).Len2()));
-
-                    foreach (Cell cell in GuyTiles)
+                    if (guy is Duck)
                     {
-                        GuyCollideMidgroundCell(guy, cell, ref LContained, ref RContained, LeftButtonDown, RightButtonDown, UpButtonDown);
+                        //Speed up bc ducks are lsow
+                    }
+                    else
+                    {
+                        List<Cell> GuyTiles = Level.Grid.GetCellManifoldForBox(speedbox);
+                        //Sort by nearest.  THIS IS CRITICAL to prevent us from colliding with further tiles.
+                        GuyTiles.Sort((x, y) => (x.Box().Center() - guy.cposC).Len2().CompareTo((y.Box().Center() - guy.cposC).Len2()));
+
+                        foreach (Cell cell in GuyTiles)
+                        {
+                            GuyCollideMidgroundCell(guy, cell, ref LContained, ref RContained, LeftButtonDown, RightButtonDown, UpButtonDown);
+                        }
                     }
                     UpdateAI_Character(guy, dt, LContained, RContained);
+
                 }
                 else if (guy.AIPhysics == AIPhysics.Grapple)
                 {
@@ -5014,7 +5083,148 @@ namespace Core
                 }
             }
         }
+        //private void UpdateAI_PlantBombGuy(Guy guy, float dt)
+        //{
+        //    Guy player = GetPlayer();
 
+        //    //Check for radial Defense (plant bomb guy)
+        //    if (guy.AIState != AIState.Defend)
+        //    {
+        //        if (guy.AIState != AIState.Sleep)
+        //        {
+        //            if (guy.CanDefend)
+        //            {
+        //                if ((GetPlayer().Box.Center() - guy.Box.Center()).Len2() <= (guy.DefendRadiusPixels * guy.DefendRadiusPixels))
+        //                {
+        //                    guy.SetSprite(guy.DefendSprite);
+        //                    guy.Loop = false;
+        //                    guy.AIState = AIState.Defend;
+        //                    //Little hop
+        //                    guy.ScalePingpongY = true;
+        //                    guy.ScaleDelta.y = 1.0f / guy.Sprite.DurationSeconds;
+        //                    guy.ScalePingpongYRange = new vec2(0.80f, 1.2f);
+        //                    Res.Audio.PlaySound(Res.SfxPlantBombGuyHide);//the opposite sounds better
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    float AttackRange = (float)Math.Pow(Res.Tiles.TileWidthPixels * 5, 2);
+
+        //    if (guy.AIState == AIState.Idle)
+        //    {
+        //        guy.SetSprite(guy.IdleSprite, false, 0);//Idle. Wait for next attack
+        //        OrientMonsterToPlayer(guy, player);
+
+        //        if ((player.Box.Center() - guy.Box.Center()).Len2() < AttackRange)
+        //        {
+        //            guy.AIState = AIState.Attack;
+        //        }
+        //    }
+        //    else if (guy.AIState == AIState.Defend)
+        //    {
+        //        OrientMonsterToPlayer(guy, player);
+
+        //        if (guy.IsAnimationComplete())
+        //        {
+        //            //Stop the little hop
+        //            guy.ScalePingpongY = false;
+        //            guy.ScaleDelta.y = 0;
+        //            guy.Scale = 1;
+        //        }
+
+        //        if ((player.Box.Center() - guy.Box.Center()).Len2() > (guy.DefendRadiusPixels * guy.DefendRadiusPixels))
+        //        {
+        //            Res.Audio.PlaySound(Res.SfxPlantBombGuyUnHide);//the opposite sounds better
+
+        //            guy.AIState = AIState.Attack;
+        //        }
+        //    }
+        //    else if (guy.AIState == AIState.Attack)
+        //    {
+        //        if ((player.Box.Center() - guy.Box.Center()).Len2() > AttackRange)
+        //        {
+        //            guy.AIState = AIState.Idle;
+        //        }
+        //        else
+        //        {
+
+        //            OrientMonsterToPlayer(guy, player);
+
+        //            guy.AttackTime -= dt;
+
+        //            if (guy.AttackTime <= 0 && (
+        //                guy.LastItemThrown == null || (
+        //                (guy.LastItemThrown as Bomb != null) &&
+        //                ((guy.LastItemThrown as Bomb).Exploded == true)
+        //                )))
+        //            {
+        //                guy.AttackTime = guy.MaxAttackTime;
+        //                guy.SetSprite(guy.WalkAttackSprite, false);
+        //                guy.Animate = true;
+
+        //                //Attack - somehow. If we are a plant bomb monster. Attack with plant bombs.  Geez, this is kind of confusing.
+        //                //Bomb b = MakeBomb(guy, Res.SprPlantBomb, 0.5f, string.Empty, Res.SfxPlantBombExplode, 2, true, true);
+        //                ThrowHeldItem(guy, dt, ((player.Box.Center() - guy.Box.Center()).Normalized() + new vec2(0, -1)).Normalized(), 9600);
+
+        //                //https://blog.forrestthewoods.com/solving-ballistic-trajectories-b0165523348c
+        //                float speed = 200;
+        //                float x = guy.Box.Center().x - player.Box.Center().x;
+        //                float y = 0;
+        //                float s2 = speed * speed;
+
+        //                float g = Gravity.y;
+        //                float desc = s2 * s2 - g * (g * x * x + 2 * y * s2);
+        //                if (desc < 0)
+        //                {
+        //                    //Not enough speed*
+        //                    //Can't sqrt this
+        //                    int nx = 0;
+        //                    nx++;
+        //                }
+        //                else
+        //                {
+        //                    float n = (float)Math.Sqrt(desc);
+        //                    float r1n = s2 + n;
+        //                    float r2n = s2 - n;
+
+        //                    float r1 = (float)Math.Atan(r1n / (g * x));
+        //                    float r2 = (float)Math.Atan(r2n / (g * x));
+
+        //                    //  r1 -= (float)Math.PI;
+        //                    //  r2 -= (float)Math.PI;
+
+        //                    if (r1 < r2)
+        //                    {
+        //                    //    b.Vel.x = (float)Math.Cos(r1);
+        //                    //    b.Vel.y = (float)Math.Sin(r1);
+
+        //                    }
+        //                    else if (r2 < r1)
+        //                    {
+        //                   //     b.Vel.x = (float)Math.Cos(r2);
+        //                    //    b.Vel.y = (float)Math.Sin(r2);
+
+        //                    }
+
+        //                 //   b.Vel *= speed;
+        //                 //   b.Gravity = Gravity;
+        //                }
+        //                //int nss = 0;
+        //                //nss++;
+
+
+        //            }
+
+        //            if (guy.IsAnimationComplete())
+        //            {
+        //                guy.SetSprite(guy.IdleSprite, false, 0);//Idle. Wait for next attack
+        //            }
+        //        }
+
+        //    }
+
+        //}
         public static double FaceObject(Vector2 position, Vector2 target)
         {
             // Rotates one object to face another object (or position)
@@ -5131,7 +5341,7 @@ namespace Core
 
                 if (block.IsSlope() == false)
                 {
-                    guy.setPosY(block.Pos.y + Res.Tiles.TileHeightPixels - guy.cposrelT.y + 0.01f);
+                    guy.Pos.y = block.Pos.y + Res.Tiles.TileHeightPixels - guy.cposrelT.y + 0.01f;
                     collided = true;
                 }
                 else if (block.SlopeTileId == Res.SlopeTile_TL)
@@ -5140,7 +5350,7 @@ namespace Core
                     vec2 b = new vec2(cell1.Box().Max.x, cell1.Box().Min.y);
 
                     float pct = (guy.cposT.x - a.x) / cell1.Box().Width();//16..
-                    guy.setPosY(a.y + (b.y - a.y) * pct - guy.cposrelT.y + 0.01f);
+                    guy.Pos.y = a.y + (b.y - a.y) * pct - guy.cposrelT.y + 0.01f;
                     collided = true;
                 }
                 else if (block.SlopeTileId == Res.SlopeTile_TR)
@@ -5149,7 +5359,7 @@ namespace Core
                     vec2 b = new vec2(cell1.Box().Max.x, cell1.Box().Max.y);
 
                     float pct = (guy.cposT.x - a.x) / cell1.Box().Width();//16 this is easiliy simplified
-                    guy.setPosY(a.y + (b.y - a.y) * pct - guy.cposrelT.y + 0.01f);
+                    guy.Pos.y = a.y + (b.y - a.y) * pct - guy.cposrelT.y + 0.01f;
                     collided = true;
                 }
                 else if (block.SlopeTileId == Res.SlopeTile_BR) { }
@@ -5247,7 +5457,7 @@ namespace Core
             {
                 if (guy.Vel.x > 0)
                 {
-                    guy.setPosX(block_pos.x - guy.cposrelR.x);
+                    guy.Pos.x = block_pos.x - guy.cposrelR.x;
                     guy.Vel.x = 0;
                     guy.CalcRelPos();
                     guy.CalcBoundBox();
@@ -5257,7 +5467,7 @@ namespace Core
             {
                 if (guy.Vel.x < 0)
                 {
-                    guy.setPosX(block_pos.x + block_width - guy.cposrelL.x);
+                    guy.Pos.x = block_pos.x + block_width - guy.cposrelL.x;
                     guy.Vel.x = 0;
                     guy.CalcRelPos();
                     guy.CalcBoundBox();
@@ -5277,7 +5487,7 @@ namespace Core
                 {
                     if (guy.Vel.y > 0)
                     {
-                        guy.setPosY(collide_pos_y - guy.cposrelB.y);
+                        guy.Pos.y = collide_pos_y - guy.cposrelB.y;
                         //guy.Vel.y = 0;
                         collided = true;
                     }
@@ -5294,7 +5504,7 @@ namespace Core
 
                         if (guy.Pos.y > newy)
                         {
-                            guy.setPosY(newy);
+                            guy.Pos.y = newy;
                             collided = true;
                             guy.OnSlope = true;
                         }
@@ -5312,7 +5522,7 @@ namespace Core
 
                         if (guy.Pos.y > newy)
                         {
-                            guy.setPosY(newy);
+                            guy.Pos.y = newy;
                             collided = true;
                             guy.OnSlope = true;
                         }
@@ -5327,7 +5537,6 @@ namespace Core
                     guy.Rotation = guy.RotationDelta = 0;
                     guy.VaporTrail = 0;
                     guy.Vel.y = 0;
-                    guy.Airtime = 0;
 
                     if (this.JumpState >= 4)
                     {
@@ -5356,7 +5565,7 @@ namespace Core
                         }
 
                     }
-                    // guy.Airtime = guy.MaxAirtime;
+                    guy.Airtime = guy.MaxAirtime;
                     guy.CalcRelPos();
                     guy.CalcBoundBox();
                 }
@@ -6849,20 +7058,29 @@ namespace Core
             }
             return dist;
         }
+        private float maxh = 0;
+        public float GetHeight(Guy p)
+        {
+            float d = (((Res.Tiles.TileHeightPixels * (RoomHeightTiles - 5)) - p.Pos.y) / Res.Tiles.TileHeightPixels);
+            return d;
+        }
         public void DrawUI(SpriteBatch sb)
         {
+
             if (ShowDebug)
             {
                 Screen.DrawText_Fit_H(sb, Res.Font, Fps.ToString("F1"), 12, Screen.Viewport.Pos + new vec2(3, 3), new vec4(0, 0, 0, 1), 1, new vec4(1, 1, 1, 1));
             }
+
 
             Player player = GetPlayer();
 
             if (StartRunning == false)
             {
                 Screen.DrawText_Fit_H(sb, Res.Font, "Rocket Jump", Screen.Viewport.WidthPixels * 0.75f,
-                Screen.Viewport.Pos + new vec2(Screen.Viewport.WidthPixels * 0.25f * 0.5f, Screen.Viewport.HeightPixels * 0.2f),
-                new vec4(1, 0.2f, 0.2f, 1), 1, new vec4(0.00f, 0.4f, 1.00f, 1.00f));
+    Screen.Viewport.Pos + new vec2(Screen.Viewport.WidthPixels * 0.25f * 0.5f, Screen.Viewport.HeightPixels * 0.2f),
+    new vec4(1, 0.2f, 0.2f, 1), 1, new vec4(0.00f, 0.4f, 1.00f, 1.00f));
+
             }
 
             //Draw Mine Count + Mines
@@ -6881,12 +7099,15 @@ namespace Core
                     Player p = GetPlayer();
 
                     Screen.DrawText_Fit_H(sb, Res.Font, "Distance", 17, Screen.Viewport.Pos + new vec2(3, 3), new vec4(0, 0, 0, 1), 1, new vec4(1, 1, 1, 1));
-                    Screen.DrawText_Fit_H(sb, Res.Font, " " + GetDist(GetPlayer()).ToString("F1") + "m", 12, Screen.Viewport.Pos + new vec2(3, 10), new vec4(0, 0, 0, 1), 1, new vec4(1, 1, 1, 1));
+                    Screen.DrawText_Fit_H(sb, Res.Font, " " + GetDist(GetPlayer()).ToString("F1") + "m", 12, Screen.Viewport.Pos + new vec2(3, 6), new vec4(0, 0, 0, 1), 1, new vec4(1, 1, 1, 1));
 
-                    bool sp = CheckSpatialJumpWindow(GetPlayer());
-                    float xw = 17;
-                    Screen.DrawText_Fit_H(sb, Res.Font, sp.ToString(), xw, Screen.Viewport.Pos + new vec2(Screen.Viewport.WidthPixels - xw, 3),
-                        new vec4(0, 0, 0, 1), 1, new vec4(1, 1, 1, 1));
+                    float h = GetHeight(GetPlayer());
+                    if (h > maxh) { maxh = h; }
+
+                    Screen.DrawText_Fit_H(sb, Res.Font, "Height", 13, Screen.Viewport.Pos + new vec2(3, 14), new vec4(0, 0, 0, 1), 1, new vec4(1, 1, 1, 1));
+                    Screen.DrawText_Fit_H(sb, Res.Font, " " +
+                        GetHeight(GetPlayer()).ToString("F1") + "m" + " / " + maxh.ToString("F1"), 20,
+                        Screen.Viewport.Pos + new vec2(3, 19), new vec4(0, 0, 0, 1), 1, new vec4(1, 1, 1, 1));
 
 
                     DrawUIInventory(sb, Res.SprMarbleUI, Screen.Viewport.WidthPixels - 24, 1, player.Money, player.MaxMoney, alpha, new vec2(6, 6), false, true, 0);
@@ -6906,7 +7127,6 @@ namespace Core
                 }
                 catch (Exception ex)
                 {
-                    Globals.IgnoreException(ex);
                 }
                 if (hs > 0)
                 {
@@ -6982,6 +7202,93 @@ namespace Core
             public TextButton(string str, Box2f b) : base(b) { Text = str; }
         }
         List<UiItem> OptionWindowItems = null;
+
+        private void DrawOptionTab(SpriteBatch sb, Player player, bool selected)
+        {
+            DrawMenuBackground(sb, Res.SprMenuUIOption, selected ? 1 : 0.5f);
+
+            if (selected == true)
+            {
+                //Screen.DrawUIFrame(sb, Res.SprCheckboxUI, 0, 
+                //    MenuMapBox.Min + new vec2(2, 2), 
+                //    new vec2(12, 12), new vec4(1, 1, 1, 1));
+
+                if (OptionWindowItems == null)
+                {
+                    OptionWindowItems = new List<UiItem>();
+                    OptionWindowItems.Add(
+                        new TextButton("Exit To Desktop", new Box2f(MenuMapBox.Min.x + 2, MenuMapBox.Min.y + 20, 70, 12))
+                        {
+                            OnRelease = () => { this.Screen.Game.Exit(); }
+                            ,
+                            PlayClickSoundOnHover = true
+                        }
+                    );
+                }
+
+                foreach (UiItem item in OptionWindowItems)
+                {
+                    if (item is TextButton)
+                    {
+                        float c = 0.4f;
+                        if (item.TouchState == TouchState.Press || item.TouchState == TouchState.Down)
+                        {
+                            c = 0.2f;
+                        }
+                        else if (item.Hover)
+                        {
+                            c = 1.0f;
+                        }
+                        Screen.DrawText_Fit(sb, Res.Font, (item as TextButton).Text, item.Box.Width(), item.Box.Height(),
+                            Screen.Viewport.Pos + item.Box.Min, new vec4(c, c, c, 1), 1, new vec4(1, 1, 1, 1), false);
+                    }
+                }
+
+            }
+
+
+        }
+        private void DrawMapTab(SpriteBatch sb, Player player, bool selected)
+        {
+            DrawMenuBackground(sb, Res.SprMenuUIMap, selected ? 1 : 0.5f);
+
+            if (selected)
+            {
+
+                /*
+                 * we have: MapBox (screen)
+                 * start from the map origin - center of map box for now
+                 * when we ENTER a room 
+                 *  if player not in room before
+                 *      save the map squaers (the border red squares)
+                 *          save the actual positions as world grid integers
+                 *  
+                 * when we EXIT a room
+                 *  save the map squares (border squares)
+                 *  
+                 *  Draw the map in squares. from the red squares surrounding each room
+                 *  if a square is outside the map box don't draw
+                 *  if a square is cut off by the map box - don't draw, for simplicity
+                 *  
+                 *  
+                 *  start with current room
+                 *      List<Box2f> ScanMap() - to get border squares
+                 *  foreach door
+                 *      if door.entered
+                 *          scanmap(door
+                 *  
+                 * */
+            }
+        }
+        private void DrawMenuBackground(SpriteBatch sb, string MenuBackSprite, float c = 1)
+        {
+            float bor_px_x = 10;
+            float bor_px_y = 10;
+            Screen.DrawUIFrame(sb, MenuBackSprite, 0,
+                new vec2(bor_px_x, bor_px_y), new vec2(Screen.Viewport.WidthPixels - bor_px_x * 2, Screen.Viewport.HeightPixels - bor_px_y * 2),
+                new vec4(1 * c, 1 * c, 1 * c, 1));
+
+        }
 
         private string ScreenOverlayText = "";
         private float ScreenOverlayTextFade = 0;
@@ -7280,10 +7587,9 @@ namespace Core
                                         //Fuxking XAML
 
             ///Variable time setp.
-            /////So with fixed stepping, XNA will call Upate() multiple times with differetn dt values
-            /////It's not in sync with draw
+            /////So with fixed stepping, XNA will call Upate() multiple times to keep up.
             //Setting this to false, makes it variable, and XNA executes Update/Draw in succession
-            this.IsFixedTimeStep = false;
+            this.IsFixedTimeStep = true;
 
         }
         protected override void Initialize()
@@ -7297,13 +7603,20 @@ namespace Core
             //Do not do any usage of GameSystem ehre
 
             ShowScreen = ShowScreen.Game;
+
+            Res.Audio.PlayMusic(Res.IttyBitty8);
         }
         protected override void UnloadContent()
         {
         }
+        //float waitmax = 2.0f;
+        //float wait = 0.0f;
+        public float ElapsedTime = 0;
         protected override void Update(GameTime gameTime)
         {
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            ElapsedTime += dt;
 
             base.Update(dt);
 

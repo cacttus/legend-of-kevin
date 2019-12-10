@@ -422,8 +422,6 @@ namespace Core
             catch (Exception ex)
             {
                 //Can't draw things like, e.g., "NaN' so this will happen when a float is infinity &c
-                Globals.IgnoreException(ex);
-
             }
             return w_vp_dv;
         }
