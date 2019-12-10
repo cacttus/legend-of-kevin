@@ -82,6 +82,7 @@ namespace Core
                 catch(Exception ex)
                 {
                     //this.
+                    Globals.IgnoreException(ex);
                 }
                 return inst;
             }

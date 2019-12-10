@@ -5,7 +5,6 @@ using System.Text;
 
 namespace Core
 {
-
     public abstract class GameSystem
     {
         protected GameBase Game;

@@ -24,15 +24,19 @@ namespace Desktop
             data = "";
             try
             {
-                IsolatedStorageFile f = GetIsolatedStorage();
-                using (IsolatedStorageFileStream isoStream = new IsolatedStorageFileStream(filename, FileMode.Open, f))
                 {
-                    using (StreamReader reader = new StreamReader(isoStream))
+                    IsolatedStorageFile f = GetIsolatedStorage();
+                    using (IsolatedStorageFileStream isoStream = new IsolatedStorageFileStream(filename, FileMode.Open, f))
                     {
-                        data = reader.ReadLine();
-                        return true;
+                        using (StreamReader reader = new StreamReader(isoStream))
+                        {
+                            data = reader.ReadLine();
+                            return true;
+                        }
                     }
                 }
+
+
             }
             catch (Exception ex)
             {

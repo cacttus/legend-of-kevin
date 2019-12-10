@@ -1,4 +1,15 @@
 ﻿
+12/3/19
+Changing jump routine to use distance instead of time.
+Requires we 'log the cell' of all game objects to create a quick manifold.
+
+removed dynamic light.
+Removed dynamic liquid computation.
+removed fixed time step (variable number of updates.)
+
+next engine
+use async update state for faster physics.
+multi tile objects.
 
 TODO
 Enemy Damage
