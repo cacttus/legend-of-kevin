@@ -1,0 +1,36 @@
+
+{
+  "version": "0.2.0",
+  "configurations": [
+    //Change configurations in debug panel    
+    {
+      "name": ".NET Core Launch (console) Debug",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Debug",
+      "program": "${workspaceFolder}/bin/Debug/net7.0/lok.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/bin/Debug/net7.0",
+      "console": "internalConsole", //internalConsole, externalTerminal
+      "enableStepFiltering": false,
+      "stopAtEntry": false,
+    },
+    {
+      "name": ".NET Core Launch (console) Release",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Release",
+      "program": "${workspaceFolder}/bin/Release/net7.0/lok.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/bin/Debug/net7.0",
+      "console": "internalConsole", //internalConsole, externalTerminal
+      "enableStepFiltering": false,
+      "stopAtEntry": false,
+    },
+    {
+      "name": ".NET Core Attach",
+      "type": "coreclr",
+      "request": "attach"
+    }
+  ]
+}
