@@ -120,7 +120,6 @@ namespace Desktop
             
             using (var game = new MainGame())
             {
-                var d=System.IO.Directory.GetCurrentDirectory();
                 game.Init(new AdManDesktop(), false, new DesktopGameSystem(game));
                 game.Run();
             }

@@ -24,18 +24,6 @@
 
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="OpenTK" Version="4.7.5" />
-    <PackageReference Include="StbImageSharp" Version="2.27.12" />
-    <PackageReference Include="StbImageWriteSharp" Version="1.16.7" />
-    <PackageReference Include="StbTrueTypeSharp" Version="1.26.10" />
-    <PackageReference Include="StbVorbisSharp" Version="1.22.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="glTFLoader">
-      <HintPath>ext\glTFLoader.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

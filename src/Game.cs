@@ -7738,19 +7738,16 @@ namespace Core
             {
                 DeviceResetting = false;
             };
-
             Content.RootDirectory = "./game-content";
+            if(!System.IO.Directory.Exists(Content.RootDirectory)){
+                var d=System.IO.Directory.GetCurrentDirectory();
+                throw new Exception("Assets do no exist in bin directory, must run the MGCB tool. See README.");
+            }
 
             //**on Android, fullscreen just hides the menu bar.
-            //On Desktop - it's, well fullscreen..
+            this.IsMouseVisible = false;
 
-            this.IsMouseVisible = false;//Dnr
-                                        //We can't have constructors because of XAML
-                                        //Fuxking XAML
-
-            ///Variable time setp.
-            /////So with fixed stepping, XNA will call Upate() multiple times to keep up.
-            //Setting this to false, makes it variable, and XNA executes Update/Draw in succession
+            //With fixed stepping, XNA will call Upsate() multiple times to keep up.
             this.IsFixedTimeStep = true;
 
         }

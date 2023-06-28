@@ -11,13 +11,15 @@ Platform game prototype with wall climbing mechanic and weapon toolbelt.
       
      * cd legend-of-kevin
     
-  2. Install & Run MGCB
+  2. Install MGCB
     
      * dotnet tool install -g dotnet-mgcb
     
-     * cd ./data/game-content
-    
-     * dotnet mgcb --outputDir=../../bin/Debug/net7.0/game-content --intermediateDir=../../obj/mgcb-temp ./game-content.mgcb  
+     * VSCode pre-launch should build the content if not run:
+
+         * cd ./data/game-content
+
+         * dotnet mgcb --outputDir=../../bin/Debug/net7.0/game-content --intermediateDir=../../obj/mgcb-temp ./game-content.mgcb  
 
 ## Controls
     * WSAD: Move
