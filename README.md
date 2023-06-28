@@ -1,7 +1,7 @@
 # Legend Of Kevin
 A platform videogame prototype with wall climbing mechanic and tools.
 
-[!lok.jpg]
+![lok](lok.jpg)
 
 ## Install
 Linux: 
