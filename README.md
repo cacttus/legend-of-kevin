@@ -21,6 +21,7 @@ Platform game prototype with wall climbing mechanic and weapon toolbelt.
 
          * dotnet mgcb --outputDir=../../bin/Debug/net7.0/game-content --intermediateDir=../../obj/mgcb-temp ./game-content.mgcb  
 
+
 ## Controls
     * WSAD: Move
 
@@ -36,3 +37,16 @@ Platform game prototype with wall climbing mechanic and weapon toolbelt.
 
     * Spacebar (when landing): Spring Jump
 
+## Misc
+   * Publish Instructions
+      * https://docs.monogame.net/articles/packaging_games.html
+         * dotnet publish -c Release -r linux-x64 /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained
+         * dotnet publish -c Release -r osx-x64 /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained
+         * dotnet publish -c Release -r win-x64 /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained
+Build a .deb: https://www.baeldung.com/linux/create-debian-package
+copy DEBIAN to the publish dir
+dpkg-deb --root-owner-group --build ./publish legend-of-kevin
+https://github.com/AppImageCommunity/pkg2appimage/releases/tag/continuous
+
+Windows MSI       
+* sudo apt-get install msitools nodejs npm && sudo npm install -g msi-packager

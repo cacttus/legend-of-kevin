@@ -9,7 +9,8 @@
 
 /copy:World-0.tmx
 /copy:WorldTiles.tsx
-
+/copy:icon.ico
+/copy:icon.png
 
 #begin Font.spritefont
 /importer:FontDescriptionImporter

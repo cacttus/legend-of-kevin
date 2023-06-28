@@ -1,0 +1,18 @@
+app: legend-of-kevin
+
+ingredients:
+  dist: xenial
+  sources:
+    - deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe
+  debs:
+    - /home/bowser/git/legend-of-kevin/dist/debian/legend-of-kevin.deb
+
+script:
+  - cat > legend-of-kevin.desktop <<\EOF
+  - [Desktop Entry]
+  - Name=legend-of-kevin
+  - Comment=test
+  - Terminal=false
+  - Type=Application
+  - Categories=Game;
+  - EOF

@@ -1,0 +1,6 @@
+Package: legend-of-kevin
+Maintainer: cacttus <cacttus@github.com>
+Priority: optional
+Architecture: all
+Description: videogame prototype
+Version: 1.0-1
