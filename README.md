@@ -1,5 +1,5 @@
 # Legend Of Kevin
-A platform videogame prototype with wall climbing mechanic and tools.
+Platform game prototype with wall climbing mechanic and weapon toolbelt.
 
 ![lok](lok.jpg)
 
@@ -20,8 +20,15 @@ A platform videogame prototype with wall climbing mechanic and tools.
      * dotnet mgcb --outputDir=../../bin/Debug/net7.0/game-content --intermediateDir=../../obj/mgcb-temp ./game-content.mgcb  
 
 ## Controls
-Use the arrow keys to move the character and click things with the mouse.
+WSAD: Move
 
-Right mouse button uses teh equipped weapon.
+Mouse: Aim
 
-Use the mouse wheel to srcoll between different weapons.
+Right Mouse Button: use equipped weapon.
+
+Mouse Wheel: Switch Weapon
+
+Spacebar: Jump
+
+Spacebar (when landing): Spring Jump
+
