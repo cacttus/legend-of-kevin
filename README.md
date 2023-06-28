@@ -20,15 +20,17 @@ Platform game prototype with wall climbing mechanic and weapon toolbelt.
      * dotnet mgcb --outputDir=../../bin/Debug/net7.0/game-content --intermediateDir=../../obj/mgcb-temp ./game-content.mgcb  
 
 ## Controls
-WSAD: Move
+    * WSAD: Move
 
-Mouse: Aim
+    * W: Interact / Talk
 
-Right Mouse Button: use equipped weapon.
+    * Mouse: Aim
 
-Mouse Wheel: Switch Weapon
+    * Right Mouse Button: use equipped weapon.
 
-Spacebar: Jump
+    * Mouse Wheel: Switch Weapon
 
-Spacebar (when landing): Spring Jump
+    * Spacebar: Jump
+
+    * Spacebar (when landing): Spring Jump
 
