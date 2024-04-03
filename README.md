@@ -20,6 +20,9 @@ Platform game prototype with wall climbing mechanic and weapon toolbelt.
          * cd ./data/game-content
 
          * dotnet mgcb --outputDir=../../bin/Debug/net7.0/game-content --intermediateDir=../../obj/mgcb-temp ./game-content.mgcb  
+  3. Install c# for vscode and debug in vscode
+     * Or run `dotnet run` from the vcproj directory 
+     * Could also build + debug with mono by installing system libraries
 
 
 ## Controls
